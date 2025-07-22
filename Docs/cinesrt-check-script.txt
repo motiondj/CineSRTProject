@@ -1,0 +1,110 @@
+# CineSRTStream 라이브러리 확인 스크립트
+# PowerShell로 실행: .\check_libraries.ps1
+
+Write-Host "=== CineSRTStream 라이브러리 확인 ===" -ForegroundColor Cyan
+Write-Host ""
+
+$hasErrors = $false
+
+# 플러그인 ThirdParty 경로
+$thirdPartyPath = ".\UnrealProject\SRTStreamTest\Plugins\CineSRTStream\ThirdParty\SRT\lib\Win64"
+
+Write-Host "ThirdParty 경로 확인 중..." -ForegroundColor Yellow
+if (Test-Path $thirdPartyPath) {
+    Write-Host "✅ ThirdParty 폴더 존재" -ForegroundColor Green
+} else {
+    Write-Host "❌ ThirdParty 폴더 없음!" -ForegroundColor Red
+    Write-Host "   경로: $thirdPartyPath" -ForegroundColor Red
+    $hasErrors = $true
+}
+
+Write-Host ""
+Write-Host "필수 라이브러리 파일 확인 중..." -ForegroundColor Yellow
+
+# 필수 라이브러리 목록
+$requiredLibs = @(
+    @{Name="srt_static.lib"; MinSize=10MB; Desc="SRT 라이브러리"},
+    @{Name="libssl.lib"; MinSize=1MB; Desc="OpenSSL SSL"},
+    @{Name="libcrypto.lib"; MinSize=10MB; Desc="OpenSSL Crypto"},
+    @{Name="pthreadVC3.lib"; MinSize=50KB; Desc="Windows pthread"}
+)
+
+foreach ($lib in $requiredLibs) {
+    $libPath = Join-Path $thirdPartyPath $lib.Name
+    
+    if (Test-Path $libPath) {
+        $fileInfo = Get-Item $libPath
+        $sizeMB = [math]::Round($fileInfo.Length / 1MB, 2)
+        
+        if ($fileInfo.Length -ge $lib.MinSize) {
+            Write-Host "✅ $($lib.Name) - $sizeMB MB ($($lib.Desc))" -ForegroundColor Green
+        } else {
+            Write-Host "⚠️  $($lib.Name) - $sizeMB MB (너무 작음, 재빌드 필요할 수 있음)" -ForegroundColor Yellow
+        }
+    } else {
+        Write-Host "❌ $($lib.Name) - 없음! ($($lib.Desc))" -ForegroundColor Red
+        $hasErrors = $true
+    }
+}
+
+Write-Host ""
+
+# 헤더 파일 확인
+$includePath = ".\UnrealProject\SRTStreamTest\Plugins\CineSRTStream\ThirdParty\SRT\include"
+Write-Host "헤더 파일 확인 중..." -ForegroundColor Yellow
+
+if (Test-Path "$includePath\srt.h") {
+    $headerCount = (Get-ChildItem -Path $includePath -Filter "*.h" -Recurse).Count
+    Write-Host "✅ 헤더 파일 $headerCount 개 발견" -ForegroundColor Green
+} else {
+    Write-Host "❌ SRT 헤더 파일 없음!" -ForegroundColor Red
+    $hasErrors = $true
+}
+
+Write-Host ""
+
+# BuildTools 확인 (선택사항)
+$buildToolsPath = ".\BuildTools"
+if (Test-Path $buildToolsPath) {
+    Write-Host "BuildTools 폴더 확인 (선택사항)..." -ForegroundColor Yellow
+    
+    $opensslLib = ".\BuildTools\OpenSSL\install\lib\libssl.lib"
+    $srtLib = ".\BuildTools\srt\srt\_build\Release\srt_static.lib"
+    
+    if (Test-Path $opensslLib) {
+        Write-Host "✅ OpenSSL 원본 빌드 존재" -ForegroundColor Green
+    } else {
+        Write-Host "ℹ️  OpenSSL 원본 빌드 없음 (ThirdParty에 있으면 OK)" -ForegroundColor Gray
+    }
+    
+    if (Test-Path $srtLib) {
+        Write-Host "✅ SRT 원본 빌드 존재" -ForegroundColor Green
+    } else {
+        Write-Host "ℹ️  SRT 원본 빌드 없음 (ThirdParty에 있으면 OK)" -ForegroundColor Gray
+    }
+}
+
+Write-Host ""
+Write-Host "========================================" -ForegroundColor Cyan
+
+if ($hasErrors) {
+    Write-Host "❌ 필수 라이브러리가 누락되었습니다!" -ForegroundColor Red
+    Write-Host ""
+    Write-Host "해결 방법:" -ForegroundColor Yellow
+    Write-Host "1. Git LFS를 사용 중이라면: git lfs pull" -ForegroundColor White
+    Write-Host "2. 다른 팀원에게 라이브러리 요청" -ForegroundColor White
+    Write-Host "3. docs/Windows빌드가이드.md 참조하여 직접 빌드 (1-2주 소요)" -ForegroundColor White
+    Write-Host ""
+    Write-Host "⚠️  경고: Windows에서 OpenSSL + SRT 빌드는 매우 어렵습니다!" -ForegroundColor Yellow
+    
+    exit 1
+} else {
+    Write-Host "✅ 모든 필수 라이브러리가 준비되었습니다!" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "다음 단계:" -ForegroundColor Yellow
+    Write-Host "1. UnrealProject\SRTStreamTest\SRTStreamTest.uproject 우클릭" -ForegroundColor White
+    Write-Host "2. 'Generate Visual Studio project files' 선택" -ForegroundColor White
+    Write-Host "3. Visual Studio에서 빌드" -ForegroundColor White
+    
+    exit 0
+}

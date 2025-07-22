@@ -1,0 +1,158 @@
+# CineSRTStream Project .gitignore
+# 중요: ThirdParty 라이브러리는 의도적으로 포함합니다!
+
+# =========================
+# Unreal Engine
+# =========================
+
+# Visual Studio 2022
+.vs/
+*.sln
+*.sdf
+*.opensdf
+*.VC.db
+*.VC.opendb
+
+# Unreal Engine generated files
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+Build/
+
+# Unreal Engine project files (재생성 가능)
+*.xcodeproj
+*.xcworkspace
+*.VC.db
+*.VC.opendb
+
+# Configuration files
+Config/DefaultEditorPerProjectUserSettings.ini
+Config/DefaultEngine.ini
+Config/DefaultGame.ini
+
+# =========================
+# Build outputs (제외)
+# =========================
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Debug files
+*.pdb
+*.idb
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# =========================
+# ThirdParty (선택적 포함)
+# =========================
+
+# 일반적인 라이브러리 제외 규칙
+*.a
+*.la
+*.lai
+*.so
+*.so.*
+*.dylib
+*.exe
+*.out
+*.app
+
+# 하지만 우리 프로젝트의 ThirdParty는 포함!
+!/UnrealProject/SRTStreamTest/Plugins/CineSRTStream/ThirdParty/**/*.lib
+!/UnrealProject/SRTStreamTest/Plugins/CineSRTStream/ThirdParty/**/*.dll
+!/UnrealProject/SRTStreamTest/Plugins/CineSRTStream/ThirdParty/**/*.h
+!/UnrealProject/SRTStreamTest/Plugins/CineSRTStream/ThirdParty/**/*.hpp
+
+# BuildTools 폴더의 빌드된 라이브러리도 포함
+!/BuildTools/OpenSSL/install/**
+!/BuildTools/srt/srt/_build/Release/srt_static.lib
+!/BuildTools/vcpkg/installed/**/*.lib
+
+# =========================
+# 테스트 프로그램 (제외)
+# =========================
+/TestPrograms/**/build/
+/TestPrograms/**/*.raw
+/TestPrograms/**/*.h264
+/TestPrograms/**/*.ts
+
+# =========================
+# IDE 및 OS
+# =========================
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Visual Studio Code
+.vscode/
+
+# JetBrains Rider
+.idea/
+*.iml
+
+# =========================
+# 임시 파일
+# =========================
+*.tmp
+*.temp
+*.log
+*.cache
+*~
+
+# =========================
+# 중요 파일 명시적 포함
+# =========================
+
+# 문서는 항상 포함
+!*.md
+!*.txt
+!LICENSE
+
+# 플러그인 설정 파일
+!*.uplugin
+!*.uproject
+
+# 빌드 스크립트
+!*.Build.cs
+
+# CMake 파일
+!CMakeLists.txt
+
+# 리소스
+!Resources/**
+
+# =========================
+# Git LFS 관련
+# =========================
+# 큰 라이브러리 파일들은 Git LFS로 관리
+*.lib
+*.dll
+*.pdb 

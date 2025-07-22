@@ -1,0 +1,74 @@
+@echo off
+REM CineSRTStream 초기 설정 스크립트
+REM 프로젝트 루트에서 실행: setup.bat
+
+echo.
+echo ===================================
+echo  CineSRTStream 초기 설정
+echo ===================================
+echo.
+
+REM Git LFS 확인
+echo [1/4] Git LFS 확인 중...
+git lfs version >nul 2>&1
+if %ERRORLEVEL% NEQ 0 (
+    echo [!] Git LFS가 설치되지 않았습니다.
+    echo     다운로드: https://git-lfs.github.com/
+    echo.
+    pause
+    exit /b 1
+) else (
+    echo [+] Git LFS 설치됨
+    echo.
+)
+
+REM Git LFS pull
+echo [2/4] 큰 파일 다운로드 중 (Git LFS)...
+git lfs pull
+if %ERRORLEVEL% NEQ 0 (
+    echo [!] Git LFS pull 실패
+    echo.
+) else (
+    echo [+] Git LFS 파일 다운로드 완료
+    echo.
+)
+
+REM PowerShell 스크립트 실행
+echo [3/4] 라이브러리 확인 중...
+powershell -ExecutionPolicy Bypass -File .\check_libraries.ps1
+if %ERRORLEVEL% NEQ 0 (
+    echo.
+    echo [!] 필수 라이브러리가 누락되었습니다!
+    echo     위 메시지를 확인하세요.
+    echo.
+    pause
+    exit /b 1
+)
+
+echo.
+echo [4/4] Visual Studio 2022 확인 중...
+where /q devenv.exe
+if %ERRORLEVEL% NEQ 0 (
+    echo [!] Visual Studio를 찾을 수 없습니다.
+    echo     PATH에 추가되었는지 확인하세요.
+    echo.
+) else (
+    echo [+] Visual Studio 발견
+    echo.
+)
+
+echo.
+echo ===================================
+echo  설정 완료!
+echo ===================================
+echo.
+echo 다음 단계:
+echo 1. UnrealProject\SRTStreamTest\ 폴더로 이동
+echo 2. SRTStreamTest.uproject 우클릭
+echo 3. "Generate Visual Studio project files" 선택
+echo 4. SRTStreamTest.sln을 Visual Studio로 열기
+echo 5. Development Editor 모드로 빌드
+echo.
+echo 문제가 있으면 docs\개발계획서_v1.0.md 참조
+echo.
+pause
