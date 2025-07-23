@@ -1,0 +1,2 @@
+C:/CineSRTProject/vcpkg/buildtrees/detect_compiler/x64-windows-static-rel/CMakeFiles/edit_cache.dir
+C:/CineSRTProject/vcpkg/buildtrees/detect_compiler/x64-windows-static-rel/CMakeFiles/rebuild_cache.dir
