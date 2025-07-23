@@ -1,0 +1,1192 @@
+
+---
+events:
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineSystem.cmake:205 (message)"
+      - "CMakeLists.txt:24 (project)"
+    message: |
+      The system is: Windows - 10.0.19045 - AMD64
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCCompiler.cmake:123 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:24 (project)"
+    message: |
+      Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+      Compiler:  
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      msbuild 踰꾩쟾 17.14.14+a129329f1(.NET Framework??
+      鍮뚮뱶 ?쒖옉: 2025-07-23 ?ㅽ썑 5:12:47
+      
+      1 ?몃뱶??"C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\3.31.6-msvc6\\CompilerIdC\\CompilerIdC.vcxproj" ?꾨줈?앺듃(湲곕낯 ?\xc2\x80???낅땲??
+      PrepareForBuild:
+        "Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+        Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+        "Debug\\CompilerIdC.tlog\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+      InitializeBuildStatus:
+        "AlwaysCreate"??媛\xc2\x80) 吏\xc2\x80?뺣릺?덇린 ?뚮Ц??"Debug\\CompilerIdC.tlog\\unsuccessfulbuild"??瑜? 留뚮뱾怨??덉뒿?덈떎.
+        "Debug\\CompilerIdC.tlog\\unsuccessfulbuild"???곌껐(touching)?섍퀬 ?덉뒿?덈떎.
+      ClCompile:
+        C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\CL.exe /c /nologo /W0 /WX- /diagnostics:column /Od /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\\\" /Fd"Debug\\vc143.pdb" /external:W0 /Gd /TC /FC /errorReport:queue CMakeCCompilerId.c
+        CMakeCCompilerId.c
+      Link:
+        C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:".\\CompilerIdC.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:".\\CompilerIdC.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\\CompilerIdC.lib" /MACHINE:X64 Debug\\CMakeCCompilerId.obj
+        CompilerIdC.vcxproj -> C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\3.31.6-msvc6\\CompilerIdC\\CompilerIdC.exe
+      PostBuildEvent:
+        for %%i in (cl.exe) do @echo CMAKE_C_COMPILER=%%~$PATH:i
+        :VCEnd
+        CMAKE_C_COMPILER=C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\Hostx64\\x64\\cl.exe
+      FinalizeBuildStatus:
+        "Debug\\CompilerIdC.tlog\\unsuccessfulbuild" ?뚯씪????젣?섍퀬 ?덉뒿?덈떎.
+        "Debug\\CompilerIdC.tlog\\CompilerIdC.lastbuildstate"???곌껐(touching)?섍퀬 ?덉뒿?덈떎.
+      "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\3.31.6-msvc6\\CompilerIdC\\CompilerIdC.vcxproj" ?꾨줈?앺듃瑜?鍮뚮뱶?덉뒿?덈떎(湲곕낯 ?\xc2\x80??.
+      
+      鍮뚮뱶?덉뒿?덈떎.
+          寃쎄퀬 0媛?
+          ?ㅻ쪟 0媛?
+      
+      寃쎄낵 ?쒓컙: 00:00:00.57
+      
+      
+      Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.exe"
+      
+      Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.vcxproj"
+      
+      The C compiler identification is MSVC, found in:
+        C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/3.31.6-msvc6/CompilerIdC/CompilerIdC.exe
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCXXCompiler.cmake:126 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:24 (project)"
+    message: |
+      Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+      Compiler:  
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      msbuild 踰꾩쟾 17.14.14+a129329f1(.NET Framework??
+      鍮뚮뱶 ?쒖옉: 2025-07-23 ?ㅽ썑 5:12:55
+      
+      1 ?몃뱶??"C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\3.31.6-msvc6\\CompilerIdCXX\\CompilerIdCXX.vcxproj" ?꾨줈?앺듃(湲곕낯 ?\xc2\x80???낅땲??
+      PrepareForBuild:
+        "Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+        Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+        "Debug\\CompilerIdCXX.tlog\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+      InitializeBuildStatus:
+        "AlwaysCreate"??媛\xc2\x80) 吏\xc2\x80?뺣릺?덇린 ?뚮Ц??"Debug\\CompilerIdCXX.tlog\\unsuccessfulbuild"??瑜? 留뚮뱾怨??덉뒿?덈떎.
+        "Debug\\CompilerIdCXX.tlog\\unsuccessfulbuild"???곌껐(touching)?섍퀬 ?덉뒿?덈떎.
+      ClCompile:
+        C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\CL.exe /c /nologo /W0 /WX- /diagnostics:column /Od /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\\\" /Fd"Debug\\vc143.pdb" /external:W0 /Gd /TP /FC /errorReport:queue CMakeCXXCompilerId.cpp
+        CMakeCXXCompilerId.cpp
+      Link:
+        C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:".\\CompilerIdCXX.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:".\\CompilerIdCXX.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\\CompilerIdCXX.lib" /MACHINE:X64 Debug\\CMakeCXXCompilerId.obj
+        CompilerIdCXX.vcxproj -> C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\3.31.6-msvc6\\CompilerIdCXX\\CompilerIdCXX.exe
+      PostBuildEvent:
+        for %%i in (cl.exe) do @echo CMAKE_CXX_COMPILER=%%~$PATH:i
+        :VCEnd
+        CMAKE_CXX_COMPILER=C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\Hostx64\\x64\\cl.exe
+      FinalizeBuildStatus:
+        "Debug\\CompilerIdCXX.tlog\\unsuccessfulbuild" ?뚯씪????젣?섍퀬 ?덉뒿?덈떎.
+        "Debug\\CompilerIdCXX.tlog\\CompilerIdCXX.lastbuildstate"???곌껐(touching)?섍퀬 ?덉뒿?덈떎.
+      "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\3.31.6-msvc6\\CompilerIdCXX\\CompilerIdCXX.vcxproj" ?꾨줈?앺듃瑜?鍮뚮뱶?덉뒿?덈떎(湲곕낯 ?\xc2\x80??.
+      
+      鍮뚮뱶?덉뒿?덈떎.
+          寃쎄퀬 0媛?
+          ?ㅻ쪟 0媛?
+      
+      寃쎄낵 ?쒓컙: 00:00:00.42
+      
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.exe"
+      
+      Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CompilerIdCXX.vcxproj"
+      
+      The CXX compiler identification is MSVC, found in:
+        C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/3.31.6-msvc6/CompilerIdCXX/CompilerIdCXX.exe
+      
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerABI.cmake:74 (try_compile)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:24 (project)"
+    checks:
+      - "Detecting C compiler ABI info"
+    directories:
+      source: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-h6zmdj"
+      binary: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-h6zmdj"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_MODULE_PATH: "C:/CineSRTProject/BuildTools/srt/srt/scripts"
+    buildResult:
+      variable: "CMAKE_C_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-h6zmdj'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_f1320.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        msbuild 踰꾩쟾 17.14.14+a129329f1(.NET Framework??
+        鍮뚮뱶 ?쒖옉: 2025-07-23 ?ㅽ썑 5:12:56
+        
+        1 ?몃뱶??"C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-h6zmdj\\cmTC_f1320.vcxproj" ?꾨줈?앺듃(湲곕낯 ?\xc2\x80???낅땲??
+        PrepareForBuild:
+          "cmTC_f1320.dir\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-h6zmdj\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_f1320.dir\\Debug\\cmTC_f1320.tlog\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+        InitializeBuildStatus:
+          "AlwaysCreate"??媛\xc2\x80) 吏\xc2\x80?뺣릺?덇린 ?뚮Ц??"cmTC_f1320.dir\\Debug\\cmTC_f1320.tlog\\unsuccessfulbuild"??瑜? 留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_f1320.dir\\Debug\\cmTC_f1320.tlog\\unsuccessfulbuild"???곌껐(touching)?섍퀬 ?덉뒿?덈떎.
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_f1320.dir\\Debug\\\\" /Fd"cmTC_f1320.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\share\\cmake-3.31\\Modules\\CMakeCCompilerABI.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.38.33145 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_f1320.dir\\Debug\\\\" /Fd"cmTC_f1320.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\share\\cmake-3.31\\Modules\\CMakeCCompilerABI.c"
+          CMakeCCompilerABI.c
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-h6zmdj\\Debug\\cmTC_f1320.exe" /INCREMENTAL /ILK:"cmTC_f1320.dir\\Debug\\cmTC_f1320.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-h6zmdj/Debug/cmTC_f1320.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-h6zmdj/Debug/cmTC_f1320.lib" /MACHINE:X64  /machine:x64 cmTC_f1320.dir\\Debug\\CMakeCCompilerABI.obj
+          cmTC_f1320.vcxproj -> C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-h6zmdj\\Debug\\cmTC_f1320.exe
+        FinalizeBuildStatus:
+          "cmTC_f1320.dir\\Debug\\cmTC_f1320.tlog\\unsuccessfulbuild" ?뚯씪????젣?섍퀬 ?덉뒿?덈떎.
+          "cmTC_f1320.dir\\Debug\\cmTC_f1320.tlog\\cmTC_f1320.lastbuildstate"???곌껐(touching)?섍퀬 ?덉뒿?덈떎.
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-h6zmdj\\cmTC_f1320.vcxproj" ?꾨줈?앺듃瑜?鍮뚮뱶?덉뒿?덈떎(湲곕낯 ?\xc2\x80??.
+        
+        鍮뚮뱶?덉뒿?덈떎.
+            寃쎄퀬 0媛?
+            ?ㅻ쪟 0媛?
+        
+        寃쎄낵 ?쒓컙: 00:00:00.39
+        
+      exitCode: 0
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerABI.cmake:218 (message)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:24 (project)"
+    message: |
+      Parsed C implicit link information:
+        link line regex: [^( *|.*[/\\])(ld[0-9]*(\\.[a-z]+)?|link\\.exe|lld-link(\\.exe)?|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
+        linker tool regex: [^[ 	]*(->|")?[ 	]*(([^"]*[/\\])?(ld[0-9]*(\\.[a-z]+)?|link\\.exe|lld-link(\\.exe)?))("|,| |$)]
+        linker tool for 'C': C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.38.33130/bin/HostX64/x64/link.exe
+        implicit libs: []
+        implicit objs: []
+        implicit dirs: []
+        implicit fwks: []
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Internal/CMakeDetermineLinkerId.cmake:40 (message)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerABI.cmake:255 (cmake_determine_linker_id)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:24 (project)"
+    message: |
+      Running the C compiler's linker: "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.38.33130/bin/HostX64/x64/link.exe" "-v"
+      Microsoft (R) Incremental Linker Version 14.38.33145.0
+      Copyright (C) Microsoft Corporation.  All rights reserved.
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerABI.cmake:74 (try_compile)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:24 (project)"
+    checks:
+      - "Detecting CXX compiler ABI info"
+    directories:
+      source: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-qqxopc"
+      binary: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-qqxopc"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /W3 /GR /EHsc"
+      CMAKE_CXX_SCAN_FOR_MODULES: "OFF"
+      CMAKE_MODULE_PATH: "C:/CineSRTProject/BuildTools/srt/srt/scripts"
+    buildResult:
+      variable: "CMAKE_CXX_ABI_COMPILED"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-qqxopc'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_85df7.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        msbuild 踰꾩쟾 17.14.14+a129329f1(.NET Framework??
+        鍮뚮뱶 ?쒖옉: 2025-07-23 ?ㅽ썑 5:12:57
+        
+        1 ?몃뱶??"C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-qqxopc\\cmTC_85df7.vcxproj" ?꾨줈?앺듃(湲곕낯 ?\xc2\x80???낅땲??
+        PrepareForBuild:
+          "cmTC_85df7.dir\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-qqxopc\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_85df7.dir\\Debug\\cmTC_85df7.tlog\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+        InitializeBuildStatus:
+          "AlwaysCreate"??媛\xc2\x80) 吏\xc2\x80?뺣릺?덇린 ?뚮Ц??"cmTC_85df7.dir\\Debug\\cmTC_85df7.tlog\\unsuccessfulbuild"??瑜? 留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_85df7.dir\\Debug\\cmTC_85df7.tlog\\unsuccessfulbuild"???곌껐(touching)?섍퀬 ?덉뒿?덈떎.
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_85df7.dir\\Debug\\\\" /Fd"cmTC_85df7.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TP /errorReport:queue "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\share\\cmake-3.31\\Modules\\CMakeCXXCompilerABI.cpp"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.38.33145 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_85df7.dir\\Debug\\\\" /Fd"cmTC_85df7.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TP /errorReport:queue "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\IDE\\CommonExtensions\\Microsoft\\CMake\\CMake\\share\\cmake-3.31\\Modules\\CMakeCXXCompilerABI.cpp"
+          CMakeCXXCompilerABI.cpp
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-qqxopc\\Debug\\cmTC_85df7.exe" /INCREMENTAL /ILK:"cmTC_85df7.dir\\Debug\\cmTC_85df7.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-qqxopc/Debug/cmTC_85df7.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-qqxopc/Debug/cmTC_85df7.lib" /MACHINE:X64  /machine:x64 cmTC_85df7.dir\\Debug\\CMakeCXXCompilerABI.obj
+          cmTC_85df7.vcxproj -> C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-qqxopc\\Debug\\cmTC_85df7.exe
+        FinalizeBuildStatus:
+          "cmTC_85df7.dir\\Debug\\cmTC_85df7.tlog\\unsuccessfulbuild" ?뚯씪????젣?섍퀬 ?덉뒿?덈떎.
+          "cmTC_85df7.dir\\Debug\\cmTC_85df7.tlog\\cmTC_85df7.lastbuildstate"???곌껐(touching)?섍퀬 ?덉뒿?덈떎.
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-qqxopc\\cmTC_85df7.vcxproj" ?꾨줈?앺듃瑜?鍮뚮뱶?덉뒿?덈떎(湲곕낯 ?\xc2\x80??.
+        
+        鍮뚮뱶?덉뒿?덈떎.
+            寃쎄퀬 0媛?
+            ?ㅻ쪟 0媛?
+        
+        寃쎄낵 ?쒓컙: 00:00:00.40
+        
+      exitCode: 0
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerABI.cmake:218 (message)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:24 (project)"
+    message: |
+      Parsed CXX implicit link information:
+        link line regex: [^( *|.*[/\\])(ld[0-9]*(\\.[a-z]+)?|link\\.exe|lld-link(\\.exe)?|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
+        linker tool regex: [^[ 	]*(->|")?[ 	]*(([^"]*[/\\])?(ld[0-9]*(\\.[a-z]+)?|link\\.exe|lld-link(\\.exe)?))("|,| |$)]
+        linker tool for 'CXX': C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.38.33130/bin/HostX64/x64/link.exe
+        implicit libs: []
+        implicit objs: []
+        implicit dirs: []
+        implicit fwks: []
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Internal/CMakeDetermineLinkerId.cmake:40 (message)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeDetermineCompilerABI.cmake:255 (cmake_determine_linker_id)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CMakeTestCXXCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:24 (project)"
+    message: |
+      Running the CXX compiler's linker: "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.38.33130/bin/HostX64/x64/link.exe" "-v"
+      Microsoft (R) Incremental Linker Version 14.38.33145.0
+      Copyright (C) Microsoft Corporation.  All rights reserved.
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckCSourceCompiles.cmake:58 (cmake_check_source_compiles)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/FindThreads.cmake:97 (CHECK_C_SOURCE_COMPILES)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/FindThreads.cmake:163 (_threads_check_libc)"
+      - "CMakeLists.txt:29 (include)"
+    checks:
+      - "Performing Test CMAKE_HAVE_LIBC_PTHREAD"
+    directories:
+      source: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-wh41rz"
+      binary: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-wh41rz"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_MODULE_PATH: "C:/CineSRTProject/BuildTools/srt/srt/scripts"
+    buildResult:
+      variable: "CMAKE_HAVE_LIBC_PTHREAD"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-wh41rz'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_f5c64.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        msbuild 踰꾩쟾 17.14.14+a129329f1(.NET Framework??
+        鍮뚮뱶 ?쒖옉: 2025-07-23 ?ㅽ썑 5:12:58
+        
+        1 ?몃뱶??"C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-wh41rz\\cmTC_f5c64.vcxproj" ?꾨줈?앺듃(湲곕낯 ?\xc2\x80???낅땲??
+        PrepareForBuild:
+          "cmTC_f5c64.dir\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-wh41rz\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_f5c64.dir\\Debug\\cmTC_f5c64.tlog\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+        InitializeBuildStatus:
+          "AlwaysCreate"??媛\xc2\x80) 吏\xc2\x80?뺣릺?덇린 ?뚮Ц??"cmTC_f5c64.dir\\Debug\\cmTC_f5c64.tlog\\unsuccessfulbuild"??瑜? 留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_f5c64.dir\\Debug\\cmTC_f5c64.tlog\\unsuccessfulbuild"???곌껐(touching)?섍퀬 ?덉뒿?덈떎.
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CMAKE_HAVE_LIBC_PTHREAD /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_f5c64.dir\\Debug\\\\" /Fd"cmTC_f5c64.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-wh41rz\\src.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.38.33145 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CMAKE_HAVE_LIBC_PTHREAD /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_f5c64.dir\\Debug\\\\" /Fd"cmTC_f5c64.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-wh41rz\\src.c"
+          src.c
+        C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-wh41rz\\src.c(1,10): error C1083: Cannot open include file: 'pthread.h': No such file or directory [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-wh41rz\\cmTC_f5c64.vcxproj]
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-wh41rz\\cmTC_f5c64.vcxproj" ?꾨줈?앺듃瑜?鍮뚮뱶?덉뒿?덈떎(湲곕낯 ?\xc2\x80??. - ?ㅽ뙣
+        
+        鍮뚮뱶?섏? 紐삵뻽?듬땲??
+        
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-wh41rz\\cmTC_f5c64.vcxproj"(湲곕낯 ?\xc2\x80??(1)->
+        (ClCompile ?\xc2\x80?? -> 
+          C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-wh41rz\\src.c(1,10): error C1083: Cannot open include file: 'pthread.h': No such file or directory [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-wh41rz\\cmTC_f5c64.vcxproj]
+        
+            寃쎄퀬 0媛?
+            ?ㅻ쪟 1媛?
+        
+        寃쎄낵 ?쒓컙: 00:00:00.23
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckLibraryExists.cmake:78 (try_compile)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/FindThreads.cmake:112 (CHECK_LIBRARY_EXISTS)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/FindThreads.cmake:175 (_threads_check_lib)"
+      - "CMakeLists.txt:29 (include)"
+    checks:
+      - "Looking for pthread_create in pthreads"
+    directories:
+      source: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-nhqley"
+      binary: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-nhqley"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_MODULE_PATH: "C:/CineSRTProject/BuildTools/srt/srt/scripts"
+    buildResult:
+      variable: "CMAKE_HAVE_PTHREADS_CREATE"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-nhqley'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_d4c3a.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        msbuild 踰꾩쟾 17.14.14+a129329f1(.NET Framework??
+        鍮뚮뱶 ?쒖옉: 2025-07-23 ?ㅽ썑 5:12:58
+        
+        1 ?몃뱶??"C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-nhqley\\cmTC_d4c3a.vcxproj" ?꾨줈?앺듃(湲곕낯 ?\xc2\x80???낅땲??
+        PrepareForBuild:
+          "cmTC_d4c3a.dir\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-nhqley\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_d4c3a.dir\\Debug\\cmTC_d4c3a.tlog\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+        InitializeBuildStatus:
+          "AlwaysCreate"??媛\xc2\x80) 吏\xc2\x80?뺣릺?덇린 ?뚮Ц??"cmTC_d4c3a.dir\\Debug\\cmTC_d4c3a.tlog\\unsuccessfulbuild"??瑜? 留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_d4c3a.dir\\Debug\\cmTC_d4c3a.tlog\\unsuccessfulbuild"???곌껐(touching)?섍퀬 ?덉뒿?덈떎.
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_d4c3a.dir\\Debug\\\\" /Fd"cmTC_d4c3a.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-nhqley\\CheckFunctionExists.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.38.33145 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_d4c3a.dir\\Debug\\\\" /Fd"cmTC_d4c3a.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-nhqley\\CheckFunctionExists.c"
+          CheckFunctionExists.c
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-nhqley\\Debug\\cmTC_d4c3a.exe" /INCREMENTAL /ILK:"cmTC_d4c3a.dir\\Debug\\cmTC_d4c3a.ilk" /NOLOGO pthreads.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-nhqley/Debug/cmTC_d4c3a.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-nhqley/Debug/cmTC_d4c3a.lib" /MACHINE:X64  /machine:x64 cmTC_d4c3a.dir\\Debug\\CheckFunctionExists.obj
+        LINK : fatal error LNK1104: cannot open file 'pthreads.lib' [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-nhqley\\cmTC_d4c3a.vcxproj]
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-nhqley\\cmTC_d4c3a.vcxproj" ?꾨줈?앺듃瑜?鍮뚮뱶?덉뒿?덈떎(湲곕낯 ?\xc2\x80??. - ?ㅽ뙣
+        
+        鍮뚮뱶?섏? 紐삵뻽?듬땲??
+        
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-nhqley\\cmTC_d4c3a.vcxproj"(湲곕낯 ?\xc2\x80??(1)->
+        (Link ?\xc2\x80?? -> 
+          LINK : fatal error LNK1104: cannot open file 'pthreads.lib' [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-nhqley\\cmTC_d4c3a.vcxproj]
+        
+            寃쎄퀬 0媛?
+            ?ㅻ쪟 1媛?
+        
+        寃쎄낵 ?쒓컙: 00:00:00.31
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckLibraryExists.cmake:78 (try_compile)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/FindThreads.cmake:112 (CHECK_LIBRARY_EXISTS)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/FindThreads.cmake:176 (_threads_check_lib)"
+      - "CMakeLists.txt:29 (include)"
+    checks:
+      - "Looking for pthread_create in pthread"
+    directories:
+      source: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-3xq9j2"
+      binary: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-3xq9j2"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_MODULE_PATH: "C:/CineSRTProject/BuildTools/srt/srt/scripts"
+    buildResult:
+      variable: "CMAKE_HAVE_PTHREAD_CREATE"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-3xq9j2'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_fb646.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        msbuild 踰꾩쟾 17.14.14+a129329f1(.NET Framework??
+        鍮뚮뱶 ?쒖옉: 2025-07-23 ?ㅽ썑 5:12:59
+        
+        1 ?몃뱶??"C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-3xq9j2\\cmTC_fb646.vcxproj" ?꾨줈?앺듃(湲곕낯 ?\xc2\x80???낅땲??
+        PrepareForBuild:
+          "cmTC_fb646.dir\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-3xq9j2\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_fb646.dir\\Debug\\cmTC_fb646.tlog\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+        InitializeBuildStatus:
+          "AlwaysCreate"??媛\xc2\x80) 吏\xc2\x80?뺣릺?덇린 ?뚮Ц??"cmTC_fb646.dir\\Debug\\cmTC_fb646.tlog\\unsuccessfulbuild"??瑜? 留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_fb646.dir\\Debug\\cmTC_fb646.tlog\\unsuccessfulbuild"???곌껐(touching)?섍퀬 ?덉뒿?덈떎.
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_fb646.dir\\Debug\\\\" /Fd"cmTC_fb646.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-3xq9j2\\CheckFunctionExists.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.38.33145 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=pthread_create /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_fb646.dir\\Debug\\\\" /Fd"cmTC_fb646.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-3xq9j2\\CheckFunctionExists.c"
+          CheckFunctionExists.c
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-3xq9j2\\Debug\\cmTC_fb646.exe" /INCREMENTAL /ILK:"cmTC_fb646.dir\\Debug\\cmTC_fb646.ilk" /NOLOGO pthread.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-3xq9j2/Debug/cmTC_fb646.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-3xq9j2/Debug/cmTC_fb646.lib" /MACHINE:X64  /machine:x64 cmTC_fb646.dir\\Debug\\CheckFunctionExists.obj
+        LINK : fatal error LNK1104: cannot open file 'pthread.lib' [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-3xq9j2\\cmTC_fb646.vcxproj]
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-3xq9j2\\cmTC_fb646.vcxproj" ?꾨줈?앺듃瑜?鍮뚮뱶?덉뒿?덈떎(湲곕낯 ?\xc2\x80??. - ?ㅽ뙣
+        
+        鍮뚮뱶?섏? 紐삵뻽?듬땲??
+        
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-3xq9j2\\cmTC_fb646.vcxproj"(湲곕낯 ?\xc2\x80??(1)->
+        (Link ?\xc2\x80?? -> 
+          LINK : fatal error LNK1104: cannot open file 'pthread.lib' [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-3xq9j2\\cmTC_fb646.vcxproj]
+        
+            寃쎄퀬 0媛?
+            ?ㅻ쪟 1媛?
+        
+        寃쎄낵 ?쒓컙: 00:00:00.31
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckFunctionExists.cmake:93 (try_compile)"
+      - "CMakeLists.txt:302 (check_function_exists)"
+    checks:
+      - "Looking for inet_pton"
+    directories:
+      source: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-wa9v9r"
+      binary: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-wa9v9r"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_MODULE_PATH: "C:/CineSRTProject/BuildTools/srt/srt/scripts"
+    buildResult:
+      variable: "HAVE_INET_PTON"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-wa9v9r'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_c64df.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        msbuild 踰꾩쟾 17.14.14+a129329f1(.NET Framework??
+        鍮뚮뱶 ?쒖옉: 2025-07-23 ?ㅽ썑 5:12:59
+        
+        1 ?몃뱶??"C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-wa9v9r\\cmTC_c64df.vcxproj" ?꾨줈?앺듃(湲곕낯 ?\xc2\x80???낅땲??
+        PrepareForBuild:
+          "cmTC_c64df.dir\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-wa9v9r\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_c64df.dir\\Debug\\cmTC_c64df.tlog\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+        InitializeBuildStatus:
+          "AlwaysCreate"??媛\xc2\x80) 吏\xc2\x80?뺣릺?덇린 ?뚮Ц??"cmTC_c64df.dir\\Debug\\cmTC_c64df.tlog\\unsuccessfulbuild"??瑜? 留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_c64df.dir\\Debug\\cmTC_c64df.tlog\\unsuccessfulbuild"???곌껐(touching)?섍퀬 ?덉뒿?덈떎.
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=inet_pton /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_c64df.dir\\Debug\\\\" /Fd"cmTC_c64df.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-wa9v9r\\CheckFunctionExists.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.38.33145 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=inet_pton /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_c64df.dir\\Debug\\\\" /Fd"cmTC_c64df.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-wa9v9r\\CheckFunctionExists.c"
+          CheckFunctionExists.c
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-wa9v9r\\Debug\\cmTC_c64df.exe" /INCREMENTAL /ILK:"cmTC_c64df.dir\\Debug\\cmTC_c64df.ilk" /NOLOGO ws2_32.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-wa9v9r/Debug/cmTC_c64df.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-wa9v9r/Debug/cmTC_c64df.lib" /MACHINE:X64  /machine:x64 cmTC_c64df.dir\\Debug\\CheckFunctionExists.obj
+          cmTC_c64df.vcxproj -> C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-wa9v9r\\Debug\\cmTC_c64df.exe
+        FinalizeBuildStatus:
+          "cmTC_c64df.dir\\Debug\\cmTC_c64df.tlog\\unsuccessfulbuild" ?뚯씪????젣?섍퀬 ?덉뒿?덈떎.
+          "cmTC_c64df.dir\\Debug\\cmTC_c64df.tlog\\cmTC_c64df.lastbuildstate"???곌껐(touching)?섍퀬 ?덉뒿?덈떎.
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-wa9v9r\\cmTC_c64df.vcxproj" ?꾨줈?앺듃瑜?鍮뚮뱶?덉뒿?덈떎(湲곕낯 ?\xc2\x80??.
+        
+        鍮뚮뱶?덉뒿?덈떎.
+            寃쎄퀬 0媛?
+            ?ㅻ쪟 0媛?
+        
+        寃쎄낵 ?쒓컙: 00:00:00.39
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "CMakeLists.txt:303 (try_compile)"
+    directories:
+      source: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeTmp"
+      binary: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeTmp"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_MODULE_PATH: "C:/CineSRTProject/BuildTools/srt/srt/scripts"
+    buildResult:
+      variable: "AT_LEAST_VISTA"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeTmp'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_d1d26.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        msbuild 踰꾩쟾 17.14.14+a129329f1(.NET Framework??
+        鍮뚮뱶 ?쒖옉: 2025-07-23 ?ㅽ썑 5:13:00
+        
+        1 ?몃뱶??"C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeTmp\\cmTC_d1d26.vcxproj" ?꾨줈?앺듃(湲곕낯 ?\xc2\x80???낅땲??
+        PrepareForBuild:
+          "cmTC_d1d26.dir\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeTmp\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_d1d26.dir\\Debug\\cmTC_d1d26.tlog\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+        InitializeBuildStatus:
+          "AlwaysCreate"??媛\xc2\x80) 吏\xc2\x80?뺣릺?덇린 ?뚮Ц??"cmTC_d1d26.dir\\Debug\\cmTC_d1d26.tlog\\unsuccessfulbuild"??瑜? 留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_d1d26.dir\\Debug\\cmTC_d1d26.tlog\\unsuccessfulbuild"???곌껐(touching)?섍퀬 ?덉뒿?덈떎.
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_d1d26.dir\\Debug\\\\" /Fd"cmTC_d1d26.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue C:\\CineSRTProject\\BuildTools\\srt\\srt\\scripts\\test_vista.c
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.38.33145 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_d1d26.dir\\Debug\\\\" /Fd"cmTC_d1d26.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue C:\\CineSRTProject\\BuildTools\\srt\\srt\\scripts\\test_vista.c
+          test_vista.c
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeTmp\\Debug\\cmTC_d1d26.exe" /INCREMENTAL /ILK:"cmTC_d1d26.dir\\Debug\\cmTC_d1d26.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeTmp/Debug/cmTC_d1d26.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeTmp/Debug/cmTC_d1d26.lib" /MACHINE:X64  /machine:x64 cmTC_d1d26.dir\\Debug\\test_vista.obj
+          cmTC_d1d26.vcxproj -> C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeTmp\\Debug\\cmTC_d1d26.exe
+        FinalizeBuildStatus:
+          "cmTC_d1d26.dir\\Debug\\cmTC_d1d26.tlog\\unsuccessfulbuild" ?뚯씪????젣?섍퀬 ?덉뒿?덈떎.
+          "cmTC_d1d26.dir\\Debug\\cmTC_d1d26.tlog\\cmTC_d1d26.lastbuildstate"???곌껐(touching)?섍퀬 ?덉뒿?덈떎.
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeTmp\\cmTC_d1d26.vcxproj" ?꾨줈?앺듃瑜?鍮뚮뱶?덉뒿?덈떎(湲곕낯 ?\xc2\x80??.
+        
+        鍮뚮뱶?덉뒿?덈떎.
+            寃쎄퀬 0媛?
+            ?ㅻ쪟 0媛?
+        
+        寃쎄낵 ?쒓컙: 00:00:00.52
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckSymbolExists.cmake:163 (try_compile)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckSymbolExists.cmake:68 (__CHECK_SYMBOL_EXISTS_IMPL)"
+      - "scripts/FindPThreadGetSetName.cmake:43 (check_symbol_exists)"
+      - "CMakeLists.txt:322 (FindPThreadGetSetName)"
+    checks:
+      - "Looking for pthread_getname_np"
+    directories:
+      source: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-br9fl0"
+      binary: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-br9fl0"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_MODULE_PATH: "C:/CineSRTProject/BuildTools/srt/srt/scripts"
+    buildResult:
+      variable: "HAVE_PTHREAD_GETNAME_NP_IN_PTHREAD_NP_H"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-br9fl0'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_069a0.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        msbuild 踰꾩쟾 17.14.14+a129329f1(.NET Framework??
+        鍮뚮뱶 ?쒖옉: 2025-07-23 ?ㅽ썑 5:13:01
+        
+        1 ?몃뱶??"C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-br9fl0\\cmTC_069a0.vcxproj" ?꾨줈?앺듃(湲곕낯 ?\xc2\x80???낅땲??
+        PrepareForBuild:
+          "cmTC_069a0.dir\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-br9fl0\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_069a0.dir\\Debug\\cmTC_069a0.tlog\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+        InitializeBuildStatus:
+          "AlwaysCreate"??媛\xc2\x80) 吏\xc2\x80?뺣릺?덇린 ?뚮Ц??"cmTC_069a0.dir\\Debug\\cmTC_069a0.tlog\\unsuccessfulbuild"??瑜? 留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_069a0.dir\\Debug\\cmTC_069a0.tlog\\unsuccessfulbuild"???곌껐(touching)?섍퀬 ?덉뒿?덈떎.
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D _GNU_SOURCE /D _DARWIN_C_SOURCE /D _POSIX_SOURCE=1 /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_069a0.dir\\Debug\\\\" /Fd"cmTC_069a0.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue  -pthread "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-br9fl0\\CheckSymbolExists.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.38.33145 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D _GNU_SOURCE /D _DARWIN_C_SOURCE /D _POSIX_SOURCE=1 /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_069a0.dir\\Debug\\\\" /Fd"cmTC_069a0.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue  -pthread "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-br9fl0\\CheckSymbolExists.c"
+        cl : command line  warning D9002: ignoring unknown option '-pthread' [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-br9fl0\\cmTC_069a0.vcxproj]
+          CheckSymbolExists.c
+        C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-br9fl0\\CheckSymbolExists.c(2,10): error C1083: Cannot open include file: 'pthread_np.h': No such file or directory [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-br9fl0\\cmTC_069a0.vcxproj]
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-br9fl0\\cmTC_069a0.vcxproj" ?꾨줈?앺듃瑜?鍮뚮뱶?덉뒿?덈떎(湲곕낯 ?\xc2\x80??. - ?ㅽ뙣
+        
+        鍮뚮뱶?섏? 紐삵뻽?듬땲??
+        
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-br9fl0\\cmTC_069a0.vcxproj"(湲곕낯 ?\xc2\x80??(1)->
+        (ClCompile ?\xc2\x80?? -> 
+          cl : command line  warning D9002: ignoring unknown option '-pthread' [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-br9fl0\\cmTC_069a0.vcxproj]
+        
+        
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-br9fl0\\cmTC_069a0.vcxproj"(湲곕낯 ?\xc2\x80??(1)->
+        (ClCompile ?\xc2\x80?? -> 
+          C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-br9fl0\\CheckSymbolExists.c(2,10): error C1083: Cannot open include file: 'pthread_np.h': No such file or directory [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-br9fl0\\cmTC_069a0.vcxproj]
+        
+            寃쎄퀬 1媛?
+            ?ㅻ쪟 1媛?
+        
+        寃쎄낵 ?쒓컙: 00:00:00.23
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckSymbolExists.cmake:163 (try_compile)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckSymbolExists.cmake:68 (__CHECK_SYMBOL_EXISTS_IMPL)"
+      - "scripts/FindPThreadGetSetName.cmake:48 (check_symbol_exists)"
+      - "CMakeLists.txt:322 (FindPThreadGetSetName)"
+    checks:
+      - "Looking for pthread_setname_np"
+    directories:
+      source: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-zubjut"
+      binary: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-zubjut"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_MODULE_PATH: "C:/CineSRTProject/BuildTools/srt/srt/scripts"
+    buildResult:
+      variable: "HAVE_PTHREAD_SETNAME_NP_IN_PTHREAD_NP_H"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-zubjut'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_3264c.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        msbuild 踰꾩쟾 17.14.14+a129329f1(.NET Framework??
+        鍮뚮뱶 ?쒖옉: 2025-07-23 ?ㅽ썑 5:13:01
+        
+        1 ?몃뱶??"C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-zubjut\\cmTC_3264c.vcxproj" ?꾨줈?앺듃(湲곕낯 ?\xc2\x80???낅땲??
+        PrepareForBuild:
+          "cmTC_3264c.dir\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-zubjut\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_3264c.dir\\Debug\\cmTC_3264c.tlog\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+        InitializeBuildStatus:
+          "AlwaysCreate"??媛\xc2\x80) 吏\xc2\x80?뺣릺?덇린 ?뚮Ц??"cmTC_3264c.dir\\Debug\\cmTC_3264c.tlog\\unsuccessfulbuild"??瑜? 留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_3264c.dir\\Debug\\cmTC_3264c.tlog\\unsuccessfulbuild"???곌껐(touching)?섍퀬 ?덉뒿?덈떎.
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D _GNU_SOURCE /D _DARWIN_C_SOURCE /D _POSIX_SOURCE=1 /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_3264c.dir\\Debug\\\\" /Fd"cmTC_3264c.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue  -pthread "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-zubjut\\CheckSymbolExists.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.38.33145 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D _GNU_SOURCE /D _DARWIN_C_SOURCE /D _POSIX_SOURCE=1 /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_3264c.dir\\Debug\\\\" /Fd"cmTC_3264c.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue  -pthread "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-zubjut\\CheckSymbolExists.c"
+        cl : command line  warning D9002: ignoring unknown option '-pthread' [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-zubjut\\cmTC_3264c.vcxproj]
+          CheckSymbolExists.c
+        C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-zubjut\\CheckSymbolExists.c(2,10): error C1083: Cannot open include file: 'pthread_np.h': No such file or directory [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-zubjut\\cmTC_3264c.vcxproj]
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-zubjut\\cmTC_3264c.vcxproj" ?꾨줈?앺듃瑜?鍮뚮뱶?덉뒿?덈떎(湲곕낯 ?\xc2\x80??. - ?ㅽ뙣
+        
+        鍮뚮뱶?섏? 紐삵뻽?듬땲??
+        
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-zubjut\\cmTC_3264c.vcxproj"(湲곕낯 ?\xc2\x80??(1)->
+        (ClCompile ?\xc2\x80?? -> 
+          cl : command line  warning D9002: ignoring unknown option '-pthread' [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-zubjut\\cmTC_3264c.vcxproj]
+        
+        
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-zubjut\\cmTC_3264c.vcxproj"(湲곕낯 ?\xc2\x80??(1)->
+        (ClCompile ?\xc2\x80?? -> 
+          C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-zubjut\\CheckSymbolExists.c(2,10): error C1083: Cannot open include file: 'pthread_np.h': No such file or directory [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-zubjut\\cmTC_3264c.vcxproj]
+        
+            寃쎄퀬 1媛?
+            ?ㅻ쪟 1媛?
+        
+        寃쎄낵 ?쒓컙: 00:00:00.23
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckSymbolExists.cmake:163 (try_compile)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckSymbolExists.cmake:68 (__CHECK_SYMBOL_EXISTS_IMPL)"
+      - "scripts/FindPThreadGetSetName.cmake:55 (check_symbol_exists)"
+      - "CMakeLists.txt:322 (FindPThreadGetSetName)"
+    checks:
+      - "Looking for pthread_getname_np"
+    directories:
+      source: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-lk7s2n"
+      binary: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-lk7s2n"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_MODULE_PATH: "C:/CineSRTProject/BuildTools/srt/srt/scripts"
+    buildResult:
+      variable: "HAVE_PTHREAD_GETNAME_NP"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-lk7s2n'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_3ea79.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        msbuild 踰꾩쟾 17.14.14+a129329f1(.NET Framework??
+        鍮뚮뱶 ?쒖옉: 2025-07-23 ?ㅽ썑 5:13:01
+        
+        1 ?몃뱶??"C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-lk7s2n\\cmTC_3ea79.vcxproj" ?꾨줈?앺듃(湲곕낯 ?\xc2\x80???낅땲??
+        PrepareForBuild:
+          "cmTC_3ea79.dir\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-lk7s2n\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_3ea79.dir\\Debug\\cmTC_3ea79.tlog\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+        InitializeBuildStatus:
+          "AlwaysCreate"??媛\xc2\x80) 吏\xc2\x80?뺣릺?덇린 ?뚮Ц??"cmTC_3ea79.dir\\Debug\\cmTC_3ea79.tlog\\unsuccessfulbuild"??瑜? 留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_3ea79.dir\\Debug\\cmTC_3ea79.tlog\\unsuccessfulbuild"???곌껐(touching)?섍퀬 ?덉뒿?덈떎.
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D _GNU_SOURCE /D _DARWIN_C_SOURCE /D _POSIX_SOURCE=1 /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_3ea79.dir\\Debug\\\\" /Fd"cmTC_3ea79.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue  -pthread "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-lk7s2n\\CheckSymbolExists.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.38.33145 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D _GNU_SOURCE /D _DARWIN_C_SOURCE /D _POSIX_SOURCE=1 /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_3ea79.dir\\Debug\\\\" /Fd"cmTC_3ea79.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue  -pthread "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-lk7s2n\\CheckSymbolExists.c"
+        cl : command line  warning D9002: ignoring unknown option '-pthread' [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-lk7s2n\\cmTC_3ea79.vcxproj]
+          CheckSymbolExists.c
+        C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-lk7s2n\\CheckSymbolExists.c(2,10): error C1083: Cannot open include file: 'pthread.h': No such file or directory [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-lk7s2n\\cmTC_3ea79.vcxproj]
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-lk7s2n\\cmTC_3ea79.vcxproj" ?꾨줈?앺듃瑜?鍮뚮뱶?덉뒿?덈떎(湲곕낯 ?\xc2\x80??. - ?ㅽ뙣
+        
+        鍮뚮뱶?섏? 紐삵뻽?듬땲??
+        
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-lk7s2n\\cmTC_3ea79.vcxproj"(湲곕낯 ?\xc2\x80??(1)->
+        (ClCompile ?\xc2\x80?? -> 
+          cl : command line  warning D9002: ignoring unknown option '-pthread' [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-lk7s2n\\cmTC_3ea79.vcxproj]
+        
+        
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-lk7s2n\\cmTC_3ea79.vcxproj"(湲곕낯 ?\xc2\x80??(1)->
+        (ClCompile ?\xc2\x80?? -> 
+          C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-lk7s2n\\CheckSymbolExists.c(2,10): error C1083: Cannot open include file: 'pthread.h': No such file or directory [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-lk7s2n\\cmTC_3ea79.vcxproj]
+        
+            寃쎄퀬 1媛?
+            ?ㅻ쪟 1媛?
+        
+        寃쎄낵 ?쒓컙: 00:00:00.24
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckSymbolExists.cmake:163 (try_compile)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckSymbolExists.cmake:68 (__CHECK_SYMBOL_EXISTS_IMPL)"
+      - "scripts/FindPThreadGetSetName.cmake:59 (check_symbol_exists)"
+      - "CMakeLists.txt:322 (FindPThreadGetSetName)"
+    checks:
+      - "Looking for pthread_setname_np"
+    directories:
+      source: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-2fqvqu"
+      binary: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-2fqvqu"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_MODULE_PATH: "C:/CineSRTProject/BuildTools/srt/srt/scripts"
+    buildResult:
+      variable: "HAVE_PTHREAD_SETNAME_NP"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-2fqvqu'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_1a1e1.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        msbuild 踰꾩쟾 17.14.14+a129329f1(.NET Framework??
+        鍮뚮뱶 ?쒖옉: 2025-07-23 ?ㅽ썑 5:13:02
+        
+        1 ?몃뱶??"C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-2fqvqu\\cmTC_1a1e1.vcxproj" ?꾨줈?앺듃(湲곕낯 ?\xc2\x80???낅땲??
+        PrepareForBuild:
+          "cmTC_1a1e1.dir\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-2fqvqu\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_1a1e1.dir\\Debug\\cmTC_1a1e1.tlog\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+        InitializeBuildStatus:
+          "AlwaysCreate"??媛\xc2\x80) 吏\xc2\x80?뺣릺?덇린 ?뚮Ц??"cmTC_1a1e1.dir\\Debug\\cmTC_1a1e1.tlog\\unsuccessfulbuild"??瑜? 留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_1a1e1.dir\\Debug\\cmTC_1a1e1.tlog\\unsuccessfulbuild"???곌껐(touching)?섍퀬 ?덉뒿?덈떎.
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D _GNU_SOURCE /D _DARWIN_C_SOURCE /D _POSIX_SOURCE=1 /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_1a1e1.dir\\Debug\\\\" /Fd"cmTC_1a1e1.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue  -pthread "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-2fqvqu\\CheckSymbolExists.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.38.33145 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D _GNU_SOURCE /D _DARWIN_C_SOURCE /D _POSIX_SOURCE=1 /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_1a1e1.dir\\Debug\\\\" /Fd"cmTC_1a1e1.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue  -pthread "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-2fqvqu\\CheckSymbolExists.c"
+        cl : command line  warning D9002: ignoring unknown option '-pthread' [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-2fqvqu\\cmTC_1a1e1.vcxproj]
+          CheckSymbolExists.c
+        C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-2fqvqu\\CheckSymbolExists.c(2,10): error C1083: Cannot open include file: 'pthread.h': No such file or directory [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-2fqvqu\\cmTC_1a1e1.vcxproj]
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-2fqvqu\\cmTC_1a1e1.vcxproj" ?꾨줈?앺듃瑜?鍮뚮뱶?덉뒿?덈떎(湲곕낯 ?\xc2\x80??. - ?ㅽ뙣
+        
+        鍮뚮뱶?섏? 紐삵뻽?듬땲??
+        
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-2fqvqu\\cmTC_1a1e1.vcxproj"(湲곕낯 ?\xc2\x80??(1)->
+        (ClCompile ?\xc2\x80?? -> 
+          cl : command line  warning D9002: ignoring unknown option '-pthread' [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-2fqvqu\\cmTC_1a1e1.vcxproj]
+        
+        
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-2fqvqu\\cmTC_1a1e1.vcxproj"(湲곕낯 ?\xc2\x80??(1)->
+        (ClCompile ?\xc2\x80?? -> 
+          C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-2fqvqu\\CheckSymbolExists.c(2,10): error C1083: Cannot open include file: 'pthread.h': No such file or directory [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-2fqvqu\\cmTC_1a1e1.vcxproj]
+        
+            寃쎄퀬 1媛?
+            ?ㅻ쪟 1媛?
+        
+        寃쎄낵 ?쒓컙: 00:00:00.23
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckLibraryExists.cmake:78 (try_compile)"
+      - "scripts/CheckGCCAtomicIntrinsics.cmake:40 (check_library_exists)"
+      - "CMakeLists.txt:516 (CheckGCCAtomicIntrinsics)"
+    checks:
+      - "Looking for __atomic_fetch_add_8 in atomic"
+    directories:
+      source: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-ifywm1"
+      binary: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-ifywm1"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_MODULE_PATH: "C:/CineSRTProject/BuildTools/srt/srt/scripts"
+    buildResult:
+      variable: "HAVE_LIBATOMIC"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-ifywm1'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_579d4.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        msbuild 踰꾩쟾 17.14.14+a129329f1(.NET Framework??
+        鍮뚮뱶 ?쒖옉: 2025-07-23 ?ㅽ썑 5:13:02
+        
+        1 ?몃뱶??"C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ifywm1\\cmTC_579d4.vcxproj" ?꾨줈?앺듃(湲곕낯 ?\xc2\x80???낅땲??
+        PrepareForBuild:
+          "cmTC_579d4.dir\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ifywm1\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_579d4.dir\\Debug\\cmTC_579d4.tlog\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+        InitializeBuildStatus:
+          "AlwaysCreate"??媛\xc2\x80) 吏\xc2\x80?뺣릺?덇린 ?뚮Ц??"cmTC_579d4.dir\\Debug\\cmTC_579d4.tlog\\unsuccessfulbuild"??瑜? 留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_579d4.dir\\Debug\\cmTC_579d4.tlog\\unsuccessfulbuild"???곌껐(touching)?섍퀬 ?덉뒿?덈떎.
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=__atomic_fetch_add_8 /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_579d4.dir\\Debug\\\\" /Fd"cmTC_579d4.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ifywm1\\CheckFunctionExists.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.38.33145 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D CHECK_FUNCTION_EXISTS=__atomic_fetch_add_8 /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_579d4.dir\\Debug\\\\" /Fd"cmTC_579d4.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ifywm1\\CheckFunctionExists.c"
+          CheckFunctionExists.c
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ifywm1\\Debug\\cmTC_579d4.exe" /INCREMENTAL /ILK:"cmTC_579d4.dir\\Debug\\cmTC_579d4.ilk" /NOLOGO atomic.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-ifywm1/Debug/cmTC_579d4.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-ifywm1/Debug/cmTC_579d4.lib" /MACHINE:X64  /machine:x64 cmTC_579d4.dir\\Debug\\CheckFunctionExists.obj
+        LINK : fatal error LNK1104: cannot open file 'atomic.lib' [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ifywm1\\cmTC_579d4.vcxproj]
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ifywm1\\cmTC_579d4.vcxproj" ?꾨줈?앺듃瑜?鍮뚮뱶?덉뒿?덈떎(湲곕낯 ?\xc2\x80??. - ?ㅽ뙣
+        
+        鍮뚮뱶?섏? 紐삵뻽?듬땲??
+        
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ifywm1\\cmTC_579d4.vcxproj"(湲곕낯 ?\xc2\x80??(1)->
+        (Link ?\xc2\x80?? -> 
+          LINK : fatal error LNK1104: cannot open file 'atomic.lib' [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ifywm1\\cmTC_579d4.vcxproj]
+        
+            寃쎄퀬 0媛?
+            ?ㅻ쪟 1媛?
+        
+        寃쎄낵 ?쒓컙: 00:00:00.30
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckCSourceCompiles.cmake:58 (cmake_check_source_compiles)"
+      - "scripts/CheckGCCAtomicIntrinsics.cmake:55 (check_c_source_compiles)"
+      - "CMakeLists.txt:516 (CheckGCCAtomicIntrinsics)"
+    checks:
+      - "Performing Test HAVE_LIBATOMIC_COMPILES"
+    directories:
+      source: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-gthztt"
+      binary: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-gthztt"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_MODULE_PATH: "C:/CineSRTProject/BuildTools/srt/srt/scripts"
+    buildResult:
+      variable: "HAVE_LIBATOMIC_COMPILES"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-gthztt'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_fd6b9.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        msbuild 踰꾩쟾 17.14.14+a129329f1(.NET Framework??
+        鍮뚮뱶 ?쒖옉: 2025-07-23 ?ㅽ썑 5:13:03
+        
+        1 ?몃뱶??"C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-gthztt\\cmTC_fd6b9.vcxproj" ?꾨줈?앺듃(湲곕낯 ?\xc2\x80???낅땲??
+        PrepareForBuild:
+          "cmTC_fd6b9.dir\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-gthztt\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_fd6b9.dir\\Debug\\cmTC_fd6b9.tlog\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+        InitializeBuildStatus:
+          "AlwaysCreate"??媛\xc2\x80) 吏\xc2\x80?뺣릺?덇린 ?뚮Ц??"cmTC_fd6b9.dir\\Debug\\cmTC_fd6b9.tlog\\unsuccessfulbuild"??瑜? 留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_fd6b9.dir\\Debug\\cmTC_fd6b9.tlog\\unsuccessfulbuild"???곌껐(touching)?섍퀬 ?덉뒿?덈떎.
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D HAVE_LIBATOMIC_COMPILES /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_fd6b9.dir\\Debug\\\\" /Fd"cmTC_fd6b9.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-gthztt\\src.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.38.33145 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D HAVE_LIBATOMIC_COMPILES /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_fd6b9.dir\\Debug\\\\" /Fd"cmTC_fd6b9.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-gthztt\\src.c"
+          src.c
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-gthztt\\Debug\\cmTC_fd6b9.exe" /INCREMENTAL /ILK:"cmTC_fd6b9.dir\\Debug\\cmTC_fd6b9.ilk" /NOLOGO atomic.lib kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-gthztt/Debug/cmTC_fd6b9.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-gthztt/Debug/cmTC_fd6b9.lib" /MACHINE:X64  /machine:x64 cmTC_fd6b9.dir\\Debug\\src.obj
+        LINK : fatal error LNK1104: cannot open file 'atomic.lib' [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-gthztt\\cmTC_fd6b9.vcxproj]
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-gthztt\\cmTC_fd6b9.vcxproj" ?꾨줈?앺듃瑜?鍮뚮뱶?덉뒿?덈떎(湲곕낯 ?\xc2\x80??. - ?ㅽ뙣
+        
+        鍮뚮뱶?섏? 紐삵뻽?듬땲??
+        
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-gthztt\\cmTC_fd6b9.vcxproj"(湲곕낯 ?\xc2\x80??(1)->
+        (Link ?\xc2\x80?? -> 
+          LINK : fatal error LNK1104: cannot open file 'atomic.lib' [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-gthztt\\cmTC_fd6b9.vcxproj]
+        
+            寃쎄퀬 0媛?
+            ?ㅻ쪟 1媛?
+        
+        寃쎄낵 ?쒓컙: 00:00:00.31
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckCSourceCompiles.cmake:58 (cmake_check_source_compiles)"
+      - "scripts/CheckGCCAtomicIntrinsics.cmake:99 (check_c_source_compiles)"
+      - "CMakeLists.txt:516 (CheckGCCAtomicIntrinsics)"
+    checks:
+      - "Performing Test HAVE_GCCATOMIC_INTRINSICS"
+    directories:
+      source: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-x3gb7t"
+      binary: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-x3gb7t"
+    cmakeVariables:
+      CMAKE_C_FLAGS: "/DWIN32 /D_WINDOWS /W3"
+      CMAKE_MODULE_PATH: "C:/CineSRTProject/BuildTools/srt/srt/scripts"
+    buildResult:
+      variable: "HAVE_GCCATOMIC_INTRINSICS"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-x3gb7t'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_d37f5.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        msbuild 踰꾩쟾 17.14.14+a129329f1(.NET Framework??
+        鍮뚮뱶 ?쒖옉: 2025-07-23 ?ㅽ썑 5:13:03
+        
+        1 ?몃뱶??"C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-x3gb7t\\cmTC_d37f5.vcxproj" ?꾨줈?앺듃(湲곕낯 ?\xc2\x80???낅땲??
+        PrepareForBuild:
+          "cmTC_d37f5.dir\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-x3gb7t\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_d37f5.dir\\Debug\\cmTC_d37f5.tlog\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+        InitializeBuildStatus:
+          "AlwaysCreate"??媛\xc2\x80) 吏\xc2\x80?뺣릺?덇린 ?뚮Ц??"cmTC_d37f5.dir\\Debug\\cmTC_d37f5.tlog\\unsuccessfulbuild"??瑜? 留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_d37f5.dir\\Debug\\cmTC_d37f5.tlog\\unsuccessfulbuild"???곌껐(touching)?섍퀬 ?덉뒿?덈떎.
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D HAVE_GCCATOMIC_INTRINSICS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_d37f5.dir\\Debug\\\\" /Fd"cmTC_d37f5.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-x3gb7t\\src.c"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.38.33145 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D HAVE_GCCATOMIC_INTRINSICS /D "CMAKE_INTDIR=\\"Debug\\"" /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_d37f5.dir\\Debug\\\\" /Fd"cmTC_d37f5.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-x3gb7t\\src.c"
+          src.c
+        C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-x3gb7t\\src.c(8,4): warning C4013: '__atomic_add_fetch' undefined; assuming extern returning int [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-x3gb7t\\cmTC_d37f5.vcxproj]
+        C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-x3gb7t\\src.c(8,46): error C2065: '__ATOMIC_SEQ_CST': undeclared identifier [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-x3gb7t\\cmTC_d37f5.vcxproj]
+        C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-x3gb7t\\src.c(9,46): error C2065: '__ATOMIC_SEQ_CST': undeclared identifier [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-x3gb7t\\cmTC_d37f5.vcxproj]
+        C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-x3gb7t\\src.c(10,11): warning C4013: '__atomic_sub_fetch' undefined; assuming extern returning int [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-x3gb7t\\cmTC_d37f5.vcxproj]
+        C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-x3gb7t\\src.c(10,53): error C2065: '__ATOMIC_SEQ_CST': undeclared identifier [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-x3gb7t\\cmTC_d37f5.vcxproj]
+        C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-x3gb7t\\src.c(11,49): error C2065: '__ATOMIC_SEQ_CST': undeclared identifier [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-x3gb7t\\cmTC_d37f5.vcxproj]
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-x3gb7t\\cmTC_d37f5.vcxproj" ?꾨줈?앺듃瑜?鍮뚮뱶?덉뒿?덈떎(湲곕낯 ?\xc2\x80??. - ?ㅽ뙣
+        
+        鍮뚮뱶?섏? 紐삵뻽?듬땲??
+        
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-x3gb7t\\cmTC_d37f5.vcxproj"(湲곕낯 ?\xc2\x80??(1)->
+        (ClCompile ?\xc2\x80?? -> 
+          C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-x3gb7t\\src.c(8,4): warning C4013: '__atomic_add_fetch' undefined; assuming extern returning int [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-x3gb7t\\cmTC_d37f5.vcxproj]
+          C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-x3gb7t\\src.c(10,11): warning C4013: '__atomic_sub_fetch' undefined; assuming extern returning int [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-x3gb7t\\cmTC_d37f5.vcxproj]
+        
+        
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-x3gb7t\\cmTC_d37f5.vcxproj"(湲곕낯 ?\xc2\x80??(1)->
+        (ClCompile ?\xc2\x80?? -> 
+          C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-x3gb7t\\src.c(8,46): error C2065: '__ATOMIC_SEQ_CST': undeclared identifier [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-x3gb7t\\cmTC_d37f5.vcxproj]
+          C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-x3gb7t\\src.c(9,46): error C2065: '__ATOMIC_SEQ_CST': undeclared identifier [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-x3gb7t\\cmTC_d37f5.vcxproj]
+          C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-x3gb7t\\src.c(10,53): error C2065: '__ATOMIC_SEQ_CST': undeclared identifier [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-x3gb7t\\cmTC_d37f5.vcxproj]
+          C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-x3gb7t\\src.c(11,49): error C2065: '__ATOMIC_SEQ_CST': undeclared identifier [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-x3gb7t\\cmTC_d37f5.vcxproj]
+        
+            寃쎄퀬 2媛?
+            ?ㅻ쪟 4媛?
+        
+        寃쎄낵 ?쒓컙: 00:00:00.23
+        
+      exitCode: 1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckCXXSourceCompiles.cmake:58 (cmake_check_source_compiles)"
+      - "scripts/CheckCXXAtomic.cmake:42 (check_cxx_source_compiles)"
+      - "CMakeLists.txt:520 (CheckCXXAtomic)"
+    checks:
+      - "Performing Test HAVE_CXX_ATOMIC"
+    directories:
+      source: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-ijw6ip"
+      binary: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-ijw6ip"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /W3 /GR /EHsc"
+      CMAKE_MODULE_PATH: "C:/CineSRTProject/BuildTools/srt/srt/scripts"
+    buildResult:
+      variable: "HAVE_CXX_ATOMIC"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-ijw6ip'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_076ae.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        msbuild 踰꾩쟾 17.14.14+a129329f1(.NET Framework??
+        鍮뚮뱶 ?쒖옉: 2025-07-23 ?ㅽ썑 5:13:04
+        
+        1 ?몃뱶??"C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ijw6ip\\cmTC_076ae.vcxproj" ?꾨줈?앺듃(湲곕낯 ?\xc2\x80???낅땲??
+        PrepareForBuild:
+          "cmTC_076ae.dir\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ijw6ip\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_076ae.dir\\Debug\\cmTC_076ae.tlog\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+        InitializeBuildStatus:
+          "AlwaysCreate"??媛\xc2\x80) 吏\xc2\x80?뺣릺?덇린 ?뚮Ц??"cmTC_076ae.dir\\Debug\\cmTC_076ae.tlog\\unsuccessfulbuild"??瑜? 留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_076ae.dir\\Debug\\cmTC_076ae.tlog\\unsuccessfulbuild"???곌껐(touching)?섍퀬 ?덉뒿?덈떎.
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D HAVE_CXX_ATOMIC /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_076ae.dir\\Debug\\\\" /Fd"cmTC_076ae.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TP /errorReport:queue  -std=c++11 "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ijw6ip\\src.cxx"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.38.33145 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D HAVE_CXX_ATOMIC /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_076ae.dir\\Debug\\\\" /Fd"cmTC_076ae.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TP /errorReport:queue  -std=c++11 "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ijw6ip\\src.cxx"
+        cl : command line  warning D9002: ignoring unknown option '-std=c++11' [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ijw6ip\\cmTC_076ae.vcxproj]
+          src.cxx
+        C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ijw6ip\\src.cxx(8,19): warning C4244: 'return': conversion from '_Ty' to 'int', possible loss of data [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ijw6ip\\cmTC_076ae.vcxproj]
+        C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ijw6ip\\src.cxx(8,19): warning C4244:         with [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ijw6ip\\cmTC_076ae.vcxproj]
+        C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ijw6ip\\src.cxx(8,19): warning C4244:         [ [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ijw6ip\\cmTC_076ae.vcxproj]
+        C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ijw6ip\\src.cxx(8,19): warning C4244:             _Ty=__int64 [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ijw6ip\\cmTC_076ae.vcxproj]
+        C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ijw6ip\\src.cxx(8,19): warning C4244:         ] [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ijw6ip\\cmTC_076ae.vcxproj]
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ijw6ip\\Debug\\cmTC_076ae.exe" /INCREMENTAL /ILK:"cmTC_076ae.dir\\Debug\\cmTC_076ae.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-ijw6ip/Debug/cmTC_076ae.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-ijw6ip/Debug/cmTC_076ae.lib" /MACHINE:X64  /machine:x64 cmTC_076ae.dir\\Debug\\src.obj
+          cmTC_076ae.vcxproj -> C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ijw6ip\\Debug\\cmTC_076ae.exe
+        FinalizeBuildStatus:
+          "cmTC_076ae.dir\\Debug\\cmTC_076ae.tlog\\unsuccessfulbuild" ?뚯씪????젣?섍퀬 ?덉뒿?덈떎.
+          "cmTC_076ae.dir\\Debug\\cmTC_076ae.tlog\\cmTC_076ae.lastbuildstate"???곌껐(touching)?섍퀬 ?덉뒿?덈떎.
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ijw6ip\\cmTC_076ae.vcxproj" ?꾨줈?앺듃瑜?鍮뚮뱶?덉뒿?덈떎(湲곕낯 ?\xc2\x80??.
+        
+        鍮뚮뱶?덉뒿?덈떎.
+        
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ijw6ip\\cmTC_076ae.vcxproj"(湲곕낯 ?\xc2\x80??(1)->
+        (ClCompile ?\xc2\x80?? -> 
+          cl : command line  warning D9002: ignoring unknown option '-std=c++11' [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ijw6ip\\cmTC_076ae.vcxproj]
+          C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ijw6ip\\src.cxx(8,19): warning C4244: 'return': conversion from '_Ty' to 'int', possible loss of data [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ijw6ip\\cmTC_076ae.vcxproj]
+        C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ijw6ip\\src.cxx(8,19): warning C4244:         with [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ijw6ip\\cmTC_076ae.vcxproj]
+        C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ijw6ip\\src.cxx(8,19): warning C4244:         [ [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ijw6ip\\cmTC_076ae.vcxproj]
+        C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ijw6ip\\src.cxx(8,19): warning C4244:             _Ty=__int64 [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ijw6ip\\cmTC_076ae.vcxproj]
+        C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ijw6ip\\src.cxx(8,19): warning C4244:         ] [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-ijw6ip\\cmTC_076ae.vcxproj]
+        
+            寃쎄퀬 2媛?
+            ?ㅻ쪟 0媛?
+        
+        寃쎄낵 ?쒓컙: 00:00:00.43
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckCXXSourceCompiles.cmake:58 (cmake_check_source_compiles)"
+      - "scripts/CheckCXXAtomic.cmake:53 (check_cxx_source_compiles)"
+      - "CMakeLists.txt:520 (CheckCXXAtomic)"
+    checks:
+      - "Performing Test HAVE_CXX_ATOMIC_STATIC"
+    directories:
+      source: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-aceaw6"
+      binary: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-aceaw6"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /W3 /GR /EHsc"
+      CMAKE_MODULE_PATH: "C:/CineSRTProject/BuildTools/srt/srt/scripts"
+    buildResult:
+      variable: "HAVE_CXX_ATOMIC_STATIC"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-aceaw6'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_2aa15.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        msbuild 踰꾩쟾 17.14.14+a129329f1(.NET Framework??
+        鍮뚮뱶 ?쒖옉: 2025-07-23 ?ㅽ썑 5:13:04
+        
+        1 ?몃뱶??"C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\cmTC_2aa15.vcxproj" ?꾨줈?앺듃(湲곕낯 ?\xc2\x80???낅땲??
+        PrepareForBuild:
+          "cmTC_2aa15.dir\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_2aa15.dir\\Debug\\cmTC_2aa15.tlog\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+        InitializeBuildStatus:
+          "AlwaysCreate"??媛\xc2\x80) 吏\xc2\x80?뺣릺?덇린 ?뚮Ц??"cmTC_2aa15.dir\\Debug\\cmTC_2aa15.tlog\\unsuccessfulbuild"??瑜? 留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_2aa15.dir\\Debug\\cmTC_2aa15.tlog\\unsuccessfulbuild"???곌껐(touching)?섍퀬 ?덉뒿?덈떎.
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D HAVE_CXX_ATOMIC_STATIC /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_2aa15.dir\\Debug\\\\" /Fd"cmTC_2aa15.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TP /errorReport:queue  -std=c++11 -static "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\src.cxx"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.38.33145 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D HAVE_CXX_ATOMIC_STATIC /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_2aa15.dir\\Debug\\\\" /Fd"cmTC_2aa15.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TP /errorReport:queue  -std=c++11 -static "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\src.cxx"
+        cl : command line  warning D9002: ignoring unknown option '-std=c++11' [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\cmTC_2aa15.vcxproj]
+        cl : command line  warning D9002: ignoring unknown option '-static' [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\cmTC_2aa15.vcxproj]
+          src.cxx
+        C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\src.cxx(8,19): warning C4244: 'return': conversion from '_Ty' to 'int', possible loss of data [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\cmTC_2aa15.vcxproj]
+        C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\src.cxx(8,19): warning C4244:         with [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\cmTC_2aa15.vcxproj]
+        C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\src.cxx(8,19): warning C4244:         [ [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\cmTC_2aa15.vcxproj]
+        C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\src.cxx(8,19): warning C4244:             _Ty=__int64 [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\cmTC_2aa15.vcxproj]
+        C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\src.cxx(8,19): warning C4244:         ] [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\cmTC_2aa15.vcxproj]
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\Debug\\cmTC_2aa15.exe" /INCREMENTAL /ILK:"cmTC_2aa15.dir\\Debug\\cmTC_2aa15.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-aceaw6/Debug/cmTC_2aa15.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-aceaw6/Debug/cmTC_2aa15.lib" /MACHINE:X64  /machine:x64 cmTC_2aa15.dir\\Debug\\src.obj
+          cmTC_2aa15.vcxproj -> C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\Debug\\cmTC_2aa15.exe
+        FinalizeBuildStatus:
+          "cmTC_2aa15.dir\\Debug\\cmTC_2aa15.tlog\\unsuccessfulbuild" ?뚯씪????젣?섍퀬 ?덉뒿?덈떎.
+          "cmTC_2aa15.dir\\Debug\\cmTC_2aa15.tlog\\cmTC_2aa15.lastbuildstate"???곌껐(touching)?섍퀬 ?덉뒿?덈떎.
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\cmTC_2aa15.vcxproj" ?꾨줈?앺듃瑜?鍮뚮뱶?덉뒿?덈떎(湲곕낯 ?\xc2\x80??.
+        
+        鍮뚮뱶?덉뒿?덈떎.
+        
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\cmTC_2aa15.vcxproj"(湲곕낯 ?\xc2\x80??(1)->
+        (ClCompile ?\xc2\x80?? -> 
+          cl : command line  warning D9002: ignoring unknown option '-std=c++11' [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\cmTC_2aa15.vcxproj]
+          cl : command line  warning D9002: ignoring unknown option '-static' [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\cmTC_2aa15.vcxproj]
+          C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\src.cxx(8,19): warning C4244: 'return': conversion from '_Ty' to 'int', possible loss of data [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\cmTC_2aa15.vcxproj]
+        C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\src.cxx(8,19): warning C4244:         with [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\cmTC_2aa15.vcxproj]
+        C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\src.cxx(8,19): warning C4244:         [ [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\cmTC_2aa15.vcxproj]
+        C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\src.cxx(8,19): warning C4244:             _Ty=__int64 [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\cmTC_2aa15.vcxproj]
+        C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\src.cxx(8,19): warning C4244:         ] [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-aceaw6\\cmTC_2aa15.vcxproj]
+        
+            寃쎄퀬 3媛?
+            ?ㅻ쪟 0媛?
+        
+        寃쎄낵 ?쒓컙: 00:00:00.43
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "C:/Program Files/Microsoft Visual Studio/2022/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/CMake/share/cmake-3.31/Modules/CheckCXXSourceCompiles.cmake:58 (cmake_check_source_compiles)"
+      - "scripts/CheckCXXStdPutTime.cmake:53 (check_cxx_source_compiles)"
+      - "CMakeLists.txt:526 (CheckCXXStdPutTime)"
+    checks:
+      - "Performing Test HAVE_CXX_STD_PUT_TIME"
+    directories:
+      source: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-vje46b"
+      binary: "C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-vje46b"
+    cmakeVariables:
+      CMAKE_CXX_FLAGS: "/DWIN32 /D_WINDOWS /W3 /GR /EHsc"
+      CMAKE_MODULE_PATH: "C:/CineSRTProject/BuildTools/srt/srt/scripts"
+    buildResult:
+      variable: "HAVE_CXX_STD_PUT_TIME"
+      cached: true
+      stdout: |
+        Change Dir: 'C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-vje46b'
+        
+        Run Build Command(s): "C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe" cmTC_a4625.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:n
+        msbuild 踰꾩쟾 17.14.14+a129329f1(.NET Framework??
+        鍮뚮뱶 ?쒖옉: 2025-07-23 ?ㅽ썑 5:13:05
+        
+        1 ?몃뱶??"C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-vje46b\\cmTC_a4625.vcxproj" ?꾨줈?앺듃(湲곕낯 ?\xc2\x80???낅땲??
+        PrepareForBuild:
+          "cmTC_a4625.dir\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+          "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-vje46b\\Debug\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_a4625.dir\\Debug\\cmTC_a4625.tlog\\" ?붾젆?곕━瑜?留뚮뱾怨??덉뒿?덈떎.
+        InitializeBuildStatus:
+          "AlwaysCreate"??媛\xc2\x80) 吏\xc2\x80?뺣릺?덇린 ?뚮Ц??"cmTC_a4625.dir\\Debug\\cmTC_a4625.tlog\\unsuccessfulbuild"??瑜? 留뚮뱾怨??덉뒿?덈떎.
+          "cmTC_a4625.dir\\Debug\\cmTC_a4625.tlog\\unsuccessfulbuild"???곌껐(touching)?섍퀬 ?덉뒿?덈떎.
+        ClCompile:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\CL.exe /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D HAVE_CXX_STD_PUT_TIME /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_a4625.dir\\Debug\\\\" /Fd"cmTC_a4625.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TP /errorReport:queue  -std=c++11 "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-vje46b\\src.cxx"
+          Microsoft (R) C/C++ Optimizing Compiler Version 19.38.33145 for x64
+          Copyright (C) Microsoft Corporation.  All rights reserved.
+          cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D HAVE_CXX_STD_PUT_TIME /D "CMAKE_INTDIR=\\"Debug\\"" /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /Fo"cmTC_a4625.dir\\Debug\\\\" /Fd"cmTC_a4625.dir\\Debug\\vc143.pdb" /external:W3 /Gd /TP /errorReport:queue  -std=c++11 "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-vje46b\\src.cxx"
+        cl : command line  warning D9002: ignoring unknown option '-std=c++11' [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-vje46b\\cmTC_a4625.vcxproj]
+          src.cxx
+        C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-vje46b\\src.cxx(9,29): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details. [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-vje46b\\cmTC_a4625.vcxproj]
+        Link:
+          C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.38.33130\\bin\\HostX64\\x64\\link.exe /ERRORREPORT:QUEUE /OUT:"C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-vje46b\\Debug\\cmTC_a4625.exe" /INCREMENTAL /ILK:"cmTC_a4625.dir\\Debug\\cmTC_a4625.ilk" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-vje46b/Debug/cmTC_a4625.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/CMakeScratch/TryCompile-vje46b/Debug/cmTC_a4625.lib" /MACHINE:X64  /machine:x64 cmTC_a4625.dir\\Debug\\src.obj
+          cmTC_a4625.vcxproj -> C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-vje46b\\Debug\\cmTC_a4625.exe
+        FinalizeBuildStatus:
+          "cmTC_a4625.dir\\Debug\\cmTC_a4625.tlog\\unsuccessfulbuild" ?뚯씪????젣?섍퀬 ?덉뒿?덈떎.
+          "cmTC_a4625.dir\\Debug\\cmTC_a4625.tlog\\cmTC_a4625.lastbuildstate"???곌껐(touching)?섍퀬 ?덉뒿?덈떎.
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-vje46b\\cmTC_a4625.vcxproj" ?꾨줈?앺듃瑜?鍮뚮뱶?덉뒿?덈떎(湲곕낯 ?\xc2\x80??.
+        
+        鍮뚮뱶?덉뒿?덈떎.
+        
+        "C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-vje46b\\cmTC_a4625.vcxproj"(湲곕낯 ?\xc2\x80??(1)->
+        (ClCompile ?\xc2\x80?? -> 
+          cl : command line  warning D9002: ignoring unknown option '-std=c++11' [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-vje46b\\cmTC_a4625.vcxproj]
+          C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-vje46b\\src.cxx(9,29): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details. [C:\\CineSRTProject\\BuildTools\\srt\\srt\\_build\\CMakeFiles\\CMakeScratch\\TryCompile-vje46b\\cmTC_a4625.vcxproj]
+        
+            寃쎄퀬 2媛?
+            ?ㅻ쪟 0媛?
+        
+        寃쎄낵 ?쒓컙: 00:00:00.63
+        
+      exitCode: 0
+...

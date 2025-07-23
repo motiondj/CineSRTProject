@@ -1,0 +1,153 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\api.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\buffer_snd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\buffer_rcv.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\buffer_tools.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\cache.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\channel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\common.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\core.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\crypto.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\epoll.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\fec.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\handshake.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\list.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\logger_default.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\logger_defs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\md5.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\packet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\packetfilter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\queue.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\congctl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\socketconfig.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\srt_c_api.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\srt_compat.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\strerror_defs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\sync.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\tsbpd_time.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\sync_cxx11.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\haicrypt\cryspr.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\haicrypt\cryspr-openssl.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\haicrypt\hcrypt.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\haicrypt\hcrypt_ctx_rx.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\haicrypt\hcrypt_ctx_tx.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\haicrypt\hcrypt_rx.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\haicrypt\hcrypt_sa.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\haicrypt\hcrypt_tx.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\haicrypt\hcrypt_xpt_srt.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\haicrypt\haicrypt_log.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\common\win_time.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\CineSRTProject\BuildTools\srt\srt\_build\version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\srt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\logging_api.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\access_control.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\platform_sys.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\CineSRTProject\BuildTools\srt\srt\srtcore\udt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\CineSRTProject\BuildTools\srt\srt\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{E2319A6F-23F7-324B-9D4A-5709DA649788}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{84A4C039-4054-3AEE-94EF-E97D92FB73BA}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

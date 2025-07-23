@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\CineSRTProject\BuildTools\srt\srt\cmake_object_lib_support.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\CineSRTProject\BuildTools\srt\srt\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\api.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\buffer_snd.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\buffer_rcv.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\buffer_tools.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\cache.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\channel.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\common.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\core.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\crypto.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\epoll.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\fec.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\handshake.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\list.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\logger_default.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\logger_defs.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\md5.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\packet.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\packetfilter.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\queue.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\congctl.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\socketconfig.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\srt_c_api.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\srt_compat.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\strerror_defs.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\sync.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\tsbpd_time.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\window.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\sync_cxx11.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\cryspr.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\cryspr-openssl.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\hcrypt.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\hcrypt_ctx_rx.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\hcrypt_ctx_tx.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\hcrypt_rx.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\hcrypt_sa.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\hcrypt_tx.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\hcrypt_xpt_srt.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\haicrypt_log.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\CineSRTProject\BuildTools\srt\srt\_build\srt_virtual.dir\$(Configuration)\win_time.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Object Libraries">
+      <UniqueIdentifier>{13FC2456-22EF-3B8E-97ED-220D69C41B2C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{84A4C039-4054-3AEE-94EF-E97D92FB73BA}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

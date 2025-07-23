@@ -1,0 +1,5 @@
+C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/srt_virtual.dir
+C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/srt_static.dir
+C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/INSTALL.dir
+C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/ALL_BUILD.dir
+C:/CineSRTProject/BuildTools/srt/srt/_build/CMakeFiles/ZERO_CHECK.dir
