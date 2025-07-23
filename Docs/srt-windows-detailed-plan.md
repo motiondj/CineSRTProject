@@ -85,8 +85,8 @@ mkdir TestPrograms\test_openssl, TestPrograms\test_srt, TestPrograms\receiver
 cd C:\CineSRTProject\BuildTools\OpenSSL
 
 # OpenSSL 3.0 LTS 다운로드 (안정성 중요!)
-git clone https://github.com/openssl/openssl.git
-cd openssl
+git clone https://github.com/openssl/openssl.git openssl_new
+cd openssl_new
 git checkout openssl-3.0.13  # LTS 버전 고정
 
 # 또는 직접 다운로드
@@ -96,12 +96,12 @@ git checkout openssl-3.0.13  # LTS 버전 고정
 **Step 2: Visual Studio 2022 x64 Native Tools Command Prompt 실행**
 ```
 시작 메뉴 → Visual Studio 2022 → x64 Native Tools Command Prompt for VS 2022
-(중요: 일반 CMD나 PowerShell이 아님!)
+(중요: 일반 CMD나 PowerShell이 아님! 관리자 권한 실행)
 ```
 
 **Step 3: OpenSSL 빌드**
 ```cmd
-cd C:\CineSRTProject\BuildTools\OpenSSL\openssl
+cd C:\CineSRTProject\BuildTools\OpenSSL\openssl_new
 
 # 설정 (정적 라이브러리, 디버그 심볼 포함)
 perl Configure VC-WIN64A --prefix=C:\CineSRTProject\BuildTools\OpenSSL\install --openssldir=C:\CineSRTProject\BuildTools\OpenSSL\install\SSL no-shared
