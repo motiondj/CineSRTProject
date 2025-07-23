@@ -13,17 +13,13 @@
 #pragma comment(lib, "Crypt32.lib")
 
 int main() {
-    std::cout << "=== SRT + OpenSSL Windows Test (Client Mode) ===" << std::endl;
+    std::cout << "=== SRT Receiver Test ===" << std::endl;
     
-    // SRT 초기화
     if (srt_startup() != 0) {
         std::cout << "❌ SRT startup failed!" << std::endl;
         return 1;
     }
     
-    std::cout << "SRT Version: " << SRT_VERSION_STRING << std::endl;
-    
-    // 소켓 생성
     SRTSOCKET sock = srt_create_socket();
     if (sock == SRT_INVALID_SOCK) {
         std::cout << "❌ Socket creation failed!" << std::endl;
@@ -31,17 +27,14 @@ int main() {
         return 1;
     }
     
-    // 암호화 설정 (핵심!)
-    int pbkeylen = 16; // 128-bit AES
+    // 암호화 설정
+    int pbkeylen = 16;
     if (srt_setsockopt(sock, 0, SRTO_PBKEYLEN, &pbkeylen, sizeof(pbkeylen)) != 0) {
         std::cout << "❌ Failed to set encryption key length!" << std::endl;
-        std::cout << "Error: " << srt_getlasterror_str() << std::endl;
         srt_close(sock);
         srt_cleanup();
         return 1;
     }
-    
-    // 암호화 패스프레이즈 설정
     const char* passphrase = "CineSRTStreamTest123";
     if (srt_setsockopt(sock, 0, SRTO_PASSPHRASE, passphrase, strlen(passphrase)) != 0) {
         std::cout << "❌ Failed to set passphrase!" << std::endl;
@@ -50,34 +43,43 @@ int main() {
         return 1;
     }
     
-    // 스트림 ID 설정
-    const char* streamid = "CineCamera1";
-    srt_setsockopt(sock, 0, SRTO_STREAMID, streamid, strlen(streamid));
-    
-    // 서버 주소 설정 (receiver가 대기 중인 주소)
     sockaddr_in sa;
     memset(&sa, 0, sizeof(sa));
     sa.sin_family = AF_INET;
     sa.sin_port = htons(9000);
-    sa.sin_addr.s_addr = inet_addr("127.0.0.1");
+    sa.sin_addr.s_addr = INADDR_ANY;
     
-    // 서버에 연결 시도
-    if (srt_connect(sock, (sockaddr*)&sa, sizeof(sa)) == 0) {
-        std::cout << "✅ Connected to receiver!" << std::endl;
-        // 데이터 전송
-        const char* msg = "Hello SRT Receiver!";
-        int sent = srt_send(sock, msg, (int)strlen(msg));
-        if (sent == SRT_ERROR) {
-            std::cout << "❌ Send failed: " << srt_getlasterror_str() << std::endl;
+    if (srt_bind(sock, (sockaddr*)&sa, sizeof(sa)) == 0) {
+        std::cout << "✅ Bound to port 9000 (receiver mode)" << std::endl;
+        if (srt_listen(sock, 1) == 0) {
+            std::cout << "Waiting for sender..." << std::endl;
+            SRTSOCKET fdsock = srt_accept(sock, nullptr, nullptr);
+            if (fdsock != SRT_INVALID_SOCK) {
+                std::cout << "✅ Connection accepted!" << std::endl;
+                char buffer[1024];
+                int recv_len = srt_recv(fdsock, buffer, sizeof(buffer));
+                if (recv_len > 0) {
+                    std::cout << "Received data: ";
+                    for (int i = 0; i < recv_len; ++i) {
+                        printf("%02x ", (unsigned char)buffer[i]);
+                    }
+                    std::cout << std::endl;
+                } else {
+                    std::cout << "❌ Receive failed!" << std::endl;
+                }
+                srt_close(fdsock);
+            } else {
+                std::cout << "❌ Accept failed!" << std::endl;
+            }
         } else {
-            std::cout << "✅ Sent message: " << msg << std::endl;
+            std::cout << "❌ Listen failed!" << std::endl;
         }
     } else {
-        std::cout << "❌ Connect failed: " << srt_getlasterror_str() << std::endl;
+        std::cout << "❌ Bind failed!" << std::endl;
     }
     
     srt_close(sock);
     srt_cleanup();
-    std::cout << "✅ Test completed successfully!" << std::endl;
+    std::cout << "✅ Receiver test completed!" << std::endl;
     return 0;
 } 
