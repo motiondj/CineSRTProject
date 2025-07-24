@@ -79,32 +79,14 @@ namespace SRTWrapper {
     
     // SRT 라이브러리 초기화/정리
     bool Initialize() {
-        try {
-            int result = SRT_C_Initialize();
-            return result >= 0;
-        } catch (...) {
-            return false;
-        }
+        return SRT_C_Initialize() >= 0;
     }
     
     void Cleanup() {
-        try {
-            SRT_C_Cleanup();
-        } catch (...) {
-            // 정리 중 오류는 무시
-        }
+        SRT_C_Cleanup();
     }
     
     const char* GetVersion() {
-        try {
-            const char* version = SRT_C_GetVersion();
-            // null 체크 및 빈 문자열 체크
-            if (version != nullptr && strlen(version) > 0) {
-                return version;
-            }
-            return "Unknown";
-        } catch (...) {
-            return "Unknown";
-        }
+        return SRT_C_GetVersion();
     }
-} 
+}
