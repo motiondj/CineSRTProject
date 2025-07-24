@@ -2,19 +2,44 @@
 
 #include "CineSRTStream.h"
 
+// C++ 헤더들을 먼저 포함
+#include <string>
+#include <vector>
+#include <memory>
+
+// SRT 헤더 래퍼 사용
+#include "SRTWrapper.h"
+
 #define LOCTEXT_NAMESPACE "FCineSRTStreamModule"
+
+DEFINE_LOG_CATEGORY(LogCineSRTStream);
 
 void FCineSRTStreamModule::StartupModule()
 {
-	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
+    UE_LOG(LogCineSRTStream, Log, TEXT("=== CineSRTStream Module Starting ==="));
+    
+    // SRT 라이브러리 초기화
+    if (!SRTWrapper::Initialize()) {
+        UE_LOG(LogCineSRTStream, Error, TEXT("SRT 라이브러리 초기화 실패"));
+        return;
+    }
+    
+    UE_LOG(LogCineSRTStream, Log, TEXT("SRT 라이브러리 초기화 성공. 버전: %s"), 
+           UTF8_TO_TCHAR(SRTWrapper::GetVersion().c_str()));
+    
+    UE_LOG(LogCineSRTStream, Log, TEXT("✅ CineSRTStream module initialized successfully"));
 }
 
 void FCineSRTStreamModule::ShutdownModule()
 {
-	// This function may be called during shutdown to clean up your module.  For modules that support dynamic reloading,
-	// we call this function before unloading the module.
+    UE_LOG(LogCineSRTStream, Log, TEXT("=== CineSRTStream Module Shutting Down ==="));
+    
+    // SRT 라이브러리 정리
+    SRTWrapper::Cleanup();
+    
+    UE_LOG(LogCineSRTStream, Log, TEXT("CineSRTStream 모듈 종료"));
 }
 
 #undef LOCTEXT_NAMESPACE
-	
+
 IMPLEMENT_MODULE(FCineSRTStreamModule, CineSRTStream)

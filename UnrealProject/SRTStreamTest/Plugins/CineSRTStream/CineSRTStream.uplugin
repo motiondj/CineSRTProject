@@ -1,24 +1,28 @@
 {
-	"FileVersion": 3,
-	"Version": 1,
-	"VersionName": "1.0",
-	"FriendlyName": "CineSRTStream",
-	"Description": "",
-	"Category": "CineSRT",
-	"CreatedBy": "",
-	"CreatedByURL": "",
-	"DocsURL": "",
-	"MarketplaceURL": "",
-	"SupportURL": "",
-	"CanContainContent": true,
-	"IsBetaVersion": false,
-	"IsExperimentalVersion": false,
-	"Installed": false,
-	"Modules": [
-		{
-			"Name": "CineSRTStream",
-			"Type": "Runtime",
-			"LoadingPhase": "Default"
-		}
-	]
+    "FileVersion": 3,
+    "Version": 1,
+    "VersionName": "1.0.0",
+    "FriendlyName": "CineSRT Stream",
+    "Description": "Real-time encrypted SRT streaming from Unreal Engine cameras",
+    "Category": "Media",
+    "CreatedBy": "Your Company",
+    "CreatedByURL": "https://yourcompany.com",
+    "DocsURL": "",
+    "MarketplaceURL": "",
+    "EngineVersion": "5.5.0",
+    "SupportURL": "",
+    "CanContainContent": false,
+    "IsBetaVersion": true,
+    "IsExperimentalVersion": false,
+    "Installed": false,
+    "Modules": [
+        {
+            "Name": "CineSRTStream",
+            "Type": "Runtime",
+            "LoadingPhase": "Default",
+            "PlatformAllowList": [
+                "Win64"
+            ]
+        }
+    ]
 }
