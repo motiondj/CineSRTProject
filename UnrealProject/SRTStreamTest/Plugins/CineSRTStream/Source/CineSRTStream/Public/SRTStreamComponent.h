@@ -75,7 +75,7 @@ public:
     void Shutdown();
     
 private:
-    TSharedPtr<FrameBuffer> FrameBuffer;
+    TSharedPtr<FrameBuffer> MyFrameBuffer;  // 명확한 이름
     TAtomic<bool> bShuttingDown{false};
 };
 
@@ -257,6 +257,9 @@ public:
     virtual uint32 Run() override;
     virtual void Stop() override;
     virtual void Exit() override;
+    
+    // 소켓 강제 닫기 메서드 추가
+    void ForceCloseSocket();
     
 private:
     USRTStreamComponent* Owner;

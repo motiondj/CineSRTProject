@@ -1,6 +1,7 @@
 // SRTCWrapper.c - 순수 C 래퍼 (C++ 템플릿 충돌 방지)
 // 이 파일에서만 SRT 헤더를 직접 포함합니다
 
+#include "SRTCWrapper.h"
 #include <string.h>
 #include <stdlib.h>
 
@@ -75,26 +76,26 @@ const char* SRT_C_GetVersion(void)
 }
 
 // 소켓 생성
-int SRT_C_CreateSocket(void)
+SRTSOCKET_HANDLE SRT_C_CreateSocket(void)
 {
     return srt_create_socket();
 }
 
 // 소켓 닫기
-int SRT_C_CloseSocket(int sock)
+int SRT_C_CloseSocket(SRTSOCKET_HANDLE sock)
 {
     return srt_close(sock);
 }
 
 // 소켓 바인딩
-int SRT_C_Bind(int sock, const char* ip, int port)
+int SRT_C_Bind(SRTSOCKET_HANDLE sock, const char* ip, int port)
 {
     struct sockaddr_in sa;
     memset(&sa, 0, sizeof(sa));
     sa.sin_family = AF_INET;
     sa.sin_port = htons(port);
     
-    if (strcmp(ip, "0.0.0.0") == 0 || ip == NULL || strlen(ip) == 0)
+    if (ip == NULL || strcmp(ip, "0.0.0.0") == 0 || strlen(ip) == 0)
     {
         sa.sin_addr.s_addr = INADDR_ANY;
     }
@@ -107,7 +108,7 @@ int SRT_C_Bind(int sock, const char* ip, int port)
 }
 
 // 소켓 연결
-int SRT_C_Connect(int sock, const char* ip, int port)
+int SRT_C_Connect(SRTSOCKET_HANDLE sock, const char* ip, int port)
 {
     struct sockaddr_in sa;
     memset(&sa, 0, sizeof(sa));
@@ -119,13 +120,13 @@ int SRT_C_Connect(int sock, const char* ip, int port)
 }
 
 // 소켓 리스닝
-int SRT_C_Listen(int sock, int backlog)
+int SRT_C_Listen(SRTSOCKET_HANDLE sock, int backlog)
 {
     return srt_listen(sock, backlog);
 }
 
 // 소켓 수락
-int SRT_C_Accept(int sock)
+SRTSOCKET_HANDLE SRT_C_Accept(SRTSOCKET_HANDLE sock)
 {
     struct sockaddr_in client_addr;
     int addr_len = sizeof(client_addr);
@@ -133,27 +134,33 @@ int SRT_C_Accept(int sock)
 }
 
 // 데이터 전송
-int SRT_C_Send(int sock, const char* data, int len)
+int SRT_C_Send(SRTSOCKET_HANDLE sock, const char* data, int len)
 {
     return srt_send(sock, data, len);
 }
 
 // 데이터 수신
-int SRT_C_Recv(int sock, char* data, int len)
+int SRT_C_Recv(SRTSOCKET_HANDLE sock, char* data, int len)
 {
     return srt_recv(sock, data, len);
 }
 
 // 소켓 옵션 설정
-int SRT_C_SetOption(int sock, int opt, const void* value, int len)
+int SRT_C_SetIntOption(SRTSOCKET_HANDLE sock, int opt, int value)
 {
-    return srt_setsockopt(sock, 0, opt, value, len);
+    return srt_setsockopt(sock, 0, (SRT_SOCKOPT)opt, &value, sizeof(int));
+}
+
+int SRT_C_SetStrOption(SRTSOCKET_HANDLE sock, int opt, const char* value)
+{
+    return srt_setsockopt(sock, 0, (SRT_SOCKOPT)opt, value, (int)strlen(value));
 }
 
 // 소켓 옵션 가져오기
-int SRT_C_GetOption(int sock, int opt, void* value, int* len)
+int SRT_C_GetIntOption(SRTSOCKET_HANDLE sock, int opt, int* value)
 {
-    return srt_getsockopt(sock, 0, opt, value, len);
+    int len = sizeof(int);
+    return srt_getsockopt(sock, 0, (SRT_SOCKOPT)opt, value, &len);
 }
 
 // 마지막 에러 코드
@@ -169,13 +176,32 @@ const char* SRT_C_GetLastErrorString(void)
 }
 
 // 통계 정보 가져오기
-int SRT_C_GetStats(int sock, void* stats, int clear)
+int SRT_C_GetStats(SRTSOCKET_HANDLE sock, SRT_C_Stats* stats)
 {
-    return srt_bstats(sock, (SRT_TRACEBSTATS*)stats, clear);
+    SRT_TRACEBSTATS s;
+    if (srt_bstats(sock, &s, 1) == 0) {
+        stats->mbpsSendRate = s.mbpsSendRate;
+        stats->msRTT = s.msRTT;
+        stats->pktSndLossTotal = s.pktSndLossTotal;
+        return 0;
+    }
+    return -1;
 }
 
 // 유효한 소켓인지 확인
-int SRT_C_IsValidSocket(int sock)
+int SRT_C_IsValidSocket(SRTSOCKET_HANDLE sock)
 {
     return (sock != SRT_INVALID_SOCK) ? 1 : 0;
+} 
+
+// 소켓 옵션 설정 (일반)
+int SRT_C_SetOption(int sock, int opt, const void* value, int len)
+{
+    return srt_setsockopt(sock, 0, opt, value, len);
+}
+
+// 소켓 옵션 가져오기 (일반)
+int SRT_C_GetOption(int sock, int opt, void* value, int* len)
+{
+    return srt_getsockopt(sock, 0, opt, value, len);
 } 

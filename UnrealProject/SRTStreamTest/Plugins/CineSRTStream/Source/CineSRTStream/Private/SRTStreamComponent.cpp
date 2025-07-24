@@ -1,4 +1,4 @@
-// C++/Unreal 헤더는 항상 바깥에!
+// SRTStreamComponent.cpp - SRT 직접 사용 완전 제거
 #include "SRTStreamComponent.h"
 #include "CineSRTStream.h"
 #include "Engine/Engine.h"
@@ -10,26 +10,12 @@
 #include "Async/Async.h"
 #include "HAL/PlatformFilemanager.h"
 
-// Windows 헤더 (C++ 전용)
-#ifdef _WIN32
-    #ifndef WIN32_LEAN_AND_MEAN
-    #define WIN32_LEAN_AND_MEAN
-    #endif
-    #include <Windows.h>
-    #include <winsock2.h>
-    #include <ws2tcpip.h>
-    #pragma warning(push)
-    #pragma warning(disable: 4005)
-    #pragma warning(disable: 4996)
-#endif
-
-// SRT 헤더만 extern "C"로 감쌈
-extern "C" {
-    #include "srt.h"
-}
+// SRT 네트워크 헤더만 포함 (srt.h 없음!)
+#include "SRTNetworkWorker.h"
 
 #ifdef _WIN32
-    #pragma warning(pop)
+    #include <string>
+    #include <memory>
 #endif
 
 // ================================================================================
@@ -72,7 +58,7 @@ bool FrameBuffer::HasNewFrame() const
 // ================================================================================
 
 FGPUReadbackManager::FGPUReadbackManager(TSharedPtr<FrameBuffer> InFrameBuffer)
-    : FrameBuffer(InFrameBuffer)
+    : MyFrameBuffer(InFrameBuffer)
 {
 }
 
@@ -83,7 +69,7 @@ void FGPUReadbackManager::RequestReadback(UTextureRenderTarget2D* RenderTarget, 
     FTextureRenderTargetResource* Resource = RenderTarget->GameThread_GetRenderTargetResource();
     if (!Resource) return;
     
-    // 단순화된 동기식 읽기 (GPU 비동기 읽기 대신)
+    // 단순화된 동기식 읽기
     TArray<FColor> Pixels;
     if (Resource->ReadPixels(Pixels))
     {
@@ -96,8 +82,8 @@ void FGPUReadbackManager::RequestReadback(UTextureRenderTarget2D* RenderTarget, 
         Frame.Data.SetNum(Pixels.Num() * sizeof(FColor));
         FMemory::Memcpy(Frame.Data.GetData(), Pixels.GetData(), Frame.Data.Num());
         
-        if (FrameBuffer) {
-            FrameBuffer->SetFrame(MoveTemp(Frame));
+        if (MyFrameBuffer) {
+            MyFrameBuffer->SetFrame(MoveTemp(Frame));
         }
     }
 }
@@ -118,7 +104,7 @@ USRTStreamComponent::USRTStreamComponent()
     bAutoActivate = true;
     
     // 프레임 버퍼 시스템 초기화
-    FrameBuffer = MakeShared<FrameBuffer>();
+    FrameBuffer = MakeShared<::FrameBuffer>();
     GPUReadbackManager = MakeShared<FGPUReadbackManager>(FrameBuffer);
 }
 
@@ -238,21 +224,27 @@ void USRTStreamComponent::StopStreaming()
     
     UE_LOG(LogCineSRTStream, Log, TEXT("Stopping SRT stream..."));
     
-    // Signal stop
+    // 1. 먼저 플래그 설정
     bStopRequested = true;
     bIsStreaming = false;
     
-    // Stop worker thread
+    // 2. 워커의 소켓을 즉시 닫기 (블로킹 해제)
+    if (StreamWorker.IsValid())
+    {
+        StreamWorker->ForceCloseSocket();
+    }
+    
+    // 3. 스레드 종료 (기다리지 않음)
     if (WorkerThread)
     {
-        WorkerThread->WaitForCompletion();
+        WorkerThread->Kill(false);  // false = 기다리지 않고 즉시 종료
         delete WorkerThread;
         WorkerThread = nullptr;
     }
     
     StreamWorker.Reset();
     
-    // Cleanup
+    // 4. 나머지 정리
     CleanupSceneCapture();
     
     // Reset stats
@@ -262,14 +254,16 @@ void USRTStreamComponent::StopStreaming()
     RoundTripTimeMs = 0.0f;
     
     SetConnectionState(ESRTConnectionState::Disconnected, TEXT("Stream stopped"));
+    
+    UE_LOG(LogCineSRTStream, Log, TEXT("SRT stream stopped successfully"));
 }
 
 void USRTStreamComponent::TestConnection()
 {
     UE_LOG(LogCineSRTStream, Log, TEXT("=== Testing SRT Connection ==="));
     
-    SRTSOCKET testSock = srt_create_socket();
-    if (testSock == SRT_INVALID_SOCK)
+    void* testSock = SRTNetwork::CreateSocket();
+    if (!testSock)
     {
         UE_LOG(LogCineSRTStream, Error, TEXT("Failed to create test socket"));
         return;
@@ -279,7 +273,7 @@ void USRTStreamComponent::TestConnection()
     if (bUseEncryption)
     {
         int pbkeylen = EncryptionKeyLength;
-        if (srt_setsockopt(testSock, 0, SRTO_PBKEYLEN, &pbkeylen, sizeof(pbkeylen)) == 0)
+        if (SRTNetwork::SetSocketOption(testSock, SRTNetwork::OPT_PBKEYLEN, &pbkeylen, sizeof(pbkeylen)))
         {
             UE_LOG(LogCineSRTStream, Log, TEXT("✅ Encryption test passed (%d-bit AES)"), pbkeylen * 8);
         }
@@ -289,7 +283,7 @@ void USRTStreamComponent::TestConnection()
         }
     }
     
-    srt_close(testSock);
+    SRTNetwork::CloseSocket(testSock);
     UE_LOG(LogCineSRTStream, Log, TEXT("Test completed"));
 }
 
@@ -478,7 +472,7 @@ FString USRTStreamComponent::GetStreamURL() const
 }
 
 // ================================================================================
-// FSRTStreamWorker Implementation
+// FSRTStreamWorker Implementation - 모든 SRT 직접 호출 제거!
 // ================================================================================
 
 FSRTStreamWorker::FSRTStreamWorker(USRTStreamComponent* InOwner)
@@ -491,6 +485,15 @@ FSRTStreamWorker::~FSRTStreamWorker()
     CleanupSRT();
 }
 
+void FSRTStreamWorker::ForceCloseSocket()
+{
+    if (SRTSocket)
+    {
+        SRTNetwork::CloseSocket(SRTSocket);
+        SRTSocket = nullptr;
+    }
+}
+
 bool FSRTStreamWorker::Init()
 {
     UE_LOG(LogCineSRTStream, Log, TEXT("SRT Worker thread initializing..."));
@@ -501,13 +504,16 @@ uint32 FSRTStreamWorker::Run()
 {
     UE_LOG(LogCineSRTStream, Log, TEXT("SRT Worker thread started"));
     
-    // Frame timing
     const double FrameInterval = 1.0 / Owner->StreamFPS;
     double LastFrameTime = FPlatformTime::Seconds();
     double LastStatsTime = LastFrameTime;
     
     while (!Owner->bStopRequested)
     {
+        // 중단 요청 체크를 더 자주
+        if (Owner->bStopRequested)
+            break;
+        
         double CurrentTime = FPlatformTime::Seconds();
         
         // Send frame if ready and timing is right
@@ -537,8 +543,8 @@ uint32 FSRTStreamWorker::Run()
         // Health check
         CheckHealth();
         
-        // Small sleep to prevent CPU spinning
-        FPlatformProcess::Sleep(0.001f);
+        // Sleep을 조금 더 길게 (1ms -> 10ms)
+        FPlatformProcess::Sleep(0.01f);
     }
     
     UE_LOG(LogCineSRTStream, Log, TEXT("SRT Worker thread ending"));
@@ -557,9 +563,9 @@ void FSRTStreamWorker::Exit()
 
 bool FSRTStreamWorker::InitializeSRT()
 {
-    // Create socket
-    SRTSOCKET sock = srt_create_socket();
-    if (sock == SRT_INVALID_SOCK)
+    // Create socket using SRTNetwork
+    void* sock = SRTNetwork::CreateSocket();
+    if (!sock)
     {
         Owner->SetConnectionState(ESRTConnectionState::Error, TEXT("Failed to create SRT socket"));
         return false;
@@ -567,95 +573,85 @@ bool FSRTStreamWorker::InitializeSRT()
     
     // Configure socket options
     int yes = 1;
-    int live_mode = SRTT_LIVE;
+    int live_mode = SRTNetwork::TRANSTYPE_LIVE;
     
-    srt_setsockopt(sock, 0, SRTO_TRANSTYPE, &live_mode, sizeof(live_mode));
+    SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_TRANSTYPE, &live_mode, sizeof(live_mode));
     
-    // Set mode
     if (Owner->bCallerMode)
     {
-        srt_setsockopt(sock, 0, SRTO_SENDER, &yes, sizeof(yes));
+        SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_SENDER, &yes, sizeof(yes));
     }
     
     // Stream ID
     if (!Owner->StreamID.IsEmpty())
     {
         std::string streamId = TCHAR_TO_UTF8(*Owner->StreamID);
-        srt_setsockopt(sock, 0, SRTO_STREAMID, streamId.c_str(), streamId.length());
+        SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_STREAMID, streamId.c_str(), streamId.length());
     }
     
     // Encryption
     if (Owner->bUseEncryption)
     {
         int pbkeylen = Owner->EncryptionKeyLength;
-        srt_setsockopt(sock, 0, SRTO_PBKEYLEN, &pbkeylen, sizeof(pbkeylen));
+        SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_PBKEYLEN, &pbkeylen, sizeof(pbkeylen));
         
         if (!Owner->EncryptionPassphrase.IsEmpty())
         {
             std::string passphrase = TCHAR_TO_UTF8(*Owner->EncryptionPassphrase);
-            srt_setsockopt(sock, 0, SRTO_PASSPHRASE, passphrase.c_str(), passphrase.length());
+            SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_PASSPHRASE, passphrase.c_str(), passphrase.length());
         }
     }
     
     // Performance options
     int latency = Owner->LatencyMs;
-    srt_setsockopt(sock, 0, SRTO_LATENCY, &latency, sizeof(latency));
+    SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_LATENCY, &latency, sizeof(latency));
     
     int mss = 1500;
-    srt_setsockopt(sock, 0, SRTO_MSS, &mss, sizeof(mss));
+    SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_MSS, &mss, sizeof(mss));
     
     int fc = 25600;
-    srt_setsockopt(sock, 0, SRTO_FC, &fc, sizeof(fc));
+    SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_FC, &fc, sizeof(fc));
     
     int sndbuf = 12058624; // 12MB
-    srt_setsockopt(sock, 0, SRTO_SNDBUF, &sndbuf, sizeof(sndbuf));
+    SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_SNDBUF, &sndbuf, sizeof(sndbuf));
     
     // Connect or bind
-    sockaddr_in sa;
-    memset(&sa, 0, sizeof(sa));
-    sa.sin_family = AF_INET;
-    sa.sin_port = htons(Owner->StreamPort);
-    
     if (Owner->bCallerMode)
     {
         // Caller mode - connect to server
-        inet_pton(AF_INET, TCHAR_TO_UTF8(*Owner->StreamIP), &sa.sin_addr);
-        
         Owner->SetConnectionState(ESRTConnectionState::Connecting, 
             FString::Printf(TEXT("Connecting to %s:%d..."), *Owner->StreamIP, Owner->StreamPort));
         
-        if (srt_connect(sock, (sockaddr*)&sa, sizeof(sa)) == SRT_ERROR)
+        if (!SRTNetwork::Connect(sock, TCHAR_TO_UTF8(*Owner->StreamIP), Owner->StreamPort))
         {
-            FString Error = UTF8_TO_TCHAR(srt_getlasterror_str());
+            FString Error = UTF8_TO_TCHAR(SRTNetwork::GetLastError());
             Owner->SetConnectionState(ESRTConnectionState::Error, 
                 FString::Printf(TEXT("Connection failed: %s"), *Error));
-            srt_close(sock);
+            SRTNetwork::CloseSocket(sock);
             return false;
         }
         
-        SRTSocket = (void*)sock;
+        SRTSocket = sock;
         Owner->SetConnectionState(ESRTConnectionState::Connected, TEXT("Connected successfully"));
     }
     else
     {
         // Listener mode - wait for connection
-        sa.sin_addr.s_addr = INADDR_ANY;
-        
-        if (srt_bind(sock, (sockaddr*)&sa, sizeof(sa)) != 0)
+        if (!SRTNetwork::Bind(sock, Owner->StreamPort))
         {
-            FString Error = UTF8_TO_TCHAR(srt_getlasterror_str());
+            FString Error = UTF8_TO_TCHAR(SRTNetwork::GetLastError());
             Owner->SetConnectionState(ESRTConnectionState::Error, 
                 FString::Printf(TEXT("Bind failed: %s"), *Error));
-            srt_close(sock);
+            SRTNetwork::CloseSocket(sock);
             return false;
         }
         
-        if (srt_listen(sock, 1) != 0)
+        if (!SRTNetwork::Listen(sock, 1))
         {
-            FString Error = UTF8_TO_TCHAR(srt_getlasterror_str());
+            FString Error = UTF8_TO_TCHAR(SRTNetwork::GetLastError());
             Owner->SetConnectionState(ESRTConnectionState::Error, 
                 FString::Printf(TEXT("Listen failed: %s"), *Error));
-            srt_close(sock);
+            SRTNetwork::CloseSocket(sock);
             return false;
         }
         
@@ -663,26 +659,21 @@ bool FSRTStreamWorker::InitializeSRT()
             FString::Printf(TEXT("Listening on port %d..."), Owner->StreamPort));
         
         // Accept connection
-        sockaddr_in client_addr;
-        int addr_len = sizeof(client_addr);
-        SRTSOCKET client = srt_accept(sock, (sockaddr*)&client_addr, &addr_len);
+        void* client = SRTNetwork::Accept(sock);
         
-        if (client == SRT_INVALID_SOCK)
+        if (!client)
         {
-            FString Error = UTF8_TO_TCHAR(srt_getlasterror_str());
+            FString Error = UTF8_TO_TCHAR(SRTNetwork::GetLastError());
             Owner->SetConnectionState(ESRTConnectionState::Error, 
                 FString::Printf(TEXT("Accept failed: %s"), *Error));
-            srt_close(sock);
+            SRTNetwork::CloseSocket(sock);
             return false;
         }
         
-        srt_close(sock); // Close listening socket
-        SRTSocket = (void*)client;
+        SRTNetwork::CloseSocket(sock); // Close listening socket
+        SRTSocket = client;
         
-        char client_ip[INET_ADDRSTRLEN];
-        inet_ntop(AF_INET, &client_addr.sin_addr, client_ip, INET_ADDRSTRLEN);
-        Owner->SetConnectionState(ESRTConnectionState::Connected, 
-            FString::Printf(TEXT("Client connected from %hs"), client_ip));
+        Owner->SetConnectionState(ESRTConnectionState::Connected, TEXT("Client connected"));
     }
     
     // Start streaming
@@ -694,8 +685,7 @@ void FSRTStreamWorker::CleanupSRT()
 {
     if (SRTSocket)
     {
-        SRTSOCKET sock = (SRTSOCKET)SRTSocket;
-        srt_close(sock);
+        SRTNetwork::CloseSocket(SRTSocket);
         SRTSocket = nullptr;
     }
 }
@@ -704,8 +694,6 @@ bool FSRTStreamWorker::SendFrameData()
 {
     if (!SRTSocket || !Owner || !Owner->FrameBuffer)
         return false;
-    
-    SRTSOCKET sock = (SRTSOCKET)SRTSocket;
     
     // Get frame from buffer
     FrameBuffer::Frame Frame;
@@ -732,12 +720,12 @@ bool FSRTStreamWorker::SendFrameData()
     Header.FrameNumber = Frame.FrameNumber;
     
     // Send header
-    int sent = srt_send(sock, (char*)&Header, sizeof(Header));
-    if (sent == SRT_ERROR)
+    int sent = SRTNetwork::Send(SRTSocket, (char*)&Header, sizeof(Header));
+    if (sent < 0)
     {
         if (!Owner->bStopRequested)
         {
-            FString Error = UTF8_TO_TCHAR(srt_getlasterror_str());
+            FString Error = UTF8_TO_TCHAR(SRTNetwork::GetLastError());
             UE_LOG(LogCineSRTStream, Error, TEXT("Failed to send header: %s"), *Error);
         }
         return false;
@@ -752,13 +740,13 @@ bool FSRTStreamWorker::SendFrameData()
     while (BytesSent < TotalSize && !Owner->bStopRequested)
     {
         int32 ToSend = FMath::Min(ChunkSize, TotalSize - BytesSent);
-        sent = srt_send(sock, (char*)(DataPtr + BytesSent), ToSend);
+        sent = SRTNetwork::Send(SRTSocket, (char*)(DataPtr + BytesSent), ToSend);
         
-        if (sent == SRT_ERROR)
+        if (sent < 0)
         {
             if (!Owner->bStopRequested)
             {
-                FString Error = UTF8_TO_TCHAR(srt_getlasterror_str());
+                FString Error = UTF8_TO_TCHAR(SRTNetwork::GetLastError());
                 UE_LOG(LogCineSRTStream, Error, TEXT("Failed to send data: %s"), *Error);
             }
             return false;
@@ -775,10 +763,8 @@ void FSRTStreamWorker::UpdateSRTStats()
     if (!SRTSocket)
         return;
     
-    SRTSOCKET sock = (SRTSOCKET)SRTSocket;
-    
-    SRT_TRACEBSTATS stats;
-    if (srt_bstats(sock, &stats, 1) == 0) // 1 = clear after reading
+    SRTNetwork::Stats stats;
+    if (SRTNetwork::GetStats(SRTSocket, stats))
     {
         // Update owner stats
         Owner->CurrentBitrateKbps = static_cast<float>(stats.mbpsSendRate * 1000.0);
@@ -822,8 +808,7 @@ void FSRTStreamWorker::CheckHealth()
 void FSRTStreamWorker::CleanupConnection()
 {
     if (SRTSocket) {
-        SRTSOCKET sock = (SRTSOCKET)SRTSocket;
-        srt_close(sock);
+        SRTNetwork::CloseSocket(SRTSocket);
         SRTSocket = nullptr;
     }
 } 
