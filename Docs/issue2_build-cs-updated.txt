@@ -17,7 +17,7 @@ public class CineSRTStream : ModuleRules
         bUseRTTI = true;
         
         // 경고 레벨 조정 (SRT 헤더 경고 방지)
-        UndefinedIdentifierWarningLevel = WarningLevel.Warning;
+        bEnableUndefinedIdentifierWarnings = false;
         
         PublicIncludePaths.AddRange(
             new string[] {
@@ -54,18 +54,6 @@ public class CineSRTStream : ModuleRules
                 "Networking",
                 "Media",
                 "MediaAssets"
-            }
-        );
-        
-        // 소스 파일 추가
-        PublicDependencyModuleNames.AddRange(
-            new string[]
-            {
-                "Core",
-                "CoreUObject",
-                "Engine",
-                "RenderCore",
-                "RHI"
             }
         );
         
@@ -134,26 +122,23 @@ public class CineSRTStream : ModuleRules
                 "Shell32.lib"
             });
             
-                            // 전처리기 정의
-                PublicDefinitions.AddRange(new string[] {
-                    "WIN32_LEAN_AND_MEAN",
-                    "NOMINMAX",
-                    "SRT_STATIC=1",
-                    "SRT_ENABLE_ENCRYPTION=1",
-                    "SRT_VERSION_MAJOR=1",
-                    "SRT_VERSION_MINOR=5",
-                    "SRT_VERSION_PATCH=3",
-                    "_CRT_SECURE_NO_WARNINGS",
-                    "_WINSOCK_DEPRECATED_NO_WARNINGS",
-                    "WINDOWS_IGNORE_PACKING_MISMATCH",
-                    "__STDC_WANT_LIB_EXT1__=1",
-                    "_HAS_EXCEPTIONS=1",
-                    "_ALLOW_RUNTIME_LIBRARY_MISMATCH",
-                    "_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH"
-                });
-                
-                // C 파일 컴파일 설정 (Private 소스 파일로 추가)
-                PrivateIncludePathModuleNames.Add("CineSRTStream");
+            // 전처리기 정의 (_WIN32_WINNT 제거)
+            PublicDefinitions.AddRange(new string[] {
+                "WIN32_LEAN_AND_MEAN",
+                "NOMINMAX",
+                "SRT_STATIC=1",
+                "SRT_ENABLE_ENCRYPTION=1",
+                "SRT_VERSION_MAJOR=1",
+                "SRT_VERSION_MINOR=5",
+                "SRT_VERSION_PATCH=3",
+                "_CRT_SECURE_NO_WARNINGS",
+                "_WINSOCK_DEPRECATED_NO_WARNINGS",
+                "WINDOWS_IGNORE_PACKING_MISMATCH",
+                "__STDC_WANT_LIB_EXT1__=1",
+                "_HAS_EXCEPTIONS=1",
+                "_ALLOW_RUNTIME_LIBRARY_MISMATCH",
+                "_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH"
+            });
         }
     }
 }

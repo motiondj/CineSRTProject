@@ -562,7 +562,7 @@ bool FSRTStreamWorker::InitializeSRT()
             FString::Printf(TEXT("Connecting to %s:%d..."), *Owner->StreamIP, Owner->StreamPort));
         
         std::string ipStr = TCHAR_TO_UTF8(*Owner->StreamIP);
-        if (!socket->Connect(ipStr, Owner->StreamPort))
+        if (!socket->Connect(ipStr.c_str(), Owner->StreamPort))
         {
                     Owner->SetConnectionState(ESRTConnectionState::Error, 
             FString::Printf(TEXT("Connection failed: %s"), 
@@ -708,8 +708,18 @@ void FSRTStreamWorker::UpdateSRTStats()
     
     auto socket = static_cast<SRTWrapper::SRTSocket*>(SRTSocket);
     
-    // For now, use simple stats - in Phase 3 we'll add proper SRT stats
-    // Update owner stats with placeholder values
-    Owner->CurrentBitrateKbps = 5000.0f; // Placeholder
-    Owner->RoundTripTimeMs = 50.0f; // Placeholder
+    // SRT 통계 정보 가져오기
+    SRTStats stats;
+    if (SRT_C_GetStats(socket->GetSocketHandle(), &stats, 1) == 0) // 1 = clear after reading
+    {
+        // Update owner stats
+        Owner->CurrentBitrateKbps = static_cast<float>(stats.mbpsSendRate * 1000.0);
+        Owner->RoundTripTimeMs = static_cast<float>(stats.msRTT);
+        
+        // Calculate dropped frames from packet loss
+        if (stats.pktSndLossTotal > 0)
+        {
+            Owner->DroppedFrames += stats.pktSndLossTotal;
+        }
+    }
 } 

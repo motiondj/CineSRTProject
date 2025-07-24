@@ -24,8 +24,11 @@ void FCineSRTStreamModule::StartupModule()
         return;
     }
     
-    UE_LOG(LogCineSRTStream, Log, TEXT("SRT 라이브러리 초기화 성공. 버전: %s"), 
-           UTF8_TO_TCHAR(SRTWrapper::GetVersion()));
+    // 버전 정보를 std::string으로 받아서 FString으로 변환
+    std::string versionStr = SRTWrapper::GetVersion();
+    FString version = UTF8_TO_TCHAR(versionStr.c_str());
+    
+    UE_LOG(LogCineSRTStream, Log, TEXT("SRT 라이브러리 초기화 성공. 버전: %s"), *version);
     
     UE_LOG(LogCineSRTStream, Log, TEXT("✅ CineSRTStream module initialized successfully"));
 }
