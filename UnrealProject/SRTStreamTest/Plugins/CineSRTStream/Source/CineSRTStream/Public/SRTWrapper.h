@@ -14,6 +14,7 @@
 #define SRTO_MSS 0
 #define SRTO_FC 4
 #define SRTO_SNDBUF 5
+#define SRTO_CONNTIMEO 28
 
 // SRT 통계 구조체 (C 호환)
 struct SRTStats

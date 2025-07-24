@@ -56,16 +56,40 @@ int main() {
             SRTSOCKET fdsock = srt_accept(sock, nullptr, nullptr);
             if (fdsock != SRT_INVALID_SOCK) {
                 std::cout << "✅ Connection accepted!" << std::endl;
-                char buffer[1024];
-                int recv_len = srt_recv(fdsock, buffer, sizeof(buffer));
-                if (recv_len > 0) {
-                    std::cout << "Received data: ";
-                    for (int i = 0; i < recv_len; ++i) {
-                        printf("%02x ", (unsigned char)buffer[i]);
+                // 버퍼 크기 수정 - SRT 패킷 크기보다 크게
+                const int BUFFER_SIZE = 1500;  // SRT 권장 크기 (1316보다 큼)
+                char buffer[BUFFER_SIZE];
+                
+                std::cout << "Waiting for data..." << std::endl;
+                
+                // 수신 루프
+                while (true) {
+                    int recv_len = srt_recv(fdsock, buffer, BUFFER_SIZE);
+                    
+                    if (recv_len > 0) {
+                        buffer[recv_len] = '\0';  // null 종료
+                        
+                        // 테스트 메시지 확인
+                        if (strstr(buffer, "SRT_TEST_PING") != NULL) {
+                            std::cout << "✅ Received test message: " << buffer << std::endl;
+                            break;  // 테스트 완료
+                        }
+                        
+                        std::cout << "Received " << recv_len << " bytes: ";
+                        for (int i = 0; i < recv_len && i < 50; ++i) {  // 처음 50바이트만 출력
+                            printf("%02x ", (unsigned char)buffer[i]);
+                        }
+                        if (recv_len > 50) std::cout << "...";
+                        std::cout << std::endl;
                     }
-                    std::cout << std::endl;
-                } else {
-                    std::cout << "❌ Receive failed!" << std::endl;
+                    else if (recv_len == 0) {
+                        std::cout << "Connection closed by sender" << std::endl;
+                        break;
+                    }
+                    else {
+                        std::cout << "❌ Receive failed: " << srt_getlasterror_str() << std::endl;
+                        break;
+                    }
                 }
                 srt_close(fdsock);
             } else {

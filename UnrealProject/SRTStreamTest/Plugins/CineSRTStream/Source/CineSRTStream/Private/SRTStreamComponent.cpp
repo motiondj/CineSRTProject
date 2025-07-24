@@ -178,33 +178,133 @@ void USRTStreamComponent::StopStreaming()
 
 void USRTStreamComponent::TestConnection()
 {
-    UE_LOG(LogCineSRTStream, Log, TEXT("=== Testing SRT Connection ==="));
+    UE_LOG(LogCineSRTStream, Log, TEXT("=== SRT Connection Test ==="));
+    UE_LOG(LogCineSRTStream, Log, TEXT("Target: %s:%d"), *StreamIP, StreamPort);
+    UE_LOG(LogCineSRTStream, Log, TEXT("Mode: %s"), bCallerMode ? TEXT("Caller") : TEXT("Listener"));
     
-    // Test SRT socket creation using wrapper
+    // 1. 소켓 생성
     auto testSocket = std::make_unique<SRTWrapper::SRTSocket>();
     if (!testSocket->Create())
     {
-        UE_LOG(LogCineSRTStream, Error, TEXT("Failed to create test socket: %s"), 
-               *FString(testSocket->GetLastErrorString()));
+        UE_LOG(LogCineSRTStream, Error, TEXT("❌ Failed: Cannot create socket"));
         return;
     }
     
-    // Test encryption
+    // 2. 연결 타임아웃 설정 (3초) - 선택사항
+    // int timeout = 3000;
+    // testSocket->SetOption(SRTO_CONNTIMEO, &timeout, sizeof(timeout));
+    
+    // 3. 기본 옵션 설정
+    int live_mode = SRTT_LIVE;
+    testSocket->SetOption(SRTO_TRANSTYPE, &live_mode, sizeof(live_mode));
+    
+    // 4. 암호화 설정
     if (bUseEncryption)
     {
+        UE_LOG(LogCineSRTStream, Log, TEXT("Encryption: ON (%d-bit AES)"), EncryptionKeyLength * 8);
+        UE_LOG(LogCineSRTStream, Log, TEXT("Passphrase: %s"), *EncryptionPassphrase);
+        
         int pbkeylen = EncryptionKeyLength;
-        if (testSocket->SetOption(SRTO_PBKEYLEN, &pbkeylen, sizeof(pbkeylen)))
+        if (!testSocket->SetOption(SRTO_PBKEYLEN, &pbkeylen, sizeof(pbkeylen)))
         {
-            UE_LOG(LogCineSRTStream, Log, TEXT("✅ Encryption test passed (%d-bit AES)"), pbkeylen * 8);
+            UE_LOG(LogCineSRTStream, Error, TEXT("❌ Failed: Cannot set encryption key length"));
+            return;
+        }
+        
+        std::string passphrase = TCHAR_TO_UTF8(*EncryptionPassphrase);
+        if (!testSocket->SetOption(SRTO_PASSPHRASE, passphrase.c_str(), passphrase.length()))
+        {
+            UE_LOG(LogCineSRTStream, Error, TEXT("❌ Failed: Cannot set passphrase"));
+            return;
+        }
+    }
+    else
+    {
+        UE_LOG(LogCineSRTStream, Log, TEXT("Encryption: OFF"));
+    }
+    
+    // 5. 실제 연결 시도!
+    UE_LOG(LogCineSRTStream, Log, TEXT("Attempting connection..."));
+    
+    bool bConnected = false;
+    
+    if (bCallerMode)
+    {
+        // Caller 모드: 직접 연결
+        std::string ipStr = TCHAR_TO_UTF8(*StreamIP);
+        if (testSocket->Connect(ipStr.c_str(), StreamPort))
+        {
+            bConnected = true;
+            UE_LOG(LogCineSRTStream, Log, TEXT("✅ Connected successfully!"));
         }
         else
         {
-            UE_LOG(LogCineSRTStream, Error, TEXT("❌ Encryption test failed"));
+            FString ErrorMsg = FString(testSocket->GetLastErrorString());
+            UE_LOG(LogCineSRTStream, Error, TEXT("❌ Connection failed: %s"), *ErrorMsg);
+            
+            // 디버깅을 위한 추가 정보
+            if (ErrorMsg.Contains(TEXT("timeout")))
+            {
+                UE_LOG(LogCineSRTStream, Error, TEXT("   → Is the receiver running?"));
+                UE_LOG(LogCineSRTStream, Error, TEXT("   → Check: receiver.exe or OBS with SRT listener"));
+            }
+            else if (ErrorMsg.Contains(TEXT("BADSECRET")))
+            {
+                UE_LOG(LogCineSRTStream, Error, TEXT("   → Passphrase mismatch!"));
+                UE_LOG(LogCineSRTStream, Error, TEXT("   → Your passphrase: '%s'"), *EncryptionPassphrase);
+                UE_LOG(LogCineSRTStream, Error, TEXT("   → Make sure receiver uses the same passphrase"));
+            }
+        }
+    }
+    else
+    {
+        // Listener 모드는 복잡하므로 간단히 바인드만 테스트
+        if (testSocket->Bind("0.0.0.0", StreamPort))
+        {
+            UE_LOG(LogCineSRTStream, Log, TEXT("✅ Bind successful on port %d"), StreamPort);
+            UE_LOG(LogCineSRTStream, Log, TEXT("   (Full listener test requires accept - use Start Streaming)"));
+            bConnected = true;
+        }
+        else
+        {
+            UE_LOG(LogCineSRTStream, Error, TEXT("❌ Bind failed: %s"), 
+                   *FString(testSocket->GetLastErrorString()));
         }
     }
     
+    // 6. 연결 성공시 간단한 테스트
+    if (bConnected && bCallerMode)
+    {
+        const char* testMsg = "SRT_TEST_PING";
+        int sent = testSocket->Send(testMsg, strlen(testMsg));
+        if (sent > 0)
+        {
+            UE_LOG(LogCineSRTStream, Log, TEXT("✅ Test message sent successfully (%d bytes)"), sent);
+            
+            // 추가할 코드 (딱 한 줄)
+            FPlatformProcess::Sleep(0.5f);  // 0.5초 대기
+        }
+        else
+        {
+            UE_LOG(LogCineSRTStream, Warning, TEXT("⚠️  Could not send test message"));
+        }
+    }
+    
+    // 7. 정리
     testSocket->Close();
-    UE_LOG(LogCineSRTStream, Log, TEXT("Test completed"));
+    
+    // 8. 최종 요약
+    UE_LOG(LogCineSRTStream, Log, TEXT("=== Test Summary ==="));
+    if (bConnected)
+    {
+        UE_LOG(LogCineSRTStream, Log, TEXT("✅ Connection test PASSED"));
+        UE_LOG(LogCineSRTStream, Log, TEXT("Ready to start streaming!"));
+    }
+    else
+    {
+        UE_LOG(LogCineSRTStream, Error, TEXT("❌ Connection test FAILED"));
+        UE_LOG(LogCineSRTStream, Error, TEXT("Please check the error messages above"));
+    }
 }
 
 void USRTStreamComponent::GetResolution(int32& OutWidth, int32& OutHeight) const
