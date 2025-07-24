@@ -61,7 +61,7 @@ void USRTStreamComponent::TickComponent(float DeltaTime, ELevelTick TickType,
     if (!bIsStreaming)
         return;
     
-    // Update stats periodically
+    // 통계 업데이트
     double CurrentTime = FPlatformTime::Seconds();
     if (CurrentTime - LastStatsUpdateTime >= StatsUpdateInterval)
     {
@@ -69,15 +69,24 @@ void USRTStreamComponent::TickComponent(float DeltaTime, ELevelTick TickType,
         LastStatsUpdateTime = CurrentTime;
     }
     
-    // Capture frame at target FPS
+    // 프레임 캡처 타이밍 제어
     static double LastCaptureTime = 0.0;
     double FrameInterval = 1.0 / StreamFPS;
     
-    if (CurrentTime - LastCaptureTime >= FrameInterval)
+    // 1. 시간이 안 됐으면 건너뛰기
+    if (CurrentTime - LastCaptureTime < FrameInterval)
+        return;
+    
+    // 2. 이전 프레임이 아직 처리 중이면 건너뛰기
+    if (bNewFrameReady.Load())
     {
-        CaptureFrame();
-        LastCaptureTime = CurrentTime;
+        DroppedFrames++;  // 프레임 드롭 카운트
+        return;
     }
+    
+    // 3. 프레임 캡처
+    CaptureFrame();
+    LastCaptureTime = CurrentTime;
 }
 
 #if WITH_EDITOR
@@ -397,40 +406,33 @@ void USRTStreamComponent::CaptureFrame()
     if (!SceneCapture || !RenderTarget)
         return;
     
-    // Capture the scene
+    // 씬 캡처
     SceneCapture->CaptureScene();
     
-    // Read pixels asynchronously
+    // 비동기로 픽셀 읽기 (메인 스레드 블로킹 방지)
     FTextureRenderTargetResource* RenderTargetResource = RenderTarget->GameThread_GetRenderTargetResource();
     if (!RenderTargetResource)
         return;
     
-    struct FReadSurfaceContext
-    {
-        USRTStreamComponent* Component;
-        FRenderTarget* SrcRenderTarget;
-        TArray<FColor>* OutData;
-        FIntRect Rect;
-    };
-    
-    FReadSurfaceContext Context = {
-        this,
-        RenderTargetResource,
-        &FrameBuffer,
-        FIntRect(0, 0, RenderTarget->SizeX, RenderTarget->SizeY)
-    };
-    
     ENQUEUE_RENDER_COMMAND(ReadSurfaceCommand)(
-        [Context](FRHICommandListImmediate& RHICmdList)
+        [this, RenderTargetResource](FRHICommandListImmediate& RHICmdList)
         {
+            // 이미 처리 중인 프레임이 있으면 건너뛰기
+            if (bNewFrameReady.Load())
+                return;
+            
+            FIntRect Rect(0, 0, RenderTarget->SizeX, RenderTarget->SizeY);
+            
+            // 렌더 스레드에서 픽셀 읽기
             RHICmdList.ReadSurfaceData(
-                Context.SrcRenderTarget->GetRenderTargetTexture(),
-                Context.Rect,
-                *Context.OutData,
+                RenderTargetResource->GetRenderTargetTexture(),
+                Rect,
+                FrameBuffer,
                 FReadSurfaceDataFlags(RCM_UNorm, CubeFace_MAX)
             );
             
-            Context.Component->bNewFrameReady = true;
+            // 새 프레임 준비됨 표시
+            bNewFrameReady.Store(true);
         });
 }
 
