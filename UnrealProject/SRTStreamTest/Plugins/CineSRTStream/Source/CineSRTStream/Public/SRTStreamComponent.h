@@ -7,7 +7,6 @@
 #include "Camera/CameraComponent.h"
 #include "HAL/Runnable.h"
 #include "HAL/RunnableThread.h"
-#include "SRTWrapper.h"
 #include "SRTStreamComponent.generated.h"
 
 // Forward declarations
@@ -44,6 +43,41 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(
     int32, FramesSent,
     float, RTTms
 );
+
+// 단순한 프레임 버퍼 시스템
+class FrameBuffer {
+public:
+    struct Frame {
+        TArray<uint8> Data;
+        uint32 FrameNumber;
+        double Timestamp;
+        int32 Width;
+        int32 Height;
+    };
+    
+    void SetFrame(Frame&& frame);
+    bool GetFrame(Frame& OutFrame);
+    void Clear();
+    bool HasNewFrame() const;
+    
+private:
+    Frame CurrentFrame;
+    mutable FCriticalSection Mutex;
+    TAtomic<bool> bNewFrameReady{false};
+};
+
+// 전용 GPU 읽기 매니저 (단순화된 버전)
+class FGPUReadbackManager : public TSharedFromThis<FGPUReadbackManager> {
+public:
+    FGPUReadbackManager(TSharedPtr<FrameBuffer> InFrameBuffer);
+    
+    void RequestReadback(UTextureRenderTarget2D* RenderTarget, uint32 FrameNumber);
+    void Shutdown();
+    
+private:
+    TSharedPtr<FrameBuffer> FrameBuffer;
+    TAtomic<bool> bShuttingDown{false};
+};
 
 UCLASS(ClassGroup=(Streaming), meta=(BlueprintSpawnableComponent), DisplayName="SRT Stream Component")
 class CINESRTSTREAM_API USRTStreamComponent : public UActorComponent
@@ -112,6 +146,10 @@ public:
         meta = (ToolTip = "Use hardware acceleration if available"))
     bool bUseHardwareAcceleration = true;
     
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Performance",
+        meta = (ToolTip = "Automatically reconnect on connection loss"))
+    bool bAutoReconnect = true;
+    
     // === 상태 속성 (읽기 전용) ===
     
     UPROPERTY(BlueprintReadOnly, Category = "SRT Status")
@@ -171,22 +209,6 @@ protected:
 #endif
 
 private:
-    // SRT 데이터 (PIMPL 패턴)
-    class FSRTData {
-    public:
-        std::unique_ptr<SRTWrapper::SRTSocket> Socket;
-        bool IsConnected = false;
-        std::string RemoteIP;
-        int RemotePort = 0;
-        
-        FSRTData() {
-            Socket = std::make_unique<SRTWrapper::SRTSocket>();
-        }
-        
-        ~FSRTData() = default;
-    };
-    std::unique_ptr<FSRTData> SRTData;
-    
     // 스트리밍 상태
     bool bIsStreaming = false;
     TAtomic<bool> bStopRequested{false};
@@ -202,10 +224,9 @@ private:
     TUniquePtr<FSRTStreamWorker> StreamWorker;
     FRunnableThread* WorkerThread = nullptr;
     
-    // Frame buffer
-    TArray<FColor> FrameBuffer;
-    FCriticalSection FrameBufferMutex;
-    TAtomic<bool> bNewFrameReady{false};
+    // 프레임 버퍼 시스템
+    TSharedPtr<FrameBuffer> FrameBuffer;
+    TSharedPtr<FGPUReadbackManager> GPUReadbackManager;
     
     // 통계
     double LastStatsUpdateTime = 0.0;
@@ -218,12 +239,6 @@ private:
     void CaptureFrame();
     void UpdateStats();
     void SetConnectionState(ESRTConnectionState NewState, const FString& Message = TEXT(""));
-    
-    // SRT 연결 메서드
-    bool Connect(const FString& IP, int32 Port);
-    void Disconnect();
-    bool SendData(const TArray<uint8>& Data);
-    bool IsConnected() const;
     
     friend class FSRTStreamWorker;
 };
@@ -245,10 +260,13 @@ public:
     
 private:
     USRTStreamComponent* Owner;
-    SRTWrapper::SRTSocket* SRTSocket = nullptr;
+    void* SRTSocket = nullptr;
     
     bool InitializeSRT();
     void CleanupSRT();
     bool SendFrameData();
     void UpdateSRTStats();
+    void HandleDisconnection();
+    void CheckHealth();
+    void CleanupConnection();
 }; 

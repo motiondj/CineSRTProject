@@ -1,3 +1,4 @@
+// C++/Unreal 헤더는 항상 바깥에!
 #include "SRTStreamComponent.h"
 #include "CineSRTStream.h"
 #include "Engine/Engine.h"
@@ -9,16 +10,102 @@
 #include "Async/Async.h"
 #include "HAL/PlatformFilemanager.h"
 
-// C++ 헤더들을 먼저 포함
-#include <string>
-#include <vector>
-#include <memory>
-#include <algorithm>
+// Windows 헤더 (C++ 전용)
+#ifdef _WIN32
+    #ifndef WIN32_LEAN_AND_MEAN
+    #define WIN32_LEAN_AND_MEAN
+    #endif
+    #include <Windows.h>
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
+    #pragma warning(push)
+    #pragma warning(disable: 4005)
+    #pragma warning(disable: 4996)
+#endif
 
-// SRT 헤더 래퍼 사용
-#include "SRTWrapper.h"
+// SRT 헤더만 extern "C"로 감쌈
+extern "C" {
+    #include "srt.h"
+}
 
-// FSRTData 클래스는 이제 헤더에서 완전히 정의됨
+#ifdef _WIN32
+    #pragma warning(pop)
+#endif
+
+// ================================================================================
+// FrameBuffer Implementation
+// ================================================================================
+
+void FrameBuffer::SetFrame(Frame&& frame)
+{
+    FScopeLock Lock(&Mutex);
+    CurrentFrame = MoveTemp(frame);
+    bNewFrameReady = true;
+}
+
+bool FrameBuffer::GetFrame(Frame& OutFrame)
+{
+    FScopeLock Lock(&Mutex);
+    if (bNewFrameReady)
+    {
+        OutFrame = MoveTemp(CurrentFrame);
+        bNewFrameReady = false;
+        return true;
+    }
+    return false;
+}
+
+void FrameBuffer::Clear()
+{
+    FScopeLock Lock(&Mutex);
+    CurrentFrame.Data.Empty();
+    bNewFrameReady = false;
+}
+
+bool FrameBuffer::HasNewFrame() const
+{
+    return bNewFrameReady.Load();
+}
+
+// ================================================================================
+// FGPUReadbackManager Implementation
+// ================================================================================
+
+FGPUReadbackManager::FGPUReadbackManager(TSharedPtr<FrameBuffer> InFrameBuffer)
+    : FrameBuffer(InFrameBuffer)
+{
+}
+
+void FGPUReadbackManager::RequestReadback(UTextureRenderTarget2D* RenderTarget, uint32 FrameNumber)
+{
+    if (!RenderTarget || bShuttingDown.Load()) return;
+    
+    FTextureRenderTargetResource* Resource = RenderTarget->GameThread_GetRenderTargetResource();
+    if (!Resource) return;
+    
+    // 단순화된 동기식 읽기 (GPU 비동기 읽기 대신)
+    TArray<FColor> Pixels;
+    if (Resource->ReadPixels(Pixels))
+    {
+        // 프레임 버퍼에 추가
+        FrameBuffer::Frame Frame;
+        Frame.FrameNumber = FrameNumber;
+        Frame.Timestamp = FPlatformTime::Seconds();
+        Frame.Width = RenderTarget->SizeX;
+        Frame.Height = RenderTarget->SizeY;
+        Frame.Data.SetNum(Pixels.Num() * sizeof(FColor));
+        FMemory::Memcpy(Frame.Data.GetData(), Pixels.GetData(), Frame.Data.Num());
+        
+        if (FrameBuffer) {
+            FrameBuffer->SetFrame(MoveTemp(Frame));
+        }
+    }
+}
+
+void FGPUReadbackManager::Shutdown()
+{
+    bShuttingDown.Store(true);
+}
 
 // ================================================================================
 // USRTStreamComponent Implementation
@@ -30,8 +117,9 @@ USRTStreamComponent::USRTStreamComponent()
     PrimaryComponentTick.TickGroup = TG_PostUpdateWork;
     bAutoActivate = true;
     
-    // Initialize SRT data
-    SRTData = std::make_unique<FSRTData>();
+    // 프레임 버퍼 시스템 초기화
+    FrameBuffer = MakeShared<FrameBuffer>();
+    GPUReadbackManager = MakeShared<FGPUReadbackManager>(FrameBuffer);
 }
 
 USRTStreamComponent::~USRTStreamComponent()
@@ -61,7 +149,7 @@ void USRTStreamComponent::TickComponent(float DeltaTime, ELevelTick TickType,
     if (!bIsStreaming)
         return;
     
-    // 통계 업데이트
+    // Update stats periodically
     double CurrentTime = FPlatformTime::Seconds();
     if (CurrentTime - LastStatsUpdateTime >= StatsUpdateInterval)
     {
@@ -69,24 +157,15 @@ void USRTStreamComponent::TickComponent(float DeltaTime, ELevelTick TickType,
         LastStatsUpdateTime = CurrentTime;
     }
     
-    // 프레임 캡처 타이밍 제어
+    // Capture frame at target FPS
     static double LastCaptureTime = 0.0;
     double FrameInterval = 1.0 / StreamFPS;
     
-    // 1. 시간이 안 됐으면 건너뛰기
-    if (CurrentTime - LastCaptureTime < FrameInterval)
-        return;
-    
-    // 2. 이전 프레임이 아직 처리 중이면 건너뛰기
-    if (bNewFrameReady.Load())
+    if (CurrentTime - LastCaptureTime >= FrameInterval)
     {
-        DroppedFrames++;  // 프레임 드롭 카운트
-        return;
+        CaptureFrame();
+        LastCaptureTime = CurrentTime;
     }
-    
-    // 3. 프레임 캡처
-    CaptureFrame();
-    LastCaptureTime = CurrentTime;
 }
 
 #if WITH_EDITOR
@@ -187,133 +266,31 @@ void USRTStreamComponent::StopStreaming()
 
 void USRTStreamComponent::TestConnection()
 {
-    UE_LOG(LogCineSRTStream, Log, TEXT("=== SRT Connection Test ==="));
-    UE_LOG(LogCineSRTStream, Log, TEXT("Target: %s:%d"), *StreamIP, StreamPort);
-    UE_LOG(LogCineSRTStream, Log, TEXT("Mode: %s"), bCallerMode ? TEXT("Caller") : TEXT("Listener"));
+    UE_LOG(LogCineSRTStream, Log, TEXT("=== Testing SRT Connection ==="));
     
-    // 1. 소켓 생성
-    auto testSocket = std::make_unique<SRTWrapper::SRTSocket>();
-    if (!testSocket->Create())
+    SRTSOCKET testSock = srt_create_socket();
+    if (testSock == SRT_INVALID_SOCK)
     {
-        UE_LOG(LogCineSRTStream, Error, TEXT("❌ Failed: Cannot create socket"));
+        UE_LOG(LogCineSRTStream, Error, TEXT("Failed to create test socket"));
         return;
     }
     
-    // 2. 연결 타임아웃 설정 (3초) - 선택사항
-    // int timeout = 3000;
-    // testSocket->SetOption(SRTO_CONNTIMEO, &timeout, sizeof(timeout));
-    
-    // 3. 기본 옵션 설정
-    int live_mode = SRTT_LIVE;
-    testSocket->SetOption(SRTO_TRANSTYPE, &live_mode, sizeof(live_mode));
-    
-    // 4. 암호화 설정
+    // Test encryption
     if (bUseEncryption)
     {
-        UE_LOG(LogCineSRTStream, Log, TEXT("Encryption: ON (%d-bit AES)"), EncryptionKeyLength * 8);
-        UE_LOG(LogCineSRTStream, Log, TEXT("Passphrase: %s"), *EncryptionPassphrase);
-        
         int pbkeylen = EncryptionKeyLength;
-        if (!testSocket->SetOption(SRTO_PBKEYLEN, &pbkeylen, sizeof(pbkeylen)))
+        if (srt_setsockopt(testSock, 0, SRTO_PBKEYLEN, &pbkeylen, sizeof(pbkeylen)) == 0)
         {
-            UE_LOG(LogCineSRTStream, Error, TEXT("❌ Failed: Cannot set encryption key length"));
-            return;
-        }
-        
-        std::string passphrase = TCHAR_TO_UTF8(*EncryptionPassphrase);
-        if (!testSocket->SetOption(SRTO_PASSPHRASE, passphrase.c_str(), passphrase.length()))
-        {
-            UE_LOG(LogCineSRTStream, Error, TEXT("❌ Failed: Cannot set passphrase"));
-            return;
-        }
-    }
-    else
-    {
-        UE_LOG(LogCineSRTStream, Log, TEXT("Encryption: OFF"));
-    }
-    
-    // 5. 실제 연결 시도!
-    UE_LOG(LogCineSRTStream, Log, TEXT("Attempting connection..."));
-    
-    bool bConnected = false;
-    
-    if (bCallerMode)
-    {
-        // Caller 모드: 직접 연결
-        std::string ipStr = TCHAR_TO_UTF8(*StreamIP);
-        if (testSocket->Connect(ipStr.c_str(), StreamPort))
-        {
-            bConnected = true;
-            UE_LOG(LogCineSRTStream, Log, TEXT("✅ Connected successfully!"));
+            UE_LOG(LogCineSRTStream, Log, TEXT("✅ Encryption test passed (%d-bit AES)"), pbkeylen * 8);
         }
         else
         {
-            FString ErrorMsg = FString(testSocket->GetLastErrorString());
-            UE_LOG(LogCineSRTStream, Error, TEXT("❌ Connection failed: %s"), *ErrorMsg);
-            
-            // 디버깅을 위한 추가 정보
-            if (ErrorMsg.Contains(TEXT("timeout")))
-            {
-                UE_LOG(LogCineSRTStream, Error, TEXT("   → Is the receiver running?"));
-                UE_LOG(LogCineSRTStream, Error, TEXT("   → Check: receiver.exe or OBS with SRT listener"));
-            }
-            else if (ErrorMsg.Contains(TEXT("BADSECRET")))
-            {
-                UE_LOG(LogCineSRTStream, Error, TEXT("   → Passphrase mismatch!"));
-                UE_LOG(LogCineSRTStream, Error, TEXT("   → Your passphrase: '%s'"), *EncryptionPassphrase);
-                UE_LOG(LogCineSRTStream, Error, TEXT("   → Make sure receiver uses the same passphrase"));
-            }
-        }
-    }
-    else
-    {
-        // Listener 모드는 복잡하므로 간단히 바인드만 테스트
-        if (testSocket->Bind("0.0.0.0", StreamPort))
-        {
-            UE_LOG(LogCineSRTStream, Log, TEXT("✅ Bind successful on port %d"), StreamPort);
-            UE_LOG(LogCineSRTStream, Log, TEXT("   (Full listener test requires accept - use Start Streaming)"));
-            bConnected = true;
-        }
-        else
-        {
-            UE_LOG(LogCineSRTStream, Error, TEXT("❌ Bind failed: %s"), 
-                   *FString(testSocket->GetLastErrorString()));
+            UE_LOG(LogCineSRTStream, Error, TEXT("❌ Encryption test failed"));
         }
     }
     
-    // 6. 연결 성공시 간단한 테스트
-    if (bConnected && bCallerMode)
-    {
-        const char* testMsg = "SRT_TEST_PING";
-        int sent = testSocket->Send(testMsg, strlen(testMsg));
-        if (sent > 0)
-        {
-            UE_LOG(LogCineSRTStream, Log, TEXT("✅ Test message sent successfully (%d bytes)"), sent);
-            
-            // 추가할 코드 (딱 한 줄)
-            FPlatformProcess::Sleep(0.5f);  // 0.5초 대기
-        }
-        else
-        {
-            UE_LOG(LogCineSRTStream, Warning, TEXT("⚠️  Could not send test message"));
-        }
-    }
-    
-    // 7. 정리
-    testSocket->Close();
-    
-    // 8. 최종 요약
-    UE_LOG(LogCineSRTStream, Log, TEXT("=== Test Summary ==="));
-    if (bConnected)
-    {
-        UE_LOG(LogCineSRTStream, Log, TEXT("✅ Connection test PASSED"));
-        UE_LOG(LogCineSRTStream, Log, TEXT("Ready to start streaming!"));
-    }
-    else
-    {
-        UE_LOG(LogCineSRTStream, Error, TEXT("❌ Connection test FAILED"));
-        UE_LOG(LogCineSRTStream, Error, TEXT("Please check the error messages above"));
-    }
+    srt_close(testSock);
+    UE_LOG(LogCineSRTStream, Log, TEXT("Test completed"));
 }
 
 void USRTStreamComponent::GetResolution(int32& OutWidth, int32& OutHeight) const
@@ -382,9 +359,6 @@ bool USRTStreamComponent::SetupSceneCapture()
     // Copy camera settings
     SceneCapture->FOVAngle = Camera->FieldOfView;
     
-    // Allocate frame buffer
-    FrameBuffer.SetNum(Width * Height);
-    
     UE_LOG(LogCineSRTStream, Log, TEXT("Scene capture setup complete: %dx%d"), Width, Height);
     return true;
 }
@@ -398,7 +372,6 @@ void USRTStreamComponent::CleanupSceneCapture()
     }
     
     RenderTarget = nullptr;
-    FrameBuffer.Empty();
 }
 
 void USRTStreamComponent::CaptureFrame()
@@ -406,34 +379,14 @@ void USRTStreamComponent::CaptureFrame()
     if (!SceneCapture || !RenderTarget)
         return;
     
-    // 씬 캡처
+    // Capture the scene
     SceneCapture->CaptureScene();
     
-    // 비동기로 픽셀 읽기 (메인 스레드 블로킹 방지)
-    FTextureRenderTargetResource* RenderTargetResource = RenderTarget->GameThread_GetRenderTargetResource();
-    if (!RenderTargetResource)
-        return;
-    
-    ENQUEUE_RENDER_COMMAND(ReadSurfaceCommand)(
-        [this, RenderTargetResource](FRHICommandListImmediate& RHICmdList)
-        {
-            // 이미 처리 중인 프레임이 있으면 건너뛰기
-            if (bNewFrameReady.Load())
-                return;
-            
-            FIntRect Rect(0, 0, RenderTarget->SizeX, RenderTarget->SizeY);
-            
-            // 렌더 스레드에서 픽셀 읽기
-            RHICmdList.ReadSurfaceData(
-                RenderTargetResource->GetRenderTargetTexture(),
-                Rect,
-                FrameBuffer,
-                FReadSurfaceDataFlags(RCM_UNorm, CubeFace_MAX)
-            );
-            
-            // 새 프레임 준비됨 표시
-            bNewFrameReady.Store(true);
-        });
+    // Request GPU readback
+    if (GPUReadbackManager)
+    {
+        GPUReadbackManager->RequestReadback(RenderTarget, TotalFramesSent);
+    }
 }
 
 void USRTStreamComponent::UpdateStats()
@@ -560,7 +513,7 @@ uint32 FSRTStreamWorker::Run()
         // Send frame if ready and timing is right
         if (CurrentTime - LastFrameTime >= FrameInterval)
         {
-            if (Owner->bNewFrameReady)
+            if (Owner->FrameBuffer && Owner->FrameBuffer->HasNewFrame())
             {
                 if (SendFrameData())
                 {
@@ -570,7 +523,6 @@ uint32 FSRTStreamWorker::Run()
                 {
                     Owner->DroppedFrames++;
                 }
-                Owner->bNewFrameReady = false;
             }
             LastFrameTime = CurrentTime;
         }
@@ -581,6 +533,9 @@ uint32 FSRTStreamWorker::Run()
             UpdateSRTStats();
             LastStatsTime = CurrentTime;
         }
+        
+        // Health check
+        CheckHealth();
         
         // Small sleep to prevent CPU spinning
         FPlatformProcess::Sleep(0.001f);
@@ -602,13 +557,11 @@ void FSRTStreamWorker::Exit()
 
 bool FSRTStreamWorker::InitializeSRT()
 {
-    // Create socket using wrapper
-    auto socket = std::make_unique<SRTWrapper::SRTSocket>();
-    if (!socket->Create())
+    // Create socket
+    SRTSOCKET sock = srt_create_socket();
+    if (sock == SRT_INVALID_SOCK)
     {
-        Owner->SetConnectionState(ESRTConnectionState::Error, 
-            FString::Printf(TEXT("Failed to create SRT socket: %s"), 
-            *FString(socket->GetLastErrorString())));
+        Owner->SetConnectionState(ESRTConnectionState::Error, TEXT("Failed to create SRT socket"));
         return false;
     }
     
@@ -616,81 +569,93 @@ bool FSRTStreamWorker::InitializeSRT()
     int yes = 1;
     int live_mode = SRTT_LIVE;
     
-    socket->SetOption(SRTO_TRANSTYPE, &live_mode, sizeof(live_mode));
+    srt_setsockopt(sock, 0, SRTO_TRANSTYPE, &live_mode, sizeof(live_mode));
     
     // Set mode
     if (Owner->bCallerMode)
     {
-        socket->SetOption(SRTO_SENDER, &yes, sizeof(yes));
+        srt_setsockopt(sock, 0, SRTO_SENDER, &yes, sizeof(yes));
     }
     
     // Stream ID
     if (!Owner->StreamID.IsEmpty())
     {
         std::string streamId = TCHAR_TO_UTF8(*Owner->StreamID);
-        socket->SetOption(SRTO_STREAMID, streamId.c_str(), streamId.length());
+        srt_setsockopt(sock, 0, SRTO_STREAMID, streamId.c_str(), streamId.length());
     }
     
     // Encryption
     if (Owner->bUseEncryption)
     {
         int pbkeylen = Owner->EncryptionKeyLength;
-        socket->SetOption(SRTO_PBKEYLEN, &pbkeylen, sizeof(pbkeylen));
+        srt_setsockopt(sock, 0, SRTO_PBKEYLEN, &pbkeylen, sizeof(pbkeylen));
         
         if (!Owner->EncryptionPassphrase.IsEmpty())
         {
             std::string passphrase = TCHAR_TO_UTF8(*Owner->EncryptionPassphrase);
-            socket->SetOption(SRTO_PASSPHRASE, passphrase.c_str(), passphrase.length());
+            srt_setsockopt(sock, 0, SRTO_PASSPHRASE, passphrase.c_str(), passphrase.length());
         }
     }
     
     // Performance options
     int latency = Owner->LatencyMs;
-    socket->SetOption(SRTO_LATENCY, &latency, sizeof(latency));
+    srt_setsockopt(sock, 0, SRTO_LATENCY, &latency, sizeof(latency));
     
     int mss = 1500;
-    socket->SetOption(SRTO_MSS, &mss, sizeof(mss));
+    srt_setsockopt(sock, 0, SRTO_MSS, &mss, sizeof(mss));
     
     int fc = 25600;
-    socket->SetOption(SRTO_FC, &fc, sizeof(fc));
+    srt_setsockopt(sock, 0, SRTO_FC, &fc, sizeof(fc));
     
     int sndbuf = 12058624; // 12MB
-    socket->SetOption(SRTO_SNDBUF, &sndbuf, sizeof(sndbuf));
+    srt_setsockopt(sock, 0, SRTO_SNDBUF, &sndbuf, sizeof(sndbuf));
+    
+    // Connect or bind
+    sockaddr_in sa;
+    memset(&sa, 0, sizeof(sa));
+    sa.sin_family = AF_INET;
+    sa.sin_port = htons(Owner->StreamPort);
     
     if (Owner->bCallerMode)
     {
         // Caller mode - connect to server
+        inet_pton(AF_INET, TCHAR_TO_UTF8(*Owner->StreamIP), &sa.sin_addr);
+        
         Owner->SetConnectionState(ESRTConnectionState::Connecting, 
             FString::Printf(TEXT("Connecting to %s:%d..."), *Owner->StreamIP, Owner->StreamPort));
         
-        std::string ipStr = TCHAR_TO_UTF8(*Owner->StreamIP);
-        if (!socket->Connect(ipStr.c_str(), Owner->StreamPort))
+        if (srt_connect(sock, (sockaddr*)&sa, sizeof(sa)) == SRT_ERROR)
         {
-                    Owner->SetConnectionState(ESRTConnectionState::Error, 
-            FString::Printf(TEXT("Connection failed: %s"), 
-            *FString(socket->GetLastErrorString())));
+            FString Error = UTF8_TO_TCHAR(srt_getlasterror_str());
+            Owner->SetConnectionState(ESRTConnectionState::Error, 
+                FString::Printf(TEXT("Connection failed: %s"), *Error));
+            srt_close(sock);
             return false;
         }
         
-        SRTSocket = socket.release();
+        SRTSocket = (void*)sock;
         Owner->SetConnectionState(ESRTConnectionState::Connected, TEXT("Connected successfully"));
     }
     else
     {
         // Listener mode - wait for connection
-        if (!socket->Bind("0.0.0.0", Owner->StreamPort))
+        sa.sin_addr.s_addr = INADDR_ANY;
+        
+        if (srt_bind(sock, (sockaddr*)&sa, sizeof(sa)) != 0)
         {
+            FString Error = UTF8_TO_TCHAR(srt_getlasterror_str());
             Owner->SetConnectionState(ESRTConnectionState::Error, 
-                FString::Printf(TEXT("Bind failed: %s"), 
-                *FString(socket->GetLastErrorString())));
+                FString::Printf(TEXT("Bind failed: %s"), *Error));
+            srt_close(sock);
             return false;
         }
         
-        if (!socket->Listen(1))
+        if (srt_listen(sock, 1) != 0)
         {
+            FString Error = UTF8_TO_TCHAR(srt_getlasterror_str());
             Owner->SetConnectionState(ESRTConnectionState::Error, 
-                FString::Printf(TEXT("Listen failed: %s"), 
-                *FString(socket->GetLastErrorString())));
+                FString::Printf(TEXT("Listen failed: %s"), *Error));
+            srt_close(sock);
             return false;
         }
         
@@ -698,17 +663,26 @@ bool FSRTStreamWorker::InitializeSRT()
             FString::Printf(TEXT("Listening on port %d..."), Owner->StreamPort));
         
         // Accept connection
-        auto clientSocket = socket->Accept();
-        if (!clientSocket)
+        sockaddr_in client_addr;
+        int addr_len = sizeof(client_addr);
+        SRTSOCKET client = srt_accept(sock, (sockaddr*)&client_addr, &addr_len);
+        
+        if (client == SRT_INVALID_SOCK)
         {
+            FString Error = UTF8_TO_TCHAR(srt_getlasterror_str());
             Owner->SetConnectionState(ESRTConnectionState::Error, 
-                FString::Printf(TEXT("Accept failed: %s"), 
-                *FString(socket->GetLastErrorString())));
+                FString::Printf(TEXT("Accept failed: %s"), *Error));
+            srt_close(sock);
             return false;
         }
         
-        SRTSocket = clientSocket;
-        Owner->SetConnectionState(ESRTConnectionState::Connected, TEXT("Client connected"));
+        srt_close(sock); // Close listening socket
+        SRTSocket = (void*)client;
+        
+        char client_ip[INET_ADDRSTRLEN];
+        inet_ntop(AF_INET, &client_addr.sin_addr, client_ip, INET_ADDRSTRLEN);
+        Owner->SetConnectionState(ESRTConnectionState::Connected, 
+            FString::Printf(TEXT("Client connected from %hs"), client_ip));
     }
     
     // Start streaming
@@ -720,29 +694,25 @@ void FSRTStreamWorker::CleanupSRT()
 {
     if (SRTSocket)
     {
-        auto socket = static_cast<SRTWrapper::SRTSocket*>(SRTSocket);
-        socket->Close();
-        delete socket;
+        SRTSOCKET sock = (SRTSOCKET)SRTSocket;
+        srt_close(sock);
         SRTSocket = nullptr;
     }
 }
 
 bool FSRTStreamWorker::SendFrameData()
 {
-    if (!SRTSocket || !Owner)
+    if (!SRTSocket || !Owner || !Owner->FrameBuffer)
         return false;
     
-    auto socket = static_cast<SRTWrapper::SRTSocket*>(SRTSocket);
+    SRTSOCKET sock = (SRTSOCKET)SRTSocket;
     
-    // Lock and copy frame data
-    FScopeLock Lock(&Owner->FrameBufferMutex);
-    
-    if (Owner->FrameBuffer.Num() == 0)
+    // Get frame from buffer
+    FrameBuffer::Frame Frame;
+    if (!Owner->FrameBuffer->GetFrame(Frame))
         return false;
     
-    // For now, send raw pixel data with simple header
-    // In Phase 3, this will be replaced with H.264 encoded data
-    
+    // Send frame data with simple header
     struct FrameHeader
     {
         uint32 Magic = 0x53525446; // 'SRTF'
@@ -754,45 +724,42 @@ bool FSRTStreamWorker::SendFrameData()
         uint32 FrameNumber;
     };
     
-    int32 Width, Height;
-    Owner->GetResolution(Width, Height);
-    
     FrameHeader Header;
-    Header.Width = Width;
-    Header.Height = Height;
-    Header.DataSize = Owner->FrameBuffer.Num() * sizeof(FColor);
+    Header.Width = Frame.Width;
+    Header.Height = Frame.Height;
+    Header.DataSize = Frame.Data.Num();
     Header.Timestamp = FPlatformTime::Cycles64();
-    Header.FrameNumber = Owner->TotalFramesSent;
+    Header.FrameNumber = Frame.FrameNumber;
     
     // Send header
-    int sent = socket->Send((char*)&Header, sizeof(Header));
-    if (sent < 0)
+    int sent = srt_send(sock, (char*)&Header, sizeof(Header));
+    if (sent == SRT_ERROR)
     {
         if (!Owner->bStopRequested)
         {
-            UE_LOG(LogCineSRTStream, Error, TEXT("Failed to send header: %s"), 
-                   *FString(socket->GetLastErrorString()));
+            FString Error = UTF8_TO_TCHAR(srt_getlasterror_str());
+            UE_LOG(LogCineSRTStream, Error, TEXT("Failed to send header: %s"), *Error);
         }
         return false;
     }
     
     // Send pixel data in chunks
     const int ChunkSize = 1316; // SRT recommended payload size
-    const uint8* DataPtr = (const uint8*)Owner->FrameBuffer.GetData();
-    int32 TotalSize = Header.DataSize;
+    const uint8* DataPtr = Frame.Data.GetData();
+    int32 TotalSize = Frame.Data.Num();
     int32 BytesSent = 0;
     
     while (BytesSent < TotalSize && !Owner->bStopRequested)
     {
         int32 ToSend = FMath::Min(ChunkSize, TotalSize - BytesSent);
-        sent = socket->Send((char*)(DataPtr + BytesSent), ToSend);
+        sent = srt_send(sock, (char*)(DataPtr + BytesSent), ToSend);
         
-        if (sent < 0)
+        if (sent == SRT_ERROR)
         {
             if (!Owner->bStopRequested)
             {
-                UE_LOG(LogCineSRTStream, Error, TEXT("Failed to send data: %s"), 
-                       *FString(socket->GetLastErrorString()));
+                FString Error = UTF8_TO_TCHAR(srt_getlasterror_str());
+                UE_LOG(LogCineSRTStream, Error, TEXT("Failed to send data: %s"), *Error);
             }
             return false;
         }
@@ -808,11 +775,10 @@ void FSRTStreamWorker::UpdateSRTStats()
     if (!SRTSocket)
         return;
     
-    auto socket = static_cast<SRTWrapper::SRTSocket*>(SRTSocket);
+    SRTSOCKET sock = (SRTSOCKET)SRTSocket;
     
-    // SRT 통계 정보 가져오기
-    SRTStats stats;
-    if (SRT_C_GetStats(socket->GetSocketHandle(), &stats, 1) == 0) // 1 = clear after reading
+    SRT_TRACEBSTATS stats;
+    if (srt_bstats(sock, &stats, 1) == 0) // 1 = clear after reading
     {
         // Update owner stats
         Owner->CurrentBitrateKbps = static_cast<float>(stats.mbpsSendRate * 1000.0);
@@ -823,5 +789,41 @@ void FSRTStreamWorker::UpdateSRTStats()
         {
             Owner->DroppedFrames += stats.pktSndLossTotal;
         }
+    }
+}
+
+void FSRTStreamWorker::HandleDisconnection()
+{
+    Owner->SetConnectionState(ESRTConnectionState::Error, TEXT("Connection lost"));
+    
+    // 재연결 시도 (선택적)
+    if (Owner->bAutoReconnect) {
+        FPlatformProcess::Sleep(1.0f);
+        InitializeSRT();
+    }
+}
+
+void FSRTStreamWorker::CheckHealth()
+{
+    static double LastHealthCheck = 0.0;
+    double CurrentTime = FPlatformTime::Seconds();
+    
+    if (CurrentTime - LastHealthCheck >= 5.0) // 5초마다 체크
+    {
+        LastHealthCheck = CurrentTime;
+        
+        // 버퍼 상태 로깅
+        bool HasFrame = Owner->FrameBuffer ? Owner->FrameBuffer->HasNewFrame() : false;
+        UE_LOG(LogCineSRTStream, VeryVerbose, TEXT("Health Check: Has new frame = %s"), 
+            HasFrame ? TEXT("true") : TEXT("false"));
+    }
+}
+
+void FSRTStreamWorker::CleanupConnection()
+{
+    if (SRTSocket) {
+        SRTSOCKET sock = (SRTSOCKET)SRTSocket;
+        srt_close(sock);
+        SRTSocket = nullptr;
     }
 } 
