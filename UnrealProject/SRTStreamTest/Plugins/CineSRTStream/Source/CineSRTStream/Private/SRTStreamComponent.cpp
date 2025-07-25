@@ -270,7 +270,21 @@ void USRTStreamComponent::StartStreaming()
     }
     
     UE_LOG(LogCineSRTStream, Log, TEXT("=== Starting SRT Stream ==="));
-    UE_LOG(LogCineSRTStream, Log, TEXT("SRT Version: %u"), srt_getversion());
+    // 시스템 정보 출력 및 호환성 체크
+    SRTNetwork::SystemInfo sysInfo;
+    if (SRTNetwork::GetSystemInfo(sysInfo))
+    {
+        UE_LOG(LogCineSRTStream, Log, TEXT("System Information:"));
+        UE_LOG(LogCineSRTStream, Log, TEXT("  SRT Version: %s (Build: %s)"), *sysInfo.SRTVersion.FullVersion, *sysInfo.SRTVersion.BuildInfo);
+        UE_LOG(LogCineSRTStream, Log, TEXT("  Platform: %s"), *sysInfo.Platform);
+        UE_LOG(LogCineSRTStream, Log, TEXT("  Encryption: %s"), sysInfo.bEncryptionSupported ? TEXT("Supported") : TEXT("Not Supported"));
+        UE_LOG(LogCineSRTStream, Log, TEXT("  Build Date: %s"), *sysInfo.BuildDate);
+        if (!sysInfo.SRTVersion.bIsCompatible)
+        {
+            SetConnectionState(ESRTConnectionState::Error, FString::Printf(TEXT("SRT version %s is not compatible. Minimum required: 1.4.0"), *sysInfo.SRTVersion.FullVersion));
+            return;
+        }
+    }
     UE_LOG(LogCineSRTStream, Log, TEXT("Target: %s:%d"), *StreamIP, StreamPort);
     UE_LOG(LogCineSRTStream, Log, TEXT("Mode: %s"), bCallerMode ? TEXT("Caller (Client)") : TEXT("Listener (Server)"));
     
@@ -725,16 +739,18 @@ void FSRTStreamWorker::Exit()
 
 bool FSRTStreamWorker::InitializeSRT()
 {
+    UE_LOG(LogCineSRTStream, Log, TEXT("Creating SRT socket..."));
     void* sock = SRTNetwork::CreateSocket();
     if (!sock)
     {
         Owner->SetConnectionState(ESRTConnectionState::Error, TEXT("Failed to create SRT socket"));
         return false;
     }
-    
+    UE_LOG(LogCineSRTStream, Log, TEXT("SRT socket created successfully"));
     // Configure socket options
     int yes = 1;
     int live_mode = SRTNetwork::TRANSTYPE_LIVE;
+    UE_LOG(LogCineSRTStream, Log, TEXT("Setting socket options..."));
     
     SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_TRANSTYPE, &live_mode, sizeof(live_mode));
     

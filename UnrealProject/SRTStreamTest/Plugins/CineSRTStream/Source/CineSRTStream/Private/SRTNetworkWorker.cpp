@@ -10,7 +10,9 @@
     #include <ws2tcpip.h>
 #endif
 
+#include "SRTNetworkWorker.h"
 #include "srt.h"
+#include <string>
 
 namespace SRTNetwork
 {
@@ -103,12 +105,6 @@ namespace SRTNetwork
     {
         return srt_getlasterror_str();
     }
-    struct Stats
-    {
-        double mbpsSendRate;
-        double msRTT;
-        int pktSndLossTotal;
-    };
     bool GetStats(void* socket, Stats& stats)
     {
         SRTSOCKET sock = static_cast<SRTSOCKET>(reinterpret_cast<intptr_t>(socket));
@@ -158,5 +154,67 @@ namespace SRTNetwork
         }
         
         return nullptr;
+    }
+
+    static VersionInfo CachedVersionInfo = {0, 0, 0, "", "", false};
+    static bool bVersionCached = false;
+
+    bool GetVersionInfo(VersionInfo& OutInfo)
+    {
+        if (!bVersionCached)
+        {
+            uint32_t version = srt_getversion();
+            CachedVersionInfo.Major = (version >> 16) & 0xFF;
+            CachedVersionInfo.Minor = (version >> 8) & 0xFF;
+            CachedVersionInfo.Patch = version & 0xFF;
+            CachedVersionInfo.FullVersion = FString::Printf(TEXT("%d.%d.%d"),
+                CachedVersionInfo.Major,
+                CachedVersionInfo.Minor,
+                CachedVersionInfo.Patch);
+#ifdef SRT_VERSION_BUILD
+            CachedVersionInfo.BuildInfo = UTF8_TO_TCHAR(SRT_VERSION_BUILD);
+#else
+            CachedVersionInfo.BuildInfo = TEXT("Release");
+#endif
+            CachedVersionInfo.bIsCompatible =
+                (CachedVersionInfo.Major > 1) ||
+                (CachedVersionInfo.Major == 1 && CachedVersionInfo.Minor >= 4);
+            bVersionCached = true;
+        }
+        OutInfo = CachedVersionInfo;
+        return CachedVersionInfo.bIsCompatible;
+    }
+    bool GetSystemInfo(SystemInfo& OutInfo)
+    {
+        GetVersionInfo(OutInfo.SRTVersion);
+#ifdef OPENSSL_VERSION_TEXT
+        OutInfo.OpenSSLVersion.FullVersion = UTF8_TO_TCHAR(OPENSSL_VERSION_TEXT);
+#else
+        OutInfo.OpenSSLVersion.FullVersion = TEXT("Unknown");
+#endif
+#ifdef _WIN64
+        OutInfo.Platform = TEXT("Windows 64-bit");
+#else
+        OutInfo.Platform = TEXT("Unknown Platform");
+#endif
+        OutInfo.BuildDate = UTF8_TO_TCHAR(__DATE__ " " __TIME__);
+        OutInfo.bEncryptionSupported = true;
+        return true;
+    }
+    bool CheckCompatibility()
+    {
+        VersionInfo info;
+        return GetVersionInfo(info);
+    }
+    const char* GetVersionString()
+    {
+        static std::string versionStr;
+        if (versionStr.empty())
+        {
+            VersionInfo info;
+            GetVersionInfo(info);
+            versionStr = TCHAR_TO_UTF8(*info.FullVersion);
+        }
+        return versionStr.c_str();
     }
 } 

@@ -2,7 +2,7 @@
 
 namespace SRTNetwork
 {
-    // SRT 옵션 상수 (srt.h 값과 동일)
+    // 기존 상수들...
     constexpr int OPT_TRANSTYPE = 50;
     constexpr int OPT_SENDER = 21;
     constexpr int OPT_STREAMID = 47;
@@ -12,35 +12,49 @@ namespace SRTNetwork
     constexpr int OPT_MSS = 0;
     constexpr int OPT_FC = 4;
     constexpr int OPT_SNDBUF = 5;
-    constexpr int OPT_SNDDROPDELAY = 30;  // 송신 드롭 지연
-    constexpr int OPT_SNDTIMEO = 34;      // Send timeout
-    constexpr int OPT_PEERLATENCY = 18;   // Peer latency
-    constexpr int OPT_PEERIDLETIMEO = 19; // Peer idle timeout
-    
+    constexpr int OPT_SNDDROPDELAY = 30;
+    constexpr int OPT_SNDTIMEO = 34;
+    constexpr int OPT_PEERLATENCY = 18;
+    constexpr int OPT_PEERIDLETIMEO = 19;
     constexpr int TRANSTYPE_LIVE = 0;
-    
-    // 초기화
+
+    // 버전 정보 구조체
+    struct VersionInfo
+    {
+        int Major;
+        int Minor;
+        int Patch;
+        FString FullVersion;
+        FString BuildInfo;
+        bool bIsCompatible;
+    };
+    // 시스템 정보 구조체
+    struct SystemInfo
+    {
+        VersionInfo SRTVersion;
+        VersionInfo OpenSSLVersion;
+        FString Platform;
+        FString BuildDate;
+        bool bEncryptionSupported;
+    };
+    // 버전 및 시스템 정보 함수
+    bool GetVersionInfo(VersionInfo& OutInfo);
+    bool GetSystemInfo(SystemInfo& OutInfo);
+    bool CheckCompatibility();
+    const char* GetVersionString();
+
+    // 기존 함수들...
     bool Initialize();
     void Shutdown();
-    
-    // 소켓 관리
     void* CreateSocket();
     void CloseSocket(void* socket);
     bool SetSocketOption(void* socket, int opt, const void* value, int len);
-    
-    // 연결
     bool Connect(void* socket, const char* ip, int port);
     bool Bind(void* socket, int port);
     bool Listen(void* socket, int backlog);
     void* Accept(void* socket);
-    
-    // 데이터 전송
     int Send(void* socket, const char* data, int len);
-    
-    // 에러
     const char* GetLastError();
-    
-    // 통계
     struct Stats
     {
         double mbpsSendRate;
@@ -48,7 +62,6 @@ namespace SRTNetwork
         int pktSndLossTotal;
     };
     bool GetStats(void* socket, Stats& stats);
-
     bool SetNonBlocking(void* socket, bool nonblocking);
     void* AcceptWithTimeout(void* socket, int timeout_ms);
 } 

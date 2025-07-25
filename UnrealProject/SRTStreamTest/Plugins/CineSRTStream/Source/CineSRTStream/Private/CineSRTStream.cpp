@@ -17,30 +17,22 @@ DEFINE_LOG_CATEGORY(LogCineSRTStream);
 void FCineSRTStreamModule::StartupModule()
 {
     UE_LOG(LogCineSRTStream, Log, TEXT("=== CineSRTStream Module Starting ==="));
-    
-    // 안전한 SRT 라이브러리 초기화
     try {
-        UE_LOG(LogCineSRTStream, Log, TEXT("SRT 라이브러리 초기화 시도 중..."));
-        
-        // SRT 라이브러리 초기화
+        UE_LOG(LogCineSRTStream, Log, TEXT("SRT \ub77c\uc774\ube0c\ub7ec\ub9ac \ucd08\uae30\ud654 \uc2dc\ub3c4 \uc911..."));
         if (!SRTWrapper::Initialize()) {
-            UE_LOG(LogCineSRTStream, Error, TEXT("SRT 라이브러리 초기화 실패"));
+            UE_LOG(LogCineSRTStream, Error, TEXT("SRT \ub77c\uc774\ube0c\ub7ec\ub9ac \ucd08\uae30\ud654 \uc2e4\ud328"));
             bSRTInitialized = false;
             return;
         }
-        
-        // 버전 정보는 일단 건너뛰고 기본 성공 메시지만 출력
-        UE_LOG(LogCineSRTStream, Log, TEXT("SRT 라이브러리 초기화 성공"));
-        
+        UE_LOG(LogCineSRTStream, Log, TEXT("SRT \ub77c\uc774\ube0c\ub7ec\ub9ac \ucd08\uae30\ud654 \uc131\uacf5"));
         bSRTInitialized = true;
-        UE_LOG(LogCineSRTStream, Log, TEXT("✅ CineSRTStream module initialized successfully"));
-        
+        UE_LOG(LogCineSRTStream, Log, TEXT("\u2705 CineSRTStream module initialized successfully"));
+        // 크래시 리포트용 시스템 정보 등록
     } catch (const std::exception& e) {
-        UE_LOG(LogCineSRTStream, Error, TEXT("SRT 라이브러리 초기화 중 예외 발생: %s"), 
-               UTF8_TO_TCHAR(e.what()));
+        UE_LOG(LogCineSRTStream, Error, TEXT("SRT \ub77c\uc774\ube0c\ub7ec\ub9ac \ucd08\uae30\ud654 \uc911 \uc608\uc678 \ubc1c\uc0dd: %s"), UTF8_TO_TCHAR(e.what()));
         bSRTInitialized = false;
     } catch (...) {
-        UE_LOG(LogCineSRTStream, Error, TEXT("SRT 라이브러리 초기화 중 알 수 없는 예외 발생"));
+        UE_LOG(LogCineSRTStream, Error, TEXT("SRT \ub77c\uc774\ube0c\ub7ec\ub9ac \ucd08\uae30\ud654 \uc911 \uc54c \uc218 \uc5c6\ub294 \uc608\uc678 \ubc1c\uc0dd"));
         bSRTInitialized = false;
     }
 }
