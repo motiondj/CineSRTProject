@@ -121,4 +121,42 @@ namespace SRTNetwork
         }
         return false;
     }
+
+    bool SetNonBlocking(void* socket, bool nonblocking)
+    {
+        if (!socket) return false;
+        SRTSOCKET sock = static_cast<SRTSOCKET>(reinterpret_cast<intptr_t>(socket));
+        int sync_mode = nonblocking ? 0 : 1;
+        bool result = true;
+        result &= (srt_setsockopt(sock, 0, SRTO_SNDSYN, &sync_mode, sizeof(sync_mode)) == 0);
+        result &= (srt_setsockopt(sock, 0, SRTO_RCVSYN, &sync_mode, sizeof(sync_mode)) == 0);
+        if (nonblocking)
+        {
+            int timeout_ms = 100;
+            srt_setsockopt(sock, 0, SRTO_RCVTIMEO, &timeout_ms, sizeof(timeout_ms));
+        }
+        return result;
+    }
+
+    void* AcceptWithTimeout(void* socket, int timeout_ms)
+    {
+        if (!socket) return nullptr;
+        
+        SRTSOCKET sock = static_cast<SRTSOCKET>(reinterpret_cast<intptr_t>(socket));
+        
+        // Accept 타임아웃 설정
+        int rcvtimeo = timeout_ms;
+        srt_setsockopt(sock, 0, SRTO_RCVTIMEO, &rcvtimeo, sizeof(rcvtimeo));
+        
+        sockaddr_in client_addr;
+        int addr_len = sizeof(client_addr);
+        SRTSOCKET client = srt_accept(sock, (sockaddr*)&client_addr, &addr_len);
+        
+        if (client != SRT_INVALID_SOCK)
+        {
+            return reinterpret_cast<void*>(static_cast<intptr_t>(client));
+        }
+        
+        return nullptr;
+    }
 } 

@@ -12,6 +12,10 @@ namespace SRTNetwork
     constexpr int OPT_MSS = 0;
     constexpr int OPT_FC = 4;
     constexpr int OPT_SNDBUF = 5;
+    constexpr int OPT_SNDDROPDELAY = 30;  // 송신 드롭 지연
+    constexpr int OPT_SNDTIMEO = 34;      // Send timeout
+    constexpr int OPT_PEERLATENCY = 18;   // Peer latency
+    constexpr int OPT_PEERIDLETIMEO = 19; // Peer idle timeout
     
     constexpr int TRANSTYPE_LIVE = 0;
     
@@ -44,4 +48,7 @@ namespace SRTNetwork
         int pktSndLossTotal;
     };
     bool GetStats(void* socket, Stats& stats);
+
+    bool SetNonBlocking(void* socket, bool nonblocking);
+    void* AcceptWithTimeout(void* socket, int timeout_ms);
 } 

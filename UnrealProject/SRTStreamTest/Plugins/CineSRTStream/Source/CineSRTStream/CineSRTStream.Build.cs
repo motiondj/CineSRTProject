@@ -88,15 +88,15 @@ public class CineSRTStream : ModuleRules
             // ThirdParty 경로 설정
             string ThirdPartyPath = Path.GetFullPath(Path.Combine(ModuleDirectory, "../../ThirdParty"));
             string SRTPath = Path.Combine(ThirdPartyPath, "SRT");
-            
-            // Include 경로 추가
+
+            // Include 경로 추가 (SRT 헤더를 항상 최우선으로)
+            PublicIncludePaths.Insert(0, Path.Combine(SRTPath, "include"));
             PublicIncludePaths.AddRange(new string[] {
-                Path.Combine(SRTPath, "include"),
                 Path.Combine(SRTPath, "include", "srtcore"),
                 Path.Combine(SRTPath, "include", "common"),
                 Path.Combine(SRTPath, "include", "win")
             });
-            
+
             // 라이브러리 경로
             string LibPath = Path.Combine(SRTPath, "lib", "Win64");
             

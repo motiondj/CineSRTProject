@@ -108,9 +108,29 @@ USRTStreamComponent::USRTStreamComponent()
     GPUReadbackManager = MakeShared<FGPUReadbackManager>(FrameBuffer);
 }
 
+// USRTStreamComponent 소멸자 구현
 USRTStreamComponent::~USRTStreamComponent()
 {
-    StopStreaming();
+    // 소멸 시 동기적으로 정리 (크래시 방지)
+    if (bIsStreaming || bCleanupInProgress || WorkerThread)
+    {
+        bStopRequested = true;
+        bIsStreaming = false;
+        
+        if (StreamWorker.IsValid())
+        {
+            StreamWorker->Stop();
+        }
+        
+        if (WorkerThread)
+        {
+            WorkerThread->Kill(true);  // 강제 종료
+            delete WorkerThread;
+            WorkerThread = nullptr;
+        }
+        
+        StreamWorker.Reset();
+    }
 }
 
 void USRTStreamComponent::BeginPlay()
@@ -125,6 +145,20 @@ void USRTStreamComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
     StopStreaming();
     Super::EndPlay(EndPlayReason);
+}
+
+void USRTStreamComponent::BeginDestroy()
+{
+    // 컴포넌트 파괴 전 확실한 정리
+    StopStreaming();
+    
+    // 정리 완료 대기
+    while (bCleanupInProgress)
+    {
+        FPlatformProcess::Sleep(0.1f);
+    }
+    
+    Super::BeginDestroy();
 }
 
 void USRTStreamComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
@@ -178,30 +212,82 @@ void USRTStreamComponent::PostEditChangeProperty(FPropertyChangedEvent& Property
 
 void USRTStreamComponent::StartStreaming()
 {
+    FScopeLock Lock(&CleanupMutex);
+    
+    // 이미 스트리밍 중
     if (bIsStreaming)
     {
         UE_LOG(LogCineSRTStream, Warning, TEXT("Already streaming"));
+        if (GEngine)
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("Already streaming"));
+        }
         return;
     }
     
+    // 정리 중인 경우
+    if (bCleanupInProgress)
+    {
+        UE_LOG(LogCineSRTStream, Warning, TEXT("Cleanup in progress, please wait..."));
+        if (GEngine)
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Orange, 
+                TEXT("Cleanup in progress, please wait..."));
+        }
+        return;
+    }
+    
+    // 이전 리소스가 남아있는 경우 강제 정리
+    if (StreamWorker.IsValid() || WorkerThread)
+    {
+        UE_LOG(LogCineSRTStream, Warning, TEXT("Previous resources detected, cleaning..."));
+        
+        if (WorkerThread)
+        {
+            WorkerThread->Kill(true);
+            delete WorkerThread;
+            WorkerThread = nullptr;
+        }
+        StreamWorker.Reset();
+        
+        // 메모리 정리 대기
+        FPlatformProcess::Sleep(0.1f);
+    }
+    
+    // 프레임 버퍼 재초기화
+    if (!FrameBuffer)
+    {
+        FrameBuffer = MakeShared<::FrameBuffer>();
+    }
+    else
+    {
+        FrameBuffer->Clear();
+    }
+    
+    if (!GPUReadbackManager)
+    {
+        GPUReadbackManager = MakeShared<FGPUReadbackManager>(FrameBuffer);
+    }
+    
     UE_LOG(LogCineSRTStream, Log, TEXT("=== Starting SRT Stream ==="));
+    UE_LOG(LogCineSRTStream, Log, TEXT("SRT Version: %u"), srt_getversion());
     UE_LOG(LogCineSRTStream, Log, TEXT("Target: %s:%d"), *StreamIP, StreamPort);
     UE_LOG(LogCineSRTStream, Log, TEXT("Mode: %s"), bCallerMode ? TEXT("Caller (Client)") : TEXT("Listener (Server)"));
     
     SetConnectionState(ESRTConnectionState::Connecting, TEXT("Initializing capture..."));
     
-    // Setup scene capture
+    // Scene capture 설정
     if (!SetupSceneCapture())
     {
         SetConnectionState(ESRTConnectionState::Error, TEXT("Failed to setup scene capture"));
         return;
     }
     
-    // Reset stop flag
+    // 플래그 초기화
     bStopRequested = false;
     bIsStreaming = true;
     
-    // Create and start worker thread
+    // 워커 스레드 생성
     StreamWorker = MakeUnique<FSRTStreamWorker>(this);
     WorkerThread = FRunnableThread::Create(StreamWorker.Get(), TEXT("SRTStreamWorker"));
     
@@ -211,6 +297,7 @@ void USRTStreamComponent::StartStreaming()
         bIsStreaming = false;
         CleanupSceneCapture();
         SetConnectionState(ESRTConnectionState::Error, TEXT("Failed to create worker thread"));
+        StreamWorker.Reset();
         return;
     }
     
@@ -219,43 +306,88 @@ void USRTStreamComponent::StartStreaming()
 
 void USRTStreamComponent::StopStreaming()
 {
-    if (!bIsStreaming)
+    if (!bIsStreaming && !bCleanupInProgress)
         return;
     
     UE_LOG(LogCineSRTStream, Log, TEXT("Stopping SRT stream..."));
     
-    // 1. 먼저 플래그 설정
+    // 즉시 상태 변경
     bStopRequested = true;
     bIsStreaming = false;
+    bCleanupInProgress = true;
     
-    // 2. 워커의 소켓을 즉시 닫기 (블로킹 해제)
-    if (StreamWorker.IsValid())
+    SetConnectionState(ESRTConnectionState::Disconnected, TEXT("Cleaning up..."));
+    
+    // 비동기 정리 (메인 스레드 블로킹 방지)
+    AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this]()
     {
-        StreamWorker->ForceCloseSocket();
-    }
-    
-    // 3. 스레드 종료 (기다리지 않음)
-    if (WorkerThread)
-    {
-        WorkerThread->Kill(false);  // false = 기다리지 않고 즉시 종료
-        delete WorkerThread;
-        WorkerThread = nullptr;
-    }
-    
-    StreamWorker.Reset();
-    
-    // 4. 나머지 정리
-    CleanupSceneCapture();
-    
-    // Reset stats
-    CurrentBitrateKbps = 0.0f;
-    TotalFramesSent = 0;
-    DroppedFrames = 0;
-    RoundTripTimeMs = 0.0f;
-    
-    SetConnectionState(ESRTConnectionState::Disconnected, TEXT("Stream stopped"));
-    
-    UE_LOG(LogCineSRTStream, Log, TEXT("SRT stream stopped successfully"));
+        // 워커 종료 신호
+        if (StreamWorker.IsValid())
+        {
+            StreamWorker->Stop();
+        }
+        
+        // 워커 스레드 정리 (최대 3초 대기)
+        if (WorkerThread)
+        {
+            double StartTime = FPlatformTime::Seconds();
+            const double MaxWaitTime = 3.0;
+            
+            while (WorkerThread->GetThreadID() != 0)
+            {
+                if (FPlatformTime::Seconds() - StartTime > MaxWaitTime)
+                {
+                    UE_LOG(LogCineSRTStream, Warning, TEXT("Worker thread timeout, forcing termination"));
+                    WorkerThread->Kill(true);
+                    break;
+                }
+                FPlatformProcess::Sleep(0.05f);
+            }
+            
+            delete WorkerThread;
+            WorkerThread = nullptr;
+        }
+        
+        // 게임 스레드에서 최종 정리
+        AsyncTask(ENamedThreads::GameThread, [this]()
+        {
+            FScopeLock Lock(&CleanupMutex);
+            
+            // 리소스 정리
+            StreamWorker.Reset();
+            
+            if (GPUReadbackManager)
+            {
+                GPUReadbackManager->Shutdown();
+            }
+            
+            if (FrameBuffer)
+            {
+                FrameBuffer->Clear();
+            }
+            
+            CleanupSceneCapture();
+            
+            // 통계 초기화
+            CurrentBitrateKbps = 0.0f;
+            TotalFramesSent = 0;
+            DroppedFrames = 0;
+            RoundTripTimeMs = 0.0f;
+            
+            // 정리 완료
+            bCleanupInProgress = false;
+            SetConnectionState(ESRTConnectionState::Disconnected, TEXT("Ready"));
+            
+            UE_LOG(LogCineSRTStream, Log, TEXT("SRT cleanup completed - Ready for restart"));
+            
+            // 화면에 메시지 표시
+            if (GEngine)
+            {
+                GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, 
+                    TEXT("SRT Stream cleanup completed - Ready"));
+            }
+        });
+    });
 }
 
 void USRTStreamComponent::TestConnection()
@@ -477,6 +609,7 @@ FString USRTStreamComponent::GetStreamURL() const
 
 FSRTStreamWorker::FSRTStreamWorker(USRTStreamComponent* InOwner)
     : Owner(InOwner)
+    , bShouldExit(false)
 {
 }
 
@@ -487,6 +620,7 @@ FSRTStreamWorker::~FSRTStreamWorker()
 
 void FSRTStreamWorker::ForceCloseSocket()
 {
+    FScopeLock Lock(&SocketLock);
     if (SRTSocket)
     {
         SRTNetwork::CloseSocket(SRTSocket);
@@ -502,49 +636,70 @@ bool FSRTStreamWorker::Init()
 
 uint32 FSRTStreamWorker::Run()
 {
+    // Owner 검증
+    if (!Owner)
+    {
+        UE_LOG(LogCineSRTStream, Error, TEXT("Worker started with null Owner!"));
+        return 1;
+    }
+    
     UE_LOG(LogCineSRTStream, Log, TEXT("SRT Worker thread started"));
+    
+    // Owner가 유효한지 다시 확인
+    if (!IsValid(Owner))
+    {
+        UE_LOG(LogCineSRTStream, Error, TEXT("Owner is not valid!"));
+        return 1;
+    }
     
     const double FrameInterval = 1.0 / Owner->StreamFPS;
     double LastFrameTime = FPlatformTime::Seconds();
     double LastStatsTime = LastFrameTime;
     
-    while (!Owner->bStopRequested)
+    while (!bShouldExit && Owner && !Owner->bStopRequested)
     {
-        // 중단 요청 체크를 더 자주
-        if (Owner->bStopRequested)
+        // 매 루프마다 Owner 체크
+        if (!Owner || !IsValid(Owner))
+        {
+            UE_LOG(LogCineSRTStream, Error, TEXT("Owner became invalid during execution"));
             break;
+        }
         
         double CurrentTime = FPlatformTime::Seconds();
         
-        // Send frame if ready and timing is right
+        // 프레임 전송
         if (CurrentTime - LastFrameTime >= FrameInterval)
         {
             if (Owner->FrameBuffer && Owner->FrameBuffer->HasNewFrame())
             {
-                if (SendFrameData())
+                FScopeLock Lock(&SocketLock);
+                if (SRTSocket && !bShouldExit)
                 {
-                    Owner->TotalFramesSent++;
-                }
-                else
-                {
-                    Owner->DroppedFrames++;
+                    if (SendFrameData())
+                    {
+                        Owner->TotalFramesSent++;
+                    }
+                    else
+                    {
+                        Owner->DroppedFrames++;
+                    }
                 }
             }
             LastFrameTime = CurrentTime;
         }
         
-        // Update stats periodically
+        // 통계 업데이트
         if (CurrentTime - LastStatsTime >= 1.0)
         {
-            UpdateSRTStats();
+            FScopeLock Lock(&SocketLock);
+            if (SRTSocket && !bShouldExit)
+            {
+                UpdateSRTStats();
+            }
             LastStatsTime = CurrentTime;
         }
         
-        // Health check
-        CheckHealth();
-        
-        // Sleep을 조금 더 길게 (1ms -> 10ms)
-        FPlatformProcess::Sleep(0.01f);
+        FPlatformProcess::Sleep(0.001f);
     }
     
     UE_LOG(LogCineSRTStream, Log, TEXT("SRT Worker thread ending"));
@@ -553,7 +708,14 @@ uint32 FSRTStreamWorker::Run()
 
 void FSRTStreamWorker::Stop()
 {
-    Owner->bStopRequested = true;
+    bShouldExit = true;
+    
+    FScopeLock Lock(&SocketLock);
+    if (SRTSocket)
+    {
+        SRTNetwork::CloseSocket(SRTSocket);
+        SRTSocket = nullptr;
+    }
 }
 
 void FSRTStreamWorker::Exit()
@@ -563,7 +725,6 @@ void FSRTStreamWorker::Exit()
 
 bool FSRTStreamWorker::InitializeSRT()
 {
-    // Create socket using SRTNetwork
     void* sock = SRTNetwork::CreateSocket();
     if (!sock)
     {
@@ -612,71 +773,79 @@ bool FSRTStreamWorker::InitializeSRT()
     int fc = 25600;
     SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_FC, &fc, sizeof(fc));
     
-    int sndbuf = 12058624; // 12MB
+    // 송신 버퍼 크기 증가
+    int sndbuf = 32 * 1024 * 1024; // 32MB
     SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_SNDBUF, &sndbuf, sizeof(sndbuf));
+    // 송신 드롭 설정 (버퍼 가득 찰 때 오래된 패킷 드롭)
+    int snddrop = 1;
+    SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_SNDDROPDELAY, &snddrop, sizeof(snddrop));
+    
+    // Send 타임아웃 추가 (1초)
+    int sndtimeo = 1000;  // 1000ms = 1초
+    SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_SNDTIMEO, &sndtimeo, sizeof(sndtimeo));
+    
+    // SRT 버전 호환성 설정 (1.3.0 이상 강제)
+    int peerlatency = 120;
+    SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_PEERLATENCY, &peerlatency, sizeof(peerlatency));
+    
+    int peeridletimeo = 5000;
+    SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_PEERIDLETIMEO, &peeridletimeo, sizeof(peeridletimeo));
     
     // Connect or bind
-    if (Owner->bCallerMode)
+    if (!Owner->bCallerMode)
     {
-        // Caller mode - connect to server
-        Owner->SetConnectionState(ESRTConnectionState::Connecting, 
-            FString::Printf(TEXT("Connecting to %s:%d..."), *Owner->StreamIP, Owner->StreamPort));
-        
-        if (!SRTNetwork::Connect(sock, TCHAR_TO_UTF8(*Owner->StreamIP), Owner->StreamPort))
-        {
-            FString Error = UTF8_TO_TCHAR(SRTNetwork::GetLastError());
-            Owner->SetConnectionState(ESRTConnectionState::Error, 
-                FString::Printf(TEXT("Connection failed: %s"), *Error));
-            SRTNetwork::CloseSocket(sock);
-            return false;
-        }
-        
-        SRTSocket = sock;
-        Owner->SetConnectionState(ESRTConnectionState::Connected, TEXT("Connected successfully"));
-    }
-    else
-    {
-        // Listener mode - wait for connection
+        // Listener 모드
         if (!SRTNetwork::Bind(sock, Owner->StreamPort))
         {
             FString Error = UTF8_TO_TCHAR(SRTNetwork::GetLastError());
-            Owner->SetConnectionState(ESRTConnectionState::Error, 
-                FString::Printf(TEXT("Bind failed: %s"), *Error));
+            Owner->SetConnectionState(ESRTConnectionState::Error, FString::Printf(TEXT("Bind failed: %s"), *Error));
             SRTNetwork::CloseSocket(sock);
             return false;
         }
-        
         if (!SRTNetwork::Listen(sock, 1))
         {
             FString Error = UTF8_TO_TCHAR(SRTNetwork::GetLastError());
-            Owner->SetConnectionState(ESRTConnectionState::Error, 
-                FString::Printf(TEXT("Listen failed: %s"), *Error));
+            Owner->SetConnectionState(ESRTConnectionState::Error, FString::Printf(TEXT("Listen failed: %s"), *Error));
             SRTNetwork::CloseSocket(sock);
             return false;
         }
-        
-        Owner->SetConnectionState(ESRTConnectionState::Connecting, 
-            FString::Printf(TEXT("Listening on port %d..."), Owner->StreamPort));
-        
-        // Accept connection
-        void* client = SRTNetwork::Accept(sock);
-        
+        Owner->SetConnectionState(ESRTConnectionState::Connecting, FString::Printf(TEXT("Listening on port %d..."), Owner->StreamPort));
+        void* client = nullptr;
+        while (!bShouldExit && !Owner->bStopRequested)
+        {
+            client = SRTNetwork::AcceptWithTimeout(sock, 100);
+            if (client)
+            {
+                break;
+            }
+            if (bShouldExit || Owner->bStopRequested)
+            {
+                SRTNetwork::CloseSocket(sock);
+                return false;
+            }
+        }
         if (!client)
         {
-            FString Error = UTF8_TO_TCHAR(SRTNetwork::GetLastError());
-            Owner->SetConnectionState(ESRTConnectionState::Error, 
-                FString::Printf(TEXT("Accept failed: %s"), *Error));
             SRTNetwork::CloseSocket(sock);
             return false;
         }
-        
-        SRTNetwork::CloseSocket(sock); // Close listening socket
+        SRTNetwork::CloseSocket(sock);
         SRTSocket = client;
-        
         Owner->SetConnectionState(ESRTConnectionState::Connected, TEXT("Client connected"));
     }
-    
-    // Start streaming
+    else
+    {
+        Owner->SetConnectionState(ESRTConnectionState::Connecting, FString::Printf(TEXT("Connecting to %s:%d..."), *Owner->StreamIP, Owner->StreamPort));
+        if (!SRTNetwork::Connect(sock, TCHAR_TO_UTF8(*Owner->StreamIP), Owner->StreamPort))
+        {
+            FString Error = UTF8_TO_TCHAR(SRTNetwork::GetLastError());
+            Owner->SetConnectionState(ESRTConnectionState::Error, FString::Printf(TEXT("Connection failed: %s"), *Error));
+            SRTNetwork::CloseSocket(sock);
+            return false;
+        }
+        SRTSocket = sock;
+        Owner->SetConnectionState(ESRTConnectionState::Connected, TEXT("Connected successfully"));
+    }
     Owner->SetConnectionState(ESRTConnectionState::Streaming, TEXT("Streaming active"));
     return true;
 }
@@ -694,67 +863,65 @@ bool FSRTStreamWorker::SendFrameData()
 {
     if (!SRTSocket || !Owner || !Owner->FrameBuffer)
         return false;
-    
-    // Get frame from buffer
     FrameBuffer::Frame Frame;
     if (!Owner->FrameBuffer->GetFrame(Frame))
         return false;
-    
-    // Send frame data with simple header
     struct FrameHeader
     {
-        uint32 Magic = 0x53525446; // 'SRTF'
+        uint32 Magic = 0x53525446;
         uint32 Width;
         uint32 Height;
-        uint32 PixelFormat = 1; // 1 = BGRA8
+        uint32 PixelFormat = 1;
         uint32 DataSize;
         uint64 Timestamp;
         uint32 FrameNumber;
     };
-    
     FrameHeader Header;
     Header.Width = Frame.Width;
     Header.Height = Frame.Height;
     Header.DataSize = Frame.Data.Num();
     Header.Timestamp = FPlatformTime::Cycles64();
     Header.FrameNumber = Frame.FrameNumber;
-    
-    // Send header
     int sent = SRTNetwork::Send(SRTSocket, (char*)&Header, sizeof(Header));
     if (sent < 0)
     {
-        if (!Owner->bStopRequested)
+        const char* error = SRTNetwork::GetLastError();
+        // 6002(EAGAIN) 또는 'no buffer available' 메시지는 무시
+        if (strstr(error, "6002") || strstr(error, "no buffer available"))
         {
-            FString Error = UTF8_TO_TCHAR(SRTNetwork::GetLastError());
-            UE_LOG(LogCineSRTStream, Error, TEXT("Failed to send header: %s"), *Error);
+            Owner->DroppedFrames++;
+            return false;
+        }
+        if (!Owner->bStopRequested && !bShouldExit)
+        {
+            UE_LOG(LogCineSRTStream, Error, TEXT("Send failed: %s"), UTF8_TO_TCHAR(error));
         }
         return false;
     }
-    
-    // Send pixel data in chunks
-    const int ChunkSize = 1316; // SRT recommended payload size
+    const int ChunkSize = 1316;
     const uint8* DataPtr = Frame.Data.GetData();
     int32 TotalSize = Frame.Data.Num();
     int32 BytesSent = 0;
-    
-    while (BytesSent < TotalSize && !Owner->bStopRequested)
+    while (BytesSent < TotalSize && !Owner->bStopRequested && !bShouldExit)
     {
         int32 ToSend = FMath::Min(ChunkSize, TotalSize - BytesSent);
         sent = SRTNetwork::Send(SRTSocket, (char*)(DataPtr + BytesSent), ToSend);
-        
         if (sent < 0)
         {
-            if (!Owner->bStopRequested)
+            const char* error = SRTNetwork::GetLastError();
+            if (strstr(error, "6002") || strstr(error, "no buffer available"))
             {
-                FString Error = UTF8_TO_TCHAR(SRTNetwork::GetLastError());
-                UE_LOG(LogCineSRTStream, Error, TEXT("Failed to send data: %s"), *Error);
+                Owner->DroppedFrames++;
+                continue;
+            }
+            if (!Owner->bStopRequested && !bShouldExit)
+            {
+                UE_LOG(LogCineSRTStream, Error, TEXT("Send failed: %s"), UTF8_TO_TCHAR(error));
             }
             return false;
         }
-        
         BytesSent += sent;
     }
-    
     return true;
 }
 

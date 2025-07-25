@@ -197,12 +197,27 @@ public:
     
     UFUNCTION(BlueprintCallable, Category = "SRT Stream", meta = (CallInEditor = "true"))
     void TestConnection();
+    
+    UFUNCTION(BlueprintCallable, Category = "SRT Stream")
+    bool IsReadyToStream() const 
+    { 
+        return !bIsStreaming && !bCleanupInProgress; 
+    }
+    
+    UFUNCTION(BlueprintCallable, Category = "SRT Stream")
+    FString GetCurrentStatus() const
+    {
+        if (bIsStreaming) return TEXT("Streaming");
+        if (bCleanupInProgress) return TEXT("Cleaning up...");
+        return TEXT("Ready");
+    }
 
 protected:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, 
         FActorComponentTickFunction* ThisTickFunction) override;
+    virtual void BeginDestroy() override;
 
 #if WITH_EDITOR
     virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
@@ -212,6 +227,10 @@ private:
     // 스트리밍 상태
     bool bIsStreaming = false;
     TAtomic<bool> bStopRequested{false};
+    
+    // 정리 상태 추적
+    TAtomic<bool> bCleanupInProgress{false};
+    FCriticalSection CleanupMutex;
     
     // Scene Capture
     UPROPERTY()
@@ -258,12 +277,15 @@ public:
     virtual void Stop() override;
     virtual void Exit() override;
     
-    // 소켓 강제 닫기 메서드 추가
     void ForceCloseSocket();
     
 private:
     USRTStreamComponent* Owner;
     void* SRTSocket = nullptr;
+    
+    // 추가된 멤버들
+    TAtomic<bool> bShouldExit{false};      // 종료 플래그
+    FCriticalSection SocketLock;           // 소켓 보호용
     
     bool InitializeSRT();
     void CleanupSRT();
