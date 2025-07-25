@@ -29,22 +29,22 @@
 
 <h1 id="SYNOPSIS">SYNOPSIS</h1>
 
-<pre><code> #include &lt;openssl/cmp.h&gt;
+<pre><code>#include &lt;openssl/cmp.h&gt;
 
- X509 *OSSL_CMP_exec_certreq(OSSL_CMP_CTX *ctx, int req_type,
-                             const OSSL_CRMF_MSG *crm);
- X509 *OSSL_CMP_exec_IR_ses(OSSL_CMP_CTX *ctx);
- X509 *OSSL_CMP_exec_CR_ses(OSSL_CMP_CTX *ctx);
- X509 *OSSL_CMP_exec_P10CR_ses(OSSL_CMP_CTX *ctx);
- X509 *OSSL_CMP_exec_KUR_ses(OSSL_CMP_CTX *ctx);
- #define OSSL_CMP_IR
- #define OSSL_CMP_CR
- #define OSSL_CMP_P10CR
- #define OSSL_CMP_KUR
- int OSSL_CMP_try_certreq(OSSL_CMP_CTX *ctx, int req_type,
-                          const OSSL_CRMF_MSG *crm, int *checkAfter);
- int OSSL_CMP_exec_RR_ses(OSSL_CMP_CTX *ctx);
- STACK_OF(OSSL_CMP_ITAV) *OSSL_CMP_exec_GENM_ses(OSSL_CMP_CTX *ctx);</code></pre>
+X509 *OSSL_CMP_exec_certreq(OSSL_CMP_CTX *ctx, int req_type,
+                            const OSSL_CRMF_MSG *crm);
+X509 *OSSL_CMP_exec_IR_ses(OSSL_CMP_CTX *ctx);
+X509 *OSSL_CMP_exec_CR_ses(OSSL_CMP_CTX *ctx);
+X509 *OSSL_CMP_exec_P10CR_ses(OSSL_CMP_CTX *ctx);
+X509 *OSSL_CMP_exec_KUR_ses(OSSL_CMP_CTX *ctx);
+#define OSSL_CMP_IR
+#define OSSL_CMP_CR
+#define OSSL_CMP_P10CR
+#define OSSL_CMP_KUR
+int OSSL_CMP_try_certreq(OSSL_CMP_CTX *ctx, int req_type,
+                         const OSSL_CRMF_MSG *crm, int *checkAfter);
+int OSSL_CMP_exec_RR_ses(OSSL_CMP_CTX *ctx);
+STACK_OF(OSSL_CMP_ITAV) *OSSL_CMP_exec_GENM_ses(OSSL_CMP_CTX *ctx);</code></pre>
 
 <h1 id="DESCRIPTION">DESCRIPTION</h1>
 

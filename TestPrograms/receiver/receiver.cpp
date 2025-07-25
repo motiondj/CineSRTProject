@@ -46,6 +46,26 @@ int main()
     {
         SRTSOCKET listen_sock = srt_create_socket();
         
+        // ⭐ 버전 옵션을 암호화 설정보다 먼저!
+        uint32_t srt_version = 0x010503;
+        if (srt_setsockopt(listen_sock, 0, SRTO_VERSION, &srt_version, sizeof(srt_version)) != 0)
+        {
+            std::cout << "Warning: Failed to set version" << std::endl;
+        }
+
+        uint32_t min_version = 0x010300;
+        if (srt_setsockopt(listen_sock, 0, SRTO_MINVERSION, &min_version, sizeof(min_version)) != 0)
+        {
+            std::cout << "Warning: Failed to set min version" << std::endl;
+        }
+
+        // 그 다음 암호화 설정
+        int enforced = 1; // 암호화 사용시
+        if (srt_setsockopt(listen_sock, 0, SRTO_ENFORCEDENCRYPTION, &enforced, sizeof(enforced)) != 0)
+        {
+            std::cout << "Warning: Failed to set enforced encryption" << std::endl;
+        }
+        
         // 1. 모드 설정 (중요!)
         int yes = 1;
         int live_mode = SRTT_LIVE;

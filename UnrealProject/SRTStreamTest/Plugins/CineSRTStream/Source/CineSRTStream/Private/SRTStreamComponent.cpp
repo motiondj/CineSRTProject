@@ -747,10 +747,36 @@ bool FSRTStreamWorker::InitializeSRT()
         return false;
     }
     UE_LOG(LogCineSRTStream, Log, TEXT("SRT socket created successfully"));
+    
+    // ⭐ 버전 설정 전 로그
+    UE_LOG(LogCineSRTStream, Log, TEXT("Setting SRT version options..."));
+    
+    // ⭐ 중요: 버전 설정을 가장 먼저!
+    // SRTO_VERSION = 31 (0x1f)
+    uint32_t srt_version = 0x010503;  // 1.5.3
+    if (!SRTNetwork::SetSocketOption(sock, 31, &srt_version, sizeof(srt_version)))
+    {
+        UE_LOG(LogCineSRTStream, Warning, TEXT("Failed to set SRT version"));
+    }
+    
+    // SRTO_MINVERSION = 32 (0x20)
+    uint32_t min_version = 0x010300;  // 1.3.0
+    if (!SRTNetwork::SetSocketOption(sock, 32, &min_version, sizeof(min_version)))
+    {
+        UE_LOG(LogCineSRTStream, Warning, TEXT("Failed to set min version"));
+    }
+    
+    // SRTO_ENFORCEDENCRYPTION = 37 (0x25)
+    int enforced = Owner->bUseEncryption ? 1 : 0;
+    if (!SRTNetwork::SetSocketOption(sock, 37, &enforced, sizeof(enforced)))
+    {
+        UE_LOG(LogCineSRTStream, Warning, TEXT("Failed to set enforced encryption"));
+    }
+    
     // Configure socket options
     int yes = 1;
     int live_mode = SRTNetwork::TRANSTYPE_LIVE;
-    UE_LOG(LogCineSRTStream, Log, TEXT("Setting socket options..."));
+    UE_LOG(LogCineSRTStream, Log, TEXT("Setting other socket options..."));
     
     SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_TRANSTYPE, &live_mode, sizeof(live_mode));
     

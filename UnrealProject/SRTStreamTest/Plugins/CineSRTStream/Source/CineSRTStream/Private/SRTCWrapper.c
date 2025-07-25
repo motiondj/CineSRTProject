@@ -26,6 +26,16 @@
     #pragma warning(pop)
 #endif
 
+#ifndef SRTO_VERSION
+#define SRTO_VERSION 0x001f  // 31
+#endif
+#ifndef SRTO_MINVERSION
+#define SRTO_MINVERSION 0x0020  // 32
+#endif
+#ifndef SRTO_ENFORCEDENCRYPTION
+#define SRTO_ENFORCEDENCRYPTION 0x0025  // 37
+#endif
+
 // ================================================================================
 // C 래퍼 함수들
 // ================================================================================

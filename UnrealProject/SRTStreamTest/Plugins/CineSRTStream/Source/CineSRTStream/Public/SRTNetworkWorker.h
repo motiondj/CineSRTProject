@@ -17,6 +17,9 @@ namespace SRTNetwork
     constexpr int OPT_PEERLATENCY = 18;
     constexpr int OPT_PEERIDLETIMEO = 19;
     constexpr int TRANSTYPE_LIVE = 0;
+    constexpr int OPT_VERSION = 31;         // SRTO_VERSION (0x1f)
+    constexpr int OPT_MINVERSION = 32;      // SRTO_MINVERSION (0x20)
+    constexpr int OPT_ENFORCEDENCRYPTION = 37; // SRTO_ENFORCEDENCRYPTION (0x25)
 
     // 버전 정보 구조체
     struct VersionInfo
