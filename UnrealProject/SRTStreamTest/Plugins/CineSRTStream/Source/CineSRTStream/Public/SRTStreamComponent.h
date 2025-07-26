@@ -14,6 +14,71 @@
 
 #include "SRTStreamComponent.generated.h"
 
+// ===== ENUM 정의들을 여기에 먼저! =====
+
+UENUM(BlueprintType)
+enum class ESRTQualityPreset : uint8
+{
+    Performance UMETA(DisplayName = "Performance (Low Quality)"),
+    Balanced UMETA(DisplayName = "Balanced"),
+    Quality UMETA(DisplayName = "Quality"),
+    Ultra UMETA(DisplayName = "Ultra Quality")
+};
+
+UENUM(BlueprintType)
+enum class EH264Profile : uint8
+{
+    Baseline UMETA(DisplayName = "Baseline"),
+    Main UMETA(DisplayName = "Main"),
+    High UMETA(DisplayName = "High"),
+    High10 UMETA(DisplayName = "High 10-bit")
+};
+
+UENUM(BlueprintType)
+enum class EColorSpace : uint8
+{
+    YUV420 UMETA(DisplayName = "YUV 4:2:0 (Standard)"),
+    YUV422 UMETA(DisplayName = "YUV 4:2:2 (Better)"),
+    YUV444 UMETA(DisplayName = "YUV 4:4:4 (Best)")
+};
+
+UENUM(BlueprintType)
+enum class ECaptureSource : uint8
+{
+    SceneColor UMETA(DisplayName = "Scene Color (LDR)"),
+    SceneColorHDR UMETA(DisplayName = "Scene Color (HDR)"),
+    FinalColor UMETA(DisplayName = "Final Color (LDR)"),
+    FinalColorHDR UMETA(DisplayName = "Final Color (HDR)")
+};
+
+UENUM(BlueprintType)
+enum class EEncoderPreset : uint8
+{
+    UltraFast UMETA(DisplayName = "Ultra Fast (Lowest Quality)"),
+    SuperFast UMETA(DisplayName = "Super Fast"),
+    VeryFast UMETA(DisplayName = "Very Fast"),
+    Faster UMETA(DisplayName = "Faster"),
+    Fast UMETA(DisplayName = "Fast"),
+    Medium UMETA(DisplayName = "Medium (Balanced)"),
+    Slow UMETA(DisplayName = "Slow (Better Quality)"),
+    Slower UMETA(DisplayName = "Slower"),
+    VerySlow UMETA(DisplayName = "Very Slow (Best Quality)")
+};
+
+UENUM(BlueprintType)
+enum class EEncoderTune : uint8
+{
+    None UMETA(DisplayName = "None (Default)"),
+    Film UMETA(DisplayName = "Film (Movies)"),
+    Animation UMETA(DisplayName = "Animation"),
+    Grain UMETA(DisplayName = "Grain (Preserve Grain)"),
+    StillImage UMETA(DisplayName = "Still Image"),
+    PSNR UMETA(DisplayName = "PSNR (Benchmarking)"),
+    SSIM UMETA(DisplayName = "SSIM (Benchmarking)"),
+    FastDecode UMETA(DisplayName = "Fast Decode"),
+    ZeroLatency UMETA(DisplayName = "Zero Latency (Live)")
+};
+
 // 전방 선언 제거
 // class FSRTVideoEncoder;  <- 삭제
 // class FSRTTransportStream;  <- 삭제
@@ -159,6 +224,85 @@ public:
         meta = (ToolTip = "Automatically reconnect on connection loss"))
     bool bAutoReconnect = true;
     
+    /** ========== 품질 설정 ========== */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Quality", 
+        meta = (DisplayPriority = "1"))
+    ESRTQualityPreset QualityPreset = ESRTQualityPreset::Balanced;
+
+    /** ========== 인코더 설정 ========== */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Encoder",
+        meta = (DisplayName = "Encoder Preset", DisplayPriority = "1"))
+    EEncoderPreset EncoderPreset = EEncoderPreset::Medium;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Encoder",
+        meta = (DisplayName = "Encoder Tune", DisplayPriority = "2"))
+    EEncoderTune EncoderTune = EEncoderTune::ZeroLatency;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Encoder",
+        meta = (DisplayName = "H.264 Profile", DisplayPriority = "3"))
+    EH264Profile H264Profile = EH264Profile::High;
+
+    /** ========== 고급 품질 설정 ========== */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Advanced Quality",
+        meta = (DisplayName = "CRF (Quality)", ClampMin = "0", ClampMax = "51", 
+        ToolTip = "Constant Rate Factor: 0=Lossless, 18=High Quality, 23=Default, 51=Worst"))
+    int32 CRF = 23;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Advanced Quality",
+        meta = (DisplayName = "Max Bitrate (Kbps)", ClampMin = "1000", ClampMax = "100000",
+        ToolTip = "Maximum bitrate in Kilobits per second"))
+    int32 MaxBitrateKbps = 10000;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Advanced Quality",
+        meta = (DisplayName = "VBV Buffer Size (KB)", ClampMin = "500", ClampMax = "10000",
+        ToolTip = "Video Buffering Verifier buffer size"))
+    int32 BufferSizeKb = 2000;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Advanced Quality",
+        meta = (DisplayName = "GOP Size", ClampMin = "1", ClampMax = "300",
+        ToolTip = "Group of Pictures size (keyframe interval)"))
+    int32 GOPSize = 60;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Advanced Quality",
+        meta = (DisplayName = "B-Frames", ClampMin = "0", ClampMax = "5",
+        ToolTip = "Number of B-frames between I and P frames"))
+    int32 BFrames = 2;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Advanced Quality",
+        meta = (DisplayName = "Reference Frames", ClampMin = "1", ClampMax = "16",
+        ToolTip = "Number of reference frames"))
+    int32 RefFrames = 3;
+
+    /** ========== 색상 및 캡처 설정 ========== */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Color",
+        meta = (DisplayName = "Color Subsampling"))
+    EColorSpace ColorSpace = EColorSpace::YUV420;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Color",
+        meta = (DisplayName = "Use 10-bit Color"))
+    bool bUse10BitColor = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Capture",
+        meta = (DisplayName = "Capture Source"))
+    ECaptureSource CaptureSource = ECaptureSource::FinalColor;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Capture",
+        meta = (DisplayName = "Enable Temporal AA"))
+    bool bEnableTemporalAA = true;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Capture",
+        meta = (DisplayName = "Enable Motion Blur"))
+    bool bEnableMotionBlur = false;
+
+    /** 디버그 옵션 */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Debug",
+        meta = (DisplayName = "Show Quality Stats"))
+    bool bShowQualityStats = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Debug",
+        meta = (DisplayName = "Save First Frame"))
+    bool bSaveFirstFrame = false;
+    
     // === 상태 속성 (읽기 전용) ===
     
     UPROPERTY(BlueprintReadOnly, Category = "SRT Status")
@@ -221,16 +365,70 @@ public:
         return TEXT("Ready");
     }
 
+    /** 프리셋 템플릿 함수 */
+    UFUNCTION(BlueprintCallable, Category = "SRT Stream")
+    void ApplyUltraQualityPreset()
+    {
+        QualityPreset = ESRTQualityPreset::Ultra;
+        BitrateKbps = 50000;
+        MaxBitrateKbps = 80000;
+        CRF = 18;
+        GOPSize = 60;
+        BFrames = 3;
+        RefFrames = 5;
+        H264Profile = EH264Profile::High;
+        ColorSpace = EColorSpace::YUV422;
+        CaptureSource = ECaptureSource::SceneColorHDR;
+        bEnableTemporalAA = true;
+    }
+
+#if WITH_EDITOR
+    virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
+#endif
+
+    // 프리셋 적용 함수
+    UFUNCTION(BlueprintCallable, Category = "SRT Stream|Quality")
+    void ApplyQualityPreset();
+
+    // 실시간 설정 변경 함수들
+    UFUNCTION(BlueprintCallable, Category = "SRT Stream|Runtime", 
+        meta = (CallInEditor = "true"))
+    void SetBitrateRuntime(int32 NewBitrate);
+
+    UFUNCTION(BlueprintCallable, Category = "SRT Stream|Runtime", 
+        meta = (CallInEditor = "true"))
+    void SetQualityRuntime(int32 NewCRF);
+
+    UFUNCTION(BlueprintCallable, Category = "SRT Stream|Runtime", 
+        meta = (CallInEditor = "true"))
+    void ForceKeyFrame();
+
+    UFUNCTION(BlueprintCallable, Category = "SRT Stream|Runtime")
+    void ApplyRuntimeSettings();
+
+    // Details 패널에 버튼 추가
+    UFUNCTION(BlueprintCallable, Category = "SRT Stream|Presets", 
+        meta = (CallInEditor = "true", DisplayName = "Apply Gaming Preset"))
+    void ApplyGamingPreset();
+
+    UFUNCTION(BlueprintCallable, Category = "SRT Stream|Presets", 
+        meta = (CallInEditor = "true", DisplayName = "Apply Movie Preset"))
+    void ApplyMoviePreset();
+
+    UFUNCTION(BlueprintCallable, Category = "SRT Stream|Presets", 
+        meta = (CallInEditor = "true", DisplayName = "Apply Fast Preset"))
+    void ApplyFastPreset();
+
+    // 현재 설정 정보
+    UFUNCTION(BlueprintCallable, Category = "SRT Stream|Info")
+    FString GetCurrentSettingsInfo() const;
+
 protected:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, 
         FActorComponentTickFunction* ThisTickFunction) override;
     virtual void BeginDestroy() override;
-
-#if WITH_EDITOR
-    virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
-#endif
 
 private:
     // 스트리밍 상태

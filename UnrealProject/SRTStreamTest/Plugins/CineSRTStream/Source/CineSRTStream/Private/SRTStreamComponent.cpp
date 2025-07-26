@@ -225,18 +225,248 @@ void USRTStreamComponent::PostEditChangeProperty(FPropertyChangedEvent& Property
     {
         const FName PropertyName = PropertyChangedEvent.Property->GetFName();
         
-        // Validate settings
-        if (PropertyName == GET_MEMBER_NAME_CHECKED(USRTStreamComponent, StreamFPS))
+        // 품질 프리셋이 변경되면 관련 값들 자동 설정
+        if (PropertyName == GET_MEMBER_NAME_CHECKED(USRTStreamComponent, QualityPreset))
+        {
+            ApplyQualityPreset();
+        }
+        
+        // 프레임레이트 제한
+        else if (PropertyName == GET_MEMBER_NAME_CHECKED(USRTStreamComponent, StreamFPS))
         {
             StreamFPS = FMath::Clamp(StreamFPS, 1.0f, 120.0f);
         }
+        
+        // 비트레이트 제한
         else if (PropertyName == GET_MEMBER_NAME_CHECKED(USRTStreamComponent, BitrateKbps))
         {
-            BitrateKbps = FMath::Clamp(BitrateKbps, 100, 50000);
+            BitrateKbps = FMath::Clamp(BitrateKbps, 100, 100000);
         }
     }
 }
 #endif
+
+void USRTStreamComponent::ApplyQualityPreset()
+{
+    switch (QualityPreset)
+    {
+        case ESRTQualityPreset::Performance:
+            EncoderPreset = EEncoderPreset::UltraFast;
+            CRF = 28;
+            BitrateKbps = 3000;
+            MaxBitrateKbps = 5000;
+            GOPSize = 30;
+            BFrames = 0;
+            RefFrames = 1;
+            BufferSizeKb = 1000;
+            H264Profile = EH264Profile::Baseline;
+            break;
+            
+        case ESRTQualityPreset::Balanced:
+            EncoderPreset = EEncoderPreset::Medium;
+            CRF = 23;
+            BitrateKbps = 5000;
+            MaxBitrateKbps = 8000;
+            GOPSize = 60;
+            BFrames = 2;
+            RefFrames = 3;
+            BufferSizeKb = 2000;
+            H264Profile = EH264Profile::Main;
+            break;
+            
+        case ESRTQualityPreset::Quality:
+            EncoderPreset = EEncoderPreset::Slow;
+            CRF = 20;
+            BitrateKbps = 10000;
+            MaxBitrateKbps = 15000;
+            GOPSize = 60;
+            BFrames = 3;
+            RefFrames = 5;
+            BufferSizeKb = 4000;
+            H264Profile = EH264Profile::High;
+            break;
+            
+        case ESRTQualityPreset::Ultra:
+            EncoderPreset = EEncoderPreset::VerySlow;
+            CRF = 18;
+            BitrateKbps = 25000;
+            MaxBitrateKbps = 50000;
+            GOPSize = 60;
+            BFrames = 3;
+            RefFrames = 8;
+            BufferSizeKb = 8000;
+            H264Profile = EH264Profile::High;
+            ColorSpace = EColorSpace::YUV422; // 더 높은 색상 샘플링
+            break;
+    }
+    
+    UE_LOG(LogCineSRTStream, Log, TEXT("Applied %s preset"), 
+        *UEnum::GetValueAsString(QualityPreset));
+}
+
+void USRTStreamComponent::SetBitrateRuntime(int32 NewBitrate)
+{
+    if (!bIsStreaming || !VideoEncoder)
+    {
+        // 스트리밍 중이 아니면 그냥 값만 변경
+        BitrateKbps = FMath::Clamp(NewBitrate, 100, 100000);
+        return;
+    }
+    
+    // 실시간으로 인코더 비트레이트 변경
+    BitrateKbps = FMath::Clamp(NewBitrate, 100, 100000);
+    
+    if (VideoEncoder)
+    {
+        VideoEncoder->SetBitrate(BitrateKbps);
+        UE_LOG(LogCineSRTStream, Log, TEXT("Runtime bitrate changed to %d kbps"), BitrateKbps);
+        
+        // UI 알림
+        if (GEngine)
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, 
+                FString::Printf(TEXT("Bitrate: %d kbps"), BitrateKbps));
+        }
+    }
+}
+
+void USRTStreamComponent::SetQualityRuntime(int32 NewCRF)
+{
+    CRF = FMath::Clamp(NewCRF, 0, 51);
+    
+    if (bIsStreaming && VideoEncoder)
+    {
+        // FFmpeg x264는 실시간 CRF 변경을 지원하지 않으므로
+        // 다음 키프레임부터 적용되도록 설정
+        ForceKeyFrame();
+        
+        UE_LOG(LogCineSRTStream, Log, TEXT("CRF will change to %d at next keyframe"), CRF);
+        
+        if (GEngine)
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, 
+                FString::Printf(TEXT("CRF: %d (at next keyframe)"), CRF));
+        }
+    }
+}
+
+void USRTStreamComponent::ForceKeyFrame()
+{
+    if (bIsStreaming && VideoEncoder)
+    {
+        VideoEncoder->ForceKeyFrame();
+        UE_LOG(LogCineSRTStream, Log, TEXT("Forced keyframe"));
+    }
+}
+
+void USRTStreamComponent::ApplyRuntimeSettings()
+{
+    if (!bIsStreaming)
+    {
+        UE_LOG(LogCineSRTStream, Warning, TEXT("Cannot apply runtime settings - not streaming"));
+        return;
+    }
+    
+    // 현재는 비트레이트만 실시간 변경 가능
+    SetBitrateRuntime(BitrateKbps);
+    
+    // 재시작이 필요한 설정들 알림
+    if (GEngine)
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Orange, 
+            TEXT("Note: Some settings require restart (Preset, Profile, Resolution)"));
+    }
+}
+
+void USRTStreamComponent::ApplyGamingPreset()
+{
+    // 게임 스트리밍에 최적화
+    QualityPreset = ESRTQualityPreset::Balanced;
+    EncoderPreset = EEncoderPreset::Fast;
+    EncoderTune = EEncoderTune::ZeroLatency;
+    CRF = 23;
+    BitrateKbps = 8000;
+    MaxBitrateKbps = 12000;
+    LatencyMs = 60; // 낮은 레이턴시
+    GOPSize = 60;
+    
+    ApplyQualityPreset();
+    
+    if (GEngine)
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Cyan, 
+            TEXT("Gaming Preset Applied"));
+    }
+}
+
+void USRTStreamComponent::ApplyMoviePreset()
+{
+    // 영화 품질에 최적화
+    QualityPreset = ESRTQualityPreset::Ultra;
+    EncoderPreset = EEncoderPreset::Slow;
+    EncoderTune = EEncoderTune::Film;
+    CRF = 18;
+    BitrateKbps = 30000;
+    MaxBitrateKbps = 50000;
+    LatencyMs = 500; // 품질 우선
+    GOPSize = 120;
+    ColorSpace = EColorSpace::YUV422;
+    bUse10BitColor = true;
+    
+    ApplyQualityPreset();
+    
+    if (GEngine)
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Cyan, 
+            TEXT("Movie Preset Applied"));
+    }
+}
+
+void USRTStreamComponent::ApplyFastPreset()
+{
+    // 빠른 인코딩 우선
+    QualityPreset = ESRTQualityPreset::Performance;
+    EncoderPreset = EEncoderPreset::UltraFast;
+    EncoderTune = EEncoderTune::FastDecode;
+    CRF = 28;
+    BitrateKbps = 2500;
+    MaxBitrateKbps = 4000;
+    LatencyMs = 20;
+    GOPSize = 30;
+    
+    ApplyQualityPreset();
+    
+    if (GEngine)
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Cyan, 
+            TEXT("Fast Preset Applied"));
+    }
+}
+
+FString USRTStreamComponent::GetCurrentSettingsInfo() const
+{
+    return FString::Printf(
+        TEXT("Resolution: %s\n")
+        TEXT("FPS: %.1f\n")
+        TEXT("Bitrate: %d kbps (Max: %d)\n")
+        TEXT("CRF: %d\n")
+        TEXT("Preset: %s\n")
+        TEXT("Profile: %s\n")
+        TEXT("GOP Size: %d\n")
+        TEXT("B-Frames: %d\n")
+        TEXT("Color Space: %s%s"),
+        *UEnum::GetValueAsString(StreamMode),
+        StreamFPS,
+        BitrateKbps, MaxBitrateKbps,
+        CRF,
+        *UEnum::GetValueAsString(EncoderPreset),
+        *UEnum::GetValueAsString(H264Profile),
+        GOPSize,
+        BFrames,
+        *UEnum::GetValueAsString(ColorSpace),
+        bUse10BitColor ? TEXT(" (10-bit)") : TEXT("")
+    );
+}
 
 void USRTStreamComponent::StartStreaming()
 {
@@ -318,18 +548,108 @@ void USRTStreamComponent::StartStreaming()
     
     SetConnectionState(ESRTConnectionState::Connecting, TEXT("Initializing capture..."));
     
-    // Phase 3: 새로운 인코더 및 멀티플렉서 초기화
+    // Phase 3: 비디오 인코더 설정 부분 수정
     if (VideoEncoder && TransportStream)
     {
-        // CPU 인코더 (폴백 또는 GPU 인코더가 없을 때)
         FSRTVideoEncoder::FConfig EncoderConfig;
         GetResolution(EncoderConfig.Width, EncoderConfig.Height);
         EncoderConfig.FrameRate = StreamFPS;
         EncoderConfig.BitrateKbps = BitrateKbps;
-        EncoderConfig.GOPSize = 30;
-        EncoderConfig.Preset = TEXT("ultrafast");
-        EncoderConfig.Tune = TEXT("zerolatency");
+        EncoderConfig.MaxBitrateKbps = MaxBitrateKbps;
+        EncoderConfig.BufferSizeKb = BufferSizeKb;
+        EncoderConfig.GOPSize = GOPSize;
         EncoderConfig.bUseHardwareAcceleration = bUseHardwareAcceleration;
+        
+        // Enum을 문자열로 변환하는 헬퍼 함수들
+        auto GetPresetString = [](EEncoderPreset Preset) -> FString
+        {
+            switch (Preset)
+            {
+                case EEncoderPreset::UltraFast: return TEXT("ultrafast");
+                case EEncoderPreset::SuperFast: return TEXT("superfast");
+                case EEncoderPreset::VeryFast: return TEXT("veryfast");
+                case EEncoderPreset::Faster: return TEXT("faster");
+                case EEncoderPreset::Fast: return TEXT("fast");
+                case EEncoderPreset::Medium: return TEXT("medium");
+                case EEncoderPreset::Slow: return TEXT("slow");
+                case EEncoderPreset::Slower: return TEXT("slower");
+                case EEncoderPreset::VerySlow: return TEXT("veryslow");
+                default: return TEXT("medium");
+            }
+        };
+        
+        auto GetTuneString = [](EEncoderTune Tune) -> FString
+        {
+            switch (Tune)
+            {
+                case EEncoderTune::None: return TEXT("");
+                case EEncoderTune::Film: return TEXT("film");
+                case EEncoderTune::Animation: return TEXT("animation");
+                case EEncoderTune::Grain: return TEXT("grain");
+                case EEncoderTune::StillImage: return TEXT("stillimage");
+                case EEncoderTune::PSNR: return TEXT("psnr");
+                case EEncoderTune::SSIM: return TEXT("ssim");
+                case EEncoderTune::FastDecode: return TEXT("fastdecode");
+                case EEncoderTune::ZeroLatency: return TEXT("zerolatency");
+                default: return TEXT("zerolatency");
+            }
+        };
+        
+        auto GetProfileString = [](EH264Profile Profile) -> FString
+        {
+            switch (Profile)
+            {
+                case EH264Profile::Baseline: return TEXT("baseline");
+                case EH264Profile::Main: return TEXT("main");
+                case EH264Profile::High: return TEXT("high");
+                case EH264Profile::High10: return TEXT("high10");
+                default: return TEXT("high");
+            }
+        };
+        
+        // 설정 적용
+        EncoderConfig.Preset = GetPresetString(EncoderPreset);
+        EncoderConfig.Tune = GetTuneString(EncoderTune);
+        EncoderConfig.Profile = GetProfileString(H264Profile);
+        
+        // 품질 프리셋 오버라이드 (사용자가 직접 설정하지 않은 경우)
+        if (QualityPreset != ESRTQualityPreset::Balanced)
+        {
+            switch (QualityPreset)
+            {
+                case ESRTQualityPreset::Performance:
+                    if (EncoderPreset == EEncoderPreset::Medium)
+                        EncoderConfig.Preset = TEXT("ultrafast");
+                    if (CRF == 23)
+                        EncoderConfig.CRF = 28.0f;
+                    break;
+                case ESRTQualityPreset::Quality:
+                    if (EncoderPreset == EEncoderPreset::Medium)
+                        EncoderConfig.Preset = TEXT("slow");
+                    if (CRF == 23)
+                        EncoderConfig.CRF = 20.0f;
+                    break;
+                case ESRTQualityPreset::Ultra:
+                    if (EncoderPreset == EEncoderPreset::Medium)
+                        EncoderConfig.Preset = TEXT("veryslow");
+                    if (CRF == 23)
+                        EncoderConfig.CRF = 18.0f;
+                    break;
+                default:
+                    break;
+            }
+        }
+        
+        // 사용자 설정 CRF 적용
+        EncoderConfig.CRF = static_cast<float>(CRF);
+        
+        UE_LOG(LogCineSRTStream, Log, TEXT("Video Encoder Config:"));
+        UE_LOG(LogCineSRTStream, Log, TEXT("  Resolution: %dx%d @ %d fps"), 
+            EncoderConfig.Width, EncoderConfig.Height, EncoderConfig.FrameRate);
+        UE_LOG(LogCineSRTStream, Log, TEXT("  Preset: %s, Tune: %s, Profile: %s"), 
+            *EncoderConfig.Preset, *EncoderConfig.Tune, *EncoderConfig.Profile);
+        UE_LOG(LogCineSRTStream, Log, TEXT("  Bitrate: %d kbps, CRF: %.1f"), 
+            EncoderConfig.BitrateKbps, EncoderConfig.CRF);
         
         if (!VideoEncoder->Initialize(EncoderConfig))
         {
@@ -534,12 +854,35 @@ bool USRTStreamComponent::SetupSceneCapture()
     
     // Configure SceneCapture
     SceneCapture->TextureTarget = RenderTarget;
-    SceneCapture->CaptureSource = ESceneCaptureSource::SCS_FinalColorLDR;
-    SceneCapture->bCaptureEveryFrame = false;
-    SceneCapture->bCaptureOnMovement = false;
-    SceneCapture->bAlwaysPersistRenderingState = true;
-    SceneCapture->ShowFlags.SetMotionBlur(false);
+    
+    // UI 설정에 따른 캡처 소스 설정
+    switch (CaptureSource)
+    {
+        case ECaptureSource::SceneColor:
+            SceneCapture->CaptureSource = ESceneCaptureSource::SCS_SceneColorSceneDepth;
+            break;
+        case ECaptureSource::SceneColorHDR:
+            SceneCapture->CaptureSource = ESceneCaptureSource::SCS_SceneColorHDR;
+            break;
+        case ECaptureSource::FinalColor:
+            SceneCapture->CaptureSource = ESceneCaptureSource::SCS_FinalColorLDR;
+            break;
+        case ECaptureSource::FinalColorHDR:
+            SceneCapture->CaptureSource = ESceneCaptureSource::SCS_FinalColorHDR;
+            break;
+    }
+    
+    // 품질 설정 적용
+    SceneCapture->ShowFlags.SetTemporalAA(bEnableTemporalAA);
+    SceneCapture->ShowFlags.SetMotionBlur(bEnableMotionBlur);
     SceneCapture->ShowFlags.SetAntiAliasing(true);
+    SceneCapture->ShowFlags.SetBloom(true);
+    
+    // 10-bit 색상 지원
+    if (bUse10BitColor)
+    {
+        RenderTarget->RenderTargetFormat = RTF_RGBA16f;
+    }
     
     // Copy camera settings
     SceneCapture->FOVAngle = Camera->FieldOfView;
