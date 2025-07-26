@@ -69,8 +69,8 @@ CineSRTProject/
                │       ├── 📁 include/  # 시스템에 없을 때만 사용
                │       ├── 📁 lib/
                │       └── 📁 bin/
-               └── 📁 Binaries/Win64/   # ⭐⭐⭐ 플러그인 런타임 DLL
-                   └── 📚 CineSRTStream.dll  # 플러그인 자체 DLL만
+               └── 📁 Binaries/Win64/   # ⭐⭐⭐ 플러그인 런타임 DLL (빌드 시 자동 생성)
+                   └── 📚 CineSRTStream.dll  # 플러그인 자체 DLL만 (빌드 시 생성)
 │
 └── 📁 TestPrograms/                  # 테스트 프로그램들
     ├── 📁 test_openssl/              # OpenSSL 동작 테스트
