@@ -428,8 +428,6 @@ void USRTStreamComponent::StopStreaming()
     
     UE_LOG(LogCineSRTStream, Log, TEXT("SRT stream stopped"));
 }
-    });
-}
 
 void USRTStreamComponent::TestConnection()
 {

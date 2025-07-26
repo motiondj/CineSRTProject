@@ -48,7 +48,7 @@ public:
         int32 Level = 41;  // 4.1 = 1080p30
         
         // 하드웨어 가속
-        bool bUseHardwareAcceleration = false;
+        bool bUseHardwareAcceleration = true;  // 기본값이 true!
         FString HWAccelType = TEXT("nvenc");  // nvenc, qsv, amf
         
         // 고급 설정

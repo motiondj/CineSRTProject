@@ -76,19 +76,41 @@ bool FSRTVideoEncoder::Initialize(const FConfig& InConfig)
     }
     
     // FFmpeg 초기화
-    try
+    av_log_set_level(AV_LOG_WARNING);
+    
+    // 버전 확인
+    unsigned version = avcodec_version();
+    int major = (version >> 16) & 0xFF;
+    int minor = (version >> 8) & 0xFF;
+    int micro = version & 0xFF;
+    
+    UE_LOG(LogCineSRTStream, Log, TEXT("FFmpeg version: %d.%d.%d"), major, minor, micro);
+    
+    // 코덱 찾기 - GPU 인코더 우선
+    if (Config.bUseHardwareAcceleration)
     {
-        av_log_set_level(AV_LOG_WARNING);
+        // GPU 인코더 시도 순서
+        const char* gpu_encoders[] = {
+            "h264_nvenc",     // NVIDIA
+            "h264_amf",       // AMD  
+            "h264_qsv",       // Intel
+            nullptr
+        };
         
-        // 버전 확인
-        unsigned version = avcodec_version();
-        int major = (version >> 16) & 0xFF;
-        int minor = (version >> 8) & 0xFF;
-        int micro = version & 0xFF;
-        
-        UE_LOG(LogCineSRTStream, Log, TEXT("FFmpeg version: %d.%d.%d"), major, minor, micro);
-        
-        // 코덱 찾기
+        for (int i = 0; gpu_encoders[i]; i++)
+        {
+            Codec = avcodec_find_encoder_by_name(gpu_encoders[i]);
+            if (Codec)
+            {
+                UE_LOG(LogCineSRTStream, Log, TEXT("✅ GPU encoder found: %s"), UTF8_TO_TCHAR(gpu_encoders[i]));
+                break;
+            }
+        }
+    }
+    
+    // GPU 인코더가 없으면 CPU 인코더 사용
+    if (!Codec)
+    {
         Codec = avcodec_find_encoder_by_name("libx264");
         if (!Codec)
         {
@@ -99,11 +121,7 @@ bool FSRTVideoEncoder::Initialize(const FConfig& InConfig)
                 return false;
             }
         }
-    }
-    catch (...)
-    {
-        UE_LOG(LogCineSRTStream, Error, TEXT("FFmpeg DLL loading failed"));
-        return false;
+        UE_LOG(LogCineSRTStream, Warning, TEXT("⚠️ Using CPU encoder (slower performance)"));
     }
     
     // 코덱 컨텍스트 할당
@@ -325,6 +343,68 @@ bool FSRTVideoEncoder::SetupCodecContext()
         }
         
         av_opt_set(CodecContext->priv_data, "x264opts", TCHAR_TO_UTF8(*x264opts), 0);
+    }
+    
+    // NVIDIA NVENC 특정 옵션
+    else if (Codec && strstr(Codec->name, "nvenc"))
+    {
+        UE_LOG(LogCineSRTStream, Log, TEXT("Configuring NVIDIA NVENC encoder"));
+        
+        // 저지연 프리셋
+        av_opt_set(CodecContext->priv_data, "preset", "llhq", 0);  // Low Latency HQ
+        av_opt_set(CodecContext->priv_data, "tune", "ll", 0);      // Low Latency
+        
+        // 비트레이트 모드
+        av_opt_set(CodecContext->priv_data, "rc", Config.bUseCBR ? "cbr" : "vbr", 0);
+        
+        // 저지연 설정
+        av_opt_set(CodecContext->priv_data, "zerolatency", "1", 0);
+        av_opt_set(CodecContext->priv_data, "forced-idr", "1", 0);
+        av_opt_set(CodecContext->priv_data, "no-scenecut", "1", 0);
+        
+        // 프로파일 설정
+        av_opt_set(CodecContext->priv_data, "profile", "baseline", 0);
+        av_opt_set(CodecContext->priv_data, "level", "4.1", 0);
+    }
+    
+    // AMD AMF 특정 옵션
+    else if (Codec && strstr(Codec->name, "amf"))
+    {
+        UE_LOG(LogCineSRTStream, Log, TEXT("Configuring AMD AMF encoder"));
+        
+        // 저지연 프리셋
+        av_opt_set(CodecContext->priv_data, "preset", "speed", 0);
+        
+        // 비트레이트 모드
+        av_opt_set(CodecContext->priv_data, "rc", Config.bUseCBR ? "cbr" : "vbr_latency", 0);
+        
+        // 저지연 설정
+        av_opt_set(CodecContext->priv_data, "usage", "lowlatency", 0);
+        av_opt_set(CodecContext->priv_data, "quality", "speed", 0);
+        
+        // 프로파일 설정
+        av_opt_set(CodecContext->priv_data, "profile", "baseline", 0);
+        av_opt_set(CodecContext->priv_data, "level", "4.1", 0);
+    }
+    
+    // Intel QuickSync 특정 옵션
+    else if (Codec && strstr(Codec->name, "qsv"))
+    {
+        UE_LOG(LogCineSRTStream, Log, TEXT("Configuring Intel QuickSync encoder"));
+        
+        // 저지연 프리셋
+        av_opt_set(CodecContext->priv_data, "preset", "veryfast", 0);
+        
+        // 비트레이트 모드
+        av_opt_set(CodecContext->priv_data, "global_quality", "23", 0);
+        
+        // 저지연 설정
+        av_opt_set(CodecContext->priv_data, "async_depth", "1", 0);
+        av_opt_set(CodecContext->priv_data, "low_power", "1", 0);
+        
+        // 프로파일 설정
+        av_opt_set(CodecContext->priv_data, "profile", "baseline", 0);
+        av_opt_set(CodecContext->priv_data, "level", "41", 0);
     }
     
     // 코덱 열기
