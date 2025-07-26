@@ -55,19 +55,55 @@ bool FSRTVideoEncoder::Initialize(const FConfig& InConfig)
         Shutdown();
     }
     
-    // FFmpeg 로그 레벨 설정
-    av_log_set_level(AV_LOG_WARNING);
-    
-    // 코덱 찾기
-    Codec = avcodec_find_encoder_by_name("libx264");
-    if (!Codec)
+    // FFmpeg 설치 확인
+    if (!CheckFFmpegInstallation())
     {
-        Codec = avcodec_find_encoder(AV_CODEC_ID_H264);
+        UE_LOG(LogCineSRTStream, Error, TEXT("FFmpeg not found in system PATH!"));
+        UE_LOG(LogCineSRTStream, Error, TEXT("Please install FFmpeg:"));
+        UE_LOG(LogCineSRTStream, Error, TEXT("1. Download from https://www.gyan.dev/ffmpeg/builds/"));
+        UE_LOG(LogCineSRTStream, Error, TEXT("2. Extract to C:\\ffmpeg"));
+        UE_LOG(LogCineSRTStream, Error, TEXT("3. Add C:\\ffmpeg\\bin to system PATH"));
+        UE_LOG(LogCineSRTStream, Error, TEXT("4. Restart Unreal Engine"));
+        
+        // 사용자에게 알림
+        if (GEngine)
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 10.0f, FColor::Red, 
+                TEXT("FFmpeg not installed! Check Output Log for instructions."));
+        }
+        
+        return false;
+    }
+    
+    // FFmpeg 초기화
+    try
+    {
+        av_log_set_level(AV_LOG_WARNING);
+        
+        // 버전 확인
+        unsigned version = avcodec_version();
+        int major = (version >> 16) & 0xFF;
+        int minor = (version >> 8) & 0xFF;
+        int micro = version & 0xFF;
+        
+        UE_LOG(LogCineSRTStream, Log, TEXT("FFmpeg version: %d.%d.%d"), major, minor, micro);
+        
+        // 코덱 찾기
+        Codec = avcodec_find_encoder_by_name("libx264");
         if (!Codec)
         {
-            UE_LOG(LogCineSRTStream, Error, TEXT("No H.264 encoder found!"));
-            return false;
+            Codec = avcodec_find_encoder(AV_CODEC_ID_H264);
+            if (!Codec)
+            {
+                UE_LOG(LogCineSRTStream, Error, TEXT("No H.264 encoder found!"));
+                return false;
+            }
         }
+    }
+    catch (...)
+    {
+        UE_LOG(LogCineSRTStream, Error, TEXT("FFmpeg DLL loading failed"));
+        return false;
     }
     
     // 코덱 컨텍스트 할당
@@ -137,6 +173,61 @@ bool FSRTVideoEncoder::Initialize(const FConfig& InConfig)
     LogCodecInfo();
     
     return true;
+}
+
+bool FSRTVideoEncoder::CheckFFmpegInstallation()
+{
+    // 방법 1: ffmpeg.exe 실행 가능 여부 확인
+    FString FFmpegPath;
+    void* PipeRead = nullptr;
+    void* PipeWrite = nullptr;
+    
+    FPlatformProcess::CreatePipe(PipeRead, PipeWrite);
+    FProcHandle ProcessHandle = FPlatformProcess::CreateProc(
+        TEXT("ffmpeg.exe"),
+        TEXT("-version"),
+        false, true, true, nullptr, 0, nullptr, PipeWrite
+    );
+    
+    if (ProcessHandle.IsValid())
+    {
+        FPlatformProcess::WaitForProc(ProcessHandle);
+        
+        // 출력 읽기
+        FString Output = FPlatformProcess::ReadPipe(PipeRead);
+        FPlatformProcess::ClosePipe(PipeRead, PipeWrite);
+        
+        if (Output.Contains(TEXT("ffmpeg version")))
+        {
+            UE_LOG(LogCineSRTStream, Log, TEXT("System FFmpeg found: %s"), *Output.Left(100));
+            return true;
+        }
+    }
+    
+    // 방법 2: 특정 경로 확인
+    TArray<FString> CommonPaths = {
+        TEXT("C:\\ffmpeg\\bin"),
+        TEXT("C:\\Program Files\\ffmpeg\\bin"),
+        TEXT("C:\\Tools\\ffmpeg\\bin")
+    };
+    
+    for (const FString& Path : CommonPaths)
+    {
+        if (FPaths::DirectoryExists(Path))
+        {
+            FString DLLPath = FPaths::Combine(Path, TEXT("avcodec-*.dll"));
+            TArray<FString> FoundFiles;
+            IFileManager::Get().FindFiles(FoundFiles, *DLLPath, true, false);
+            
+            if (FoundFiles.Num() > 0)
+            {
+                UE_LOG(LogCineSRTStream, Log, TEXT("FFmpeg found at: %s"), *Path);
+                return true;
+            }
+        }
+    }
+    
+    return false;
 }
 
 void FSRTVideoEncoder::Shutdown()

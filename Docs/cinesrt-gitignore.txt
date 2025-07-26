@@ -83,10 +83,10 @@ bld/
 !/Plugins/CineSRTStream/ThirdParty/**/*.h
 !/Plugins/CineSRTStream/ThirdParty/**/*.hpp
 
-# 플러그인 바이너리 폴더 포함 (FFmpeg DLL들)
-!/Plugins/CineSRTStream/Binaries/**/*.dll
-!/Plugins/CineSRTStream/Binaries/**/*.lib
-!/Plugins/CineSRTStream/Binaries/**/*.pdb
+# 플러그인 바이너리 폴더 (시스템 FFmpeg 사용으로 제외)
+# !/Plugins/CineSRTStream/Binaries/**/*.dll
+# !/Plugins/CineSRTStream/Binaries/**/*.lib
+# !/Plugins/CineSRTStream/Binaries/**/*.pdb
 
 # BuildTools 폴더의 빌드된 라이브러리도 포함
 !/BuildTools/OpenSSL/install/**

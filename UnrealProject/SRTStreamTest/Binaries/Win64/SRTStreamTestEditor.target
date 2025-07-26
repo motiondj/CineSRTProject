@@ -4832,23 +4832,35 @@
 	],
 	"RuntimeDependencies": [
 		{
-			"Path": "$(ProjectDir)/Plugins/CineSRTStream/Binaries/Win64/avcodec-61.dll",
+			"Path": "C:\\CineSRTProject\\UnrealProject\\Binaries\\Win64\\avcodec-61.dll",
 			"Type": "NonUFS"
 		},
 		{
-			"Path": "$(ProjectDir)/Plugins/CineSRTStream/Binaries/Win64/avformat-61.dll",
+			"Path": "C:\\CineSRTProject\\UnrealProject\\Binaries\\Win64\\avdevice-61.dll",
 			"Type": "NonUFS"
 		},
 		{
-			"Path": "$(ProjectDir)/Plugins/CineSRTStream/Binaries/Win64/avutil-59.dll",
+			"Path": "C:\\CineSRTProject\\UnrealProject\\Binaries\\Win64\\avfilter-10.dll",
 			"Type": "NonUFS"
 		},
 		{
-			"Path": "$(ProjectDir)/Plugins/CineSRTStream/Binaries/Win64/swresample-5.dll",
+			"Path": "C:\\CineSRTProject\\UnrealProject\\Binaries\\Win64\\avformat-61.dll",
 			"Type": "NonUFS"
 		},
 		{
-			"Path": "$(ProjectDir)/Plugins/CineSRTStream/Binaries/Win64/swscale-8.dll",
+			"Path": "C:\\CineSRTProject\\UnrealProject\\Binaries\\Win64\\avutil-59.dll",
+			"Type": "NonUFS"
+		},
+		{
+			"Path": "C:\\CineSRTProject\\UnrealProject\\Binaries\\Win64\\pkgconf-7.dll",
+			"Type": "NonUFS"
+		},
+		{
+			"Path": "C:\\CineSRTProject\\UnrealProject\\Binaries\\Win64\\swresample-5.dll",
+			"Type": "NonUFS"
+		},
+		{
+			"Path": "C:\\CineSRTProject\\UnrealProject\\Binaries\\Win64\\swscale-8.dll",
 			"Type": "NonUFS"
 		},
 		{

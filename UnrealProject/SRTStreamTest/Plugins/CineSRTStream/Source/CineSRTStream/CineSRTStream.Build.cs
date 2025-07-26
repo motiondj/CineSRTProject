@@ -2,6 +2,8 @@
 
 using UnrealBuildTool;
 using System.IO;
+using System;           // ← 이것 추가!
+using System.Collections.Generic;  // ← 이것도 추가!
 
 public class CineSRTStream : ModuleRules
 {
@@ -57,18 +59,6 @@ public class CineSRTStream : ModuleRules
             }
         );
         
-        // 소스 파일 추가
-        PublicDependencyModuleNames.AddRange(
-            new string[]
-            {
-                "Core",
-                "CoreUObject",
-                "Engine",
-                "RenderCore",
-                "RHI"
-            }
-        );
-        
         // 에디터 전용 모듈
         if (Target.bBuildEditor == true)
         {
@@ -98,76 +88,129 @@ public class CineSRTStream : ModuleRules
                 Path.Combine(SRTPath, "include", "win")
             });
 
-            // FFmpeg Include 경로 추가 (순서 중요!)
-            if (Directory.Exists(FFmpegPath))
+            // FFmpeg 설정 (시스템 설치 우선)
+            string FFmpegPath = Path.Combine(ThirdPartyPath, "FFmpeg");
+
+            // 시스템 FFmpeg 확인
+            bool bUseSystemFFmpeg = true;
+            string SystemFFmpegPath = "";
+
+            // 일반적인 FFmpeg 설치 경로들
+            string[] CommonFFmpegPaths = {
+                "C:/ffmpeg",
+                "C:/Program Files/ffmpeg",
+                "C:/Tools/ffmpeg",
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "ffmpeg")
+            };
+
+            foreach (string TestPath in CommonFFmpegPaths)
             {
-                PublicIncludePaths.AddRange(new string[] {
-                    Path.Combine(FFmpegPath, "include"),
-                    Path.Combine(FFmpegPath, "include", "libavcodec"),
-                    Path.Combine(FFmpegPath, "include", "libavformat"),
-                    Path.Combine(FFmpegPath, "include", "libavutil"),
-                    Path.Combine(FFmpegPath, "include", "libswscale")
-                });
+                if (Directory.Exists(Path.Combine(TestPath, "bin")))
+                {
+                    SystemFFmpegPath = TestPath;
+                    System.Console.WriteLine($"CineSRTStream: Found system FFmpeg at {TestPath}");
+                    break;
+                }
+            }
+
+            // FFmpeg 헤더 포함
+            if (!string.IsNullOrEmpty(SystemFFmpegPath))
+            {
+                // 시스템 FFmpeg 사용
+                PublicIncludePaths.Add(Path.Combine(SystemFFmpegPath, "include"));
+                
+                // 링크 라이브러리
+                string SystemFFmpegLib = Path.Combine(SystemFFmpegPath, "lib");
+                if (Directory.Exists(SystemFFmpegLib))
+                {
+                    string[] FFmpegLibs = { "avcodec", "avformat", "avutil", "swscale", "swresample" };
+                    foreach (string lib in FFmpegLibs)
+                    {
+                        string libFile = Path.Combine(SystemFFmpegLib, lib + ".lib");
+                        if (File.Exists(libFile))
+                        {
+                            PublicAdditionalLibraries.Add(libFile);
+                        }
+                    }
+                }
+                
+                // DLL은 시스템 PATH에서 자동으로 찾음
+                System.Console.WriteLine("CineSRTStream: Using system FFmpeg (PATH)");
+            }
+            else if (Directory.Exists(FFmpegPath))
+            {
+                // 폴백: ThirdParty FFmpeg 사용
+                System.Console.WriteLine("CineSRTStream: System FFmpeg not found, using bundled version");
+                
+                PublicIncludePaths.Add(Path.Combine(FFmpegPath, "include"));
                 
                 // FFmpeg 라이브러리
                 string FFmpegLibPath = Path.Combine(FFmpegPath, "lib");
                 if (Directory.Exists(FFmpegLibPath))
                 {
-                    PublicAdditionalLibraries.AddRange(new string[] {
-                        Path.Combine(FFmpegLibPath, "avcodec.lib"),
-                        Path.Combine(FFmpegLibPath, "avformat.lib"),
-                        Path.Combine(FFmpegLibPath, "avutil.lib"),
-                        Path.Combine(FFmpegLibPath, "swscale.lib")
-                    });
-                }
-                
-                // FFmpeg DLL 복사 (플러그인 Binaries 폴더로)
-                string FFmpegBinPath = Path.Combine(FFmpegPath, "bin");
-                string PluginBinariesPath = Path.Combine(ModuleDirectory, "../../Binaries/Win64");
-                
-                if (Directory.Exists(FFmpegBinPath))
-                {
-                    string[] RequiredDLLs = {
-                        "avcodec-61.dll",
-                        "avformat-61.dll", 
-                        "avutil-59.dll",
-                        "swscale-8.dll",
-                        "swresample-5.dll"
-                    };
-                    
-                    foreach (string DLL in RequiredDLLs)
+                    string[] FFmpegLibs = { "avcodec", "avformat", "avutil", "swscale", "swresample" };
+                    foreach (string lib in FFmpegLibs)
                     {
-                        string SourceDLLPath = Path.Combine(FFmpegBinPath, DLL);
-                        string DestDLLPath = Path.Combine(PluginBinariesPath, DLL);
-                        
-                        if (File.Exists(SourceDLLPath))
+                        string libFile = Path.Combine(FFmpegLibPath, lib + ".lib");
+                        if (File.Exists(libFile))
                         {
-                            // 플러그인 Binaries 폴더로 복사
-                            if (!Directory.Exists(PluginBinariesPath))
-                            {
-                                Directory.CreateDirectory(PluginBinariesPath);
-                            }
-                            
-                            if (!File.Exists(DestDLLPath) || 
-                                File.GetLastWriteTime(SourceDLLPath) > File.GetLastWriteTime(DestDLLPath))
-                            {
-                                File.Copy(SourceDLLPath, DestDLLPath, true);
-                                System.Console.WriteLine("CineSRTStream: Copied " + DLL + " to plugin binaries");
-                            }
-                            
-                            RuntimeDependencies.Add(DestDLLPath);
-                            PublicDelayLoadDLLs.Add(DLL);
+                            PublicAdditionalLibraries.Add(libFile);
+                            System.Console.WriteLine("CineSRTStream: Added " + lib + ".lib");
                         }
                     }
                 }
                 
-                // FFmpeg 관련 정의
-                PublicDefinitions.AddRange(new string[] {
-                    "__STDC_CONSTANT_MACROS",
-                    "__STDC_FORMAT_MACROS",
-                    "__STDC_LIMIT_MACROS"
-                });
+                // FFmpeg DLL 복사
+                string FFmpegBinPath = Path.Combine(FFmpegPath, "bin");
+                if (Directory.Exists(FFmpegBinPath))
+                {
+                    // 프로젝트의 Binaries/Win64 폴더 경로
+                    string ProjectBinariesDir = Path.GetFullPath(Path.Combine(ModuleDirectory, "../../../../../Binaries/Win64"));
+                    
+                    // 디렉토리 생성
+                    if (!Directory.Exists(ProjectBinariesDir))
+                    {
+                        Directory.CreateDirectory(ProjectBinariesDir);
+                    }
+                    
+                    // 모든 DLL 복사
+                    string[] DLLFiles = Directory.GetFiles(FFmpegBinPath, "*.dll");
+                    foreach (string DLLFile in DLLFiles)
+                    {
+                        string DLLName = Path.GetFileName(DLLFile);
+                        string DestPath = Path.Combine(ProjectBinariesDir, DLLName);
+                        
+                        try
+                        {
+                            File.Copy(DLLFile, DestPath, true);
+                            RuntimeDependencies.Add(DestPath);
+                            PublicDelayLoadDLLs.Add(DLLName);
+                            System.Console.WriteLine("CineSRTStream: Copied " + DLLName);
+                        }
+                        catch (Exception e)
+                        {
+                            System.Console.WriteLine("CineSRTStream: Failed to copy " + DLLName + ": " + e.Message);
+                        }
+                    }
+                }
             }
+            else
+            {
+                // FFmpeg 없음 경고
+                System.Console.WriteLine("CineSRTStream: WARNING - FFmpeg not found!");
+                System.Console.WriteLine("CineSRTStream: Please install FFmpeg:");
+                System.Console.WriteLine("CineSRTStream: 1. Download from https://www.gyan.dev/ffmpeg/builds/");
+                System.Console.WriteLine("CineSRTStream: 2. Extract to C:\\ffmpeg");
+                System.Console.WriteLine("CineSRTStream: 3. Add C:\\ffmpeg\\bin to PATH");
+            }
+
+            // FFmpeg 관련 정의
+            PublicDefinitions.AddRange(new string[] {
+                "__STDC_CONSTANT_MACROS",
+                "__STDC_FORMAT_MACROS", 
+                "__STDC_LIMIT_MACROS",
+                "USE_SYSTEM_FFMPEG=" + (bUseSystemFFmpeg ? "1" : "0")
+            });
 
             // SRT 라이브러리 경로
             string LibPath = Path.Combine(SRTPath, "lib", "Win64");
@@ -206,26 +249,26 @@ public class CineSRTStream : ModuleRules
                 "Shell32.lib"
             });
             
-                            // 전처리기 정의
-                PublicDefinitions.AddRange(new string[] {
-                    "WIN32_LEAN_AND_MEAN",
-                    "NOMINMAX",
-                    "SRT_STATIC=1",
-                    "SRT_ENABLE_ENCRYPTION=1",
-                    "SRT_VERSION_MAJOR=1",
-                    "SRT_VERSION_MINOR=5",
-                    "SRT_VERSION_PATCH=3",
-                    "_CRT_SECURE_NO_WARNINGS",
-                    "_WINSOCK_DEPRECATED_NO_WARNINGS",
-                    "WINDOWS_IGNORE_PACKING_MISMATCH",
-                    "__STDC_WANT_LIB_EXT1__=1",
-                    "_HAS_EXCEPTIONS=1",
-                    "_ALLOW_RUNTIME_LIBRARY_MISMATCH",
-                    "_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH"
-                });
-                
-                // C 파일 컴파일 설정 (Private 소스 파일로 추가)
-                PrivateIncludePathModuleNames.Add("CineSRTStream");
+            // 전처리기 정의
+            PublicDefinitions.AddRange(new string[] {
+                "WIN32_LEAN_AND_MEAN",
+                "NOMINMAX",
+                "SRT_STATIC=1",
+                "SRT_ENABLE_ENCRYPTION=1",
+                "SRT_VERSION_MAJOR=1",
+                "SRT_VERSION_MINOR=5",
+                "SRT_VERSION_PATCH=3",
+                "_CRT_SECURE_NO_WARNINGS",
+                "_WINSOCK_DEPRECATED_NO_WARNINGS",
+                "WINDOWS_IGNORE_PACKING_MISMATCH",
+                "__STDC_WANT_LIB_EXT1__=1",
+                "_HAS_EXCEPTIONS=1",
+                "_ALLOW_RUNTIME_LIBRARY_MISMATCH",
+                "_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH"
+            });
+            
+            // C 파일 컴파일 설정 (Private 소스 파일로 추가)
+            PrivateIncludePathModuleNames.Add("CineSRTStream");
         }
     }
 }

@@ -109,6 +109,7 @@ private:
     TAtomic<int64> TotalEncodedBytes;
     
     // 내부 메서드
+    bool CheckFFmpegInstallation();
     bool InitializeSoftwareEncoder();
     bool InitializeHardwareEncoder();
     bool SetupCodecContext();

@@ -65,20 +65,12 @@ CineSRTProject/
 │               │   │           ├── 📚 libssl.lib         (5 MB)
 │               │   │           ├── 📚 libcrypto.lib      (30 MB)
 │               │   │           └── 📚 pthreadVC3.lib     (100 KB)
-│               │   └── FFmpeg/
-│               │       ├── 📁 include/
-│               │       ├── 📁 lib/
-│               │       └── 📁 bin/
-│               │           ├── 📚 avcodec-61.dll
-│               │           ├── 📚 avformat-61.dll
-│               │           ├── 📚 avutil-59.dll
-│               │           └── 📚 swscale-8.dll
-│               └── 📁 Binaries/Win64/ # ⭐⭐⭐ 플러그인 런타임 DLL
-│                   ├── 📚 CineSRTStream.dll
-│                   ├── 📚 avcodec-61.dll
-│                   ├── 📚 avformat-61.dll
-│                   ├── 📚 avutil-59.dll
-│                   └── 📚 swscale-8.dll
+│               │   └── FFmpeg/          # ⚠️ 선택적 (시스템 FFmpeg 우선)
+               │       ├── 📁 include/  # 시스템에 없을 때만 사용
+               │       ├── 📁 lib/
+               │       └── 📁 bin/
+               └── 📁 Binaries/Win64/   # ⭐⭐⭐ 플러그인 런타임 DLL
+                   └── 📚 CineSRTStream.dll  # 플러그인 자체 DLL만
 │
 └── 📁 TestPrograms/                  # 테스트 프로그램들
     ├── 📁 test_openssl/              # OpenSSL 동작 테스트
@@ -97,12 +89,14 @@ CineSRTProject/
 ==========================
 ⭐ 표시: 중요한 파일/폴더
 📚 표시: Git에 포함된 라이브러리 (재빌드 불필요!)
+⚠️ 표시: 선택적 포함 (시스템 설치 우선)
 ==========================
 
 시작하기:
-1. setup.bat 실행
-2. 라이브러리 확인
-3. 언리얼 프로젝트 생성
-4. 빌드 및 실행
+1. FFmpeg 시스템 설치 (C:\ffmpeg\bin을 PATH에 추가)
+2. setup.bat 실행
+3. 라이브러리 확인
+4. 언리얼 프로젝트 생성
+5. 빌드 및 실행
 
 문제 발생시 docs/개발계획서_v1.0.md 참조!

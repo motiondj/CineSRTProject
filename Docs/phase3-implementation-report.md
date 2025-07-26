@@ -49,10 +49,12 @@ TSConfig.ProviderName = TEXT("CineSRT");
 
 ## 빌드 시스템 업데이트
 
-### FFmpeg 라이브러리 통합
+### FFmpeg 라이브러리 통합 (시스템 우선)
+- **시스템 FFmpeg 감지**: C:\ffmpeg, Program Files 등에서 자동 검색
+- **PATH 기반 DLL 로딩**: 시스템 PATH에서 FFmpeg DLL 자동 검색
+- **ThirdParty 폴백**: 시스템에 없을 때만 번들된 버전 사용
 - **Include 경로**: FFmpeg 헤더 파일 경로 추가
 - **라이브러리 링크**: avcodec, avformat, avutil, swscale
-- **DLL 관리**: 런타임 의존성 및 지연 로딩 설정
 - **전처리기 정의**: FFmpeg 호환성을 위한 매크로 정의
 
 ### Build.cs 업데이트
@@ -84,12 +86,12 @@ PublicAdditionalLibraries.AddRange(new string[] {
 4. **초기화/정리**: 컴포넌트 생명주기 관리
 
 ### 🔄 진행 중인 작업
-1. **FFmpeg 라이브러리 설치**: vcpkg를 통한 FFmpeg 설치 진행 중
+1. **시스템 FFmpeg 설치**: 사용자가 직접 FFmpeg 설치 및 PATH 설정
 2. **실제 인코딩 구현**: FFmpeg API를 사용한 H.264 인코딩
 3. **하드웨어 가속**: NVENC, QuickSync, AMF 지원
 
 ### 📋 다음 단계
-1. **FFmpeg 라이브러리 완성**: 헤더 및 라이브러리 파일 준비
+1. **시스템 FFmpeg 설치 가이드**: 사용자 설치 스크립트 작성
 2. **실제 인코딩 구현**: 주석 처리된 FFmpeg 코드 활성화
 3. **성능 최적화**: 멀티스레딩 및 비동기 처리
 4. **테스트 및 검증**: 실제 스트리밍 품질 테스트
@@ -129,4 +131,4 @@ Phase 3의 기본 구조가 성공적으로 구현되었습니다. FFmpeg 라이
 3. **호환성**: 표준 방송 프로토콜 지원
 4. **안정성**: 견고한 에러 처리 및 리소스 관리
 
-다음 단계에서는 FFmpeg 라이브러리 통합을 완료하고 실제 인코딩 기능을 활성화하여 완전한 스트리밍 시스템을 구축할 예정입니다. 
+다음 단계에서는 시스템 FFmpeg 설치 가이드를 완성하고 실제 인코딩 기능을 활성화하여 완전한 스트리밍 시스템을 구축할 예정입니다. 
