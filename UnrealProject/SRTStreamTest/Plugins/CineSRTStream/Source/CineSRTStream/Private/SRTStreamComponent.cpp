@@ -13,6 +13,10 @@
 // SRT 네트워크 헤더만 포함 (srt.h 없음!)
 #include "SRTNetworkWorker.h"
 
+// Phase 3: 새로운 인코더 및 멀티플렉서
+#include "SRTVideoEncoder.h"
+#include "SRTTransportStream.h"
+
 #ifdef _WIN32
     #include <string>
     #include <memory>
@@ -106,6 +110,10 @@ USRTStreamComponent::USRTStreamComponent()
     // 프레임 버퍼 시스템 초기화
     FrameBuffer = MakeShared<::FrameBuffer>();
     GPUReadbackManager = MakeShared<FGPUReadbackManager>(FrameBuffer);
+    
+    // Phase 3: 새로운 인코더 및 멀티플렉서 초기화
+    VideoEncoder = MakeUnique<FSRTVideoEncoder>();
+    TransportStream = MakeUnique<FSRTTransportStream>();
 }
 
 // USRTStreamComponent 소멸자 구현
@@ -290,6 +298,43 @@ void USRTStreamComponent::StartStreaming()
     
     SetConnectionState(ESRTConnectionState::Connecting, TEXT("Initializing capture..."));
     
+    // Phase 3: 새로운 인코더 및 멀티플렉서 초기화
+    if (VideoEncoder && TransportStream)
+    {
+        // 비디오 인코더 설정
+        FSRTVideoEncoder::FConfig EncoderConfig;
+        GetResolution(EncoderConfig.Width, EncoderConfig.Height);
+        EncoderConfig.FrameRate = StreamFPS;
+        EncoderConfig.BitrateKbps = BitrateKbps;
+        EncoderConfig.GOPSize = 30;
+        EncoderConfig.Preset = TEXT("ultrafast");
+        EncoderConfig.Tune = TEXT("zerolatency");
+        EncoderConfig.bUseHardwareAcceleration = bUseHardwareAcceleration;
+        
+        if (!VideoEncoder->Initialize(EncoderConfig))
+        {
+            SetConnectionState(ESRTConnectionState::Error, TEXT("Failed to initialize video encoder"));
+            return;
+        }
+        
+        // Transport Stream 설정
+        FSRTTransportStream::FConfig TSConfig;
+        TSConfig.ServiceID = 1;
+        TSConfig.VideoPID = 0x0100;
+        TSConfig.PCRPID = 0x0100;
+        TSConfig.ServiceName = TEXT("UnrealStream");
+        TSConfig.ProviderName = TEXT("CineSRT");
+        
+        if (!TransportStream->Initialize(TSConfig))
+        {
+            SetConnectionState(ESRTConnectionState::Error, TEXT("Failed to initialize transport stream"));
+            return;
+        }
+        
+        UE_LOG(LogCineSRTStream, Log, TEXT("Phase 3 components initialized: %dx%d, %d fps, %d kbps"),
+            EncoderConfig.Width, EncoderConfig.Height, EncoderConfig.FrameRate, EncoderConfig.BitrateKbps);
+    }
+    
     // Scene capture 설정
     if (!SetupSceneCapture())
     {
@@ -378,6 +423,17 @@ void USRTStreamComponent::StopStreaming()
             if (FrameBuffer)
             {
                 FrameBuffer->Clear();
+            }
+            
+            // Phase 3: 새로운 컴포넌트들 정리
+            if (VideoEncoder)
+            {
+                VideoEncoder->Shutdown();
+            }
+            
+            if (TransportStream)
+            {
+                TransportStream->Shutdown();
             }
             
             CleanupSceneCapture();
@@ -861,93 +917,167 @@ bool FSRTStreamWorker::SendFrameData()
 {
     if (!SRTSocket || !Owner || !Owner->FrameBuffer)
         return false;
+    
     FrameBuffer::Frame Frame;
     if (!Owner->FrameBuffer->GetFrame(Frame))
         return false;
-    struct FrameHeader
-    {
-        uint32 Magic = 0x53525446;
-        uint32 Width;
-        uint32 Height;
-        uint32 PixelFormat = 1;
-        uint32 DataSize;
-        uint64 Timestamp;
-        uint32 FrameNumber;
-    };
-    FrameHeader Header;
-    Header.Width = Frame.Width;
-    Header.Height = Frame.Height;
-    Header.DataSize = Frame.Data.Num();
-    Header.Timestamp = FPlatformTime::Cycles64();
-    Header.FrameNumber = Owner->TotalFramesSent + 1; // 올바른 프레임 번호 설정
     
-    UE_LOG(LogCineSRTStream, VeryVerbose, TEXT("Sending frame #%d: %dx%d, %d bytes"), 
-        Header.FrameNumber, Header.Width, Header.Height, Header.DataSize);
-    
-    int sent = SRTNetwork::Send(SRTSocket, (char*)&Header, sizeof(Header));
-    if (sent < 0)
+    // Phase 3: 새로운 인코더 및 멀티플렉서 사용
+    if (Owner->VideoEncoder && Owner->TransportStream)
     {
-        const char* error = SRTNetwork::GetLastError();
-        // 6002(EAGAIN) 또는 'no buffer available' 메시지는 무시
-        if (strstr(error, "6002") || strstr(error, "no buffer available"))
+        // BGRA 데이터를 FColor 배열로 변환
+        TArray<FColor> BGRAData;
+        BGRAData.SetNum(Frame.Width * Frame.Height);
+        FMemory::Memcpy(BGRAData.GetData(), Frame.Data.GetData(), Frame.Data.Num());
+        
+        // H.264 인코딩
+        FEncodedFrame EncodedFrame;
+        if (!Owner->VideoEncoder->EncodeFrame(BGRAData, EncodedFrame))
         {
-            Owner->DroppedFrames++;
+            UE_LOG(LogCineSRTStream, Warning, TEXT("Failed to encode frame"));
             return false;
         }
         
-        // 연결 끊김 처리
-        if (strstr(error, "Connection was broken") || strstr(error, "Invalid socket ID"))
+        // MPEG-TS 멀티플렉싱
+        TArray<uint8> TSPackets;
+        if (!Owner->TransportStream->MuxH264Frame(
+            EncodedFrame.Data,
+            EncodedFrame.PTS,
+            EncodedFrame.DTS,
+            EncodedFrame.bKeyFrame,
+            TSPackets))
         {
-            UE_LOG(LogCineSRTStream, Warning, TEXT("Connection lost, attempting reconnect..."));
-            HandleDisconnection();
+            UE_LOG(LogCineSRTStream, Warning, TEXT("Failed to mux H.264 frame"));
             return false;
         }
         
-        if (!Owner->bStopRequested && !bShouldExit)
+        // TS 패킷 전송
+        const int ChunkSize = 1316; // SRT 최적 청크 크기
+        const uint8* DataPtr = TSPackets.GetData();
+        int32 TotalSize = TSPackets.Num();
+        int32 BytesSent = 0;
+        
+        while (BytesSent < TotalSize && !Owner->bStopRequested && !bShouldExit)
         {
-            UE_LOG(LogCineSRTStream, Error, TEXT("Send failed: %s"), UTF8_TO_TCHAR(error));
+            int32 ToSend = FMath::Min(ChunkSize, TotalSize - BytesSent);
+            int sent = SRTNetwork::Send(SRTSocket, (char*)(DataPtr + BytesSent), ToSend);
+            
+            if (sent < 0)
+            {
+                const char* error = SRTNetwork::GetLastError();
+                if (strstr(error, "6002") || strstr(error, "no buffer available"))
+                {
+                    Owner->DroppedFrames++;
+                    continue;
+                }
+                
+                if (strstr(error, "Connection was broken") || strstr(error, "Invalid socket ID"))
+                {
+                    UE_LOG(LogCineSRTStream, Warning, TEXT("Connection lost, attempting reconnect..."));
+                    HandleDisconnection();
+                    return false;
+                }
+                
+                if (!Owner->bStopRequested && !bShouldExit)
+                {
+                    UE_LOG(LogCineSRTStream, Error, TEXT("Send failed: %s"), UTF8_TO_TCHAR(error));
+                }
+                return false;
+            }
+            BytesSent += sent;
         }
-        return false;
+        
+        if (BytesSent == TotalSize)
+        {
+            Owner->TotalFramesSent++;
+            UE_LOG(LogCineSRTStream, VeryVerbose, TEXT("Sent encoded frame #%d: %d bytes (TS packets)"), 
+                Owner->TotalFramesSent, TotalSize);
+            return true;
+        }
     }
-    
-    // 헤더 전송 후 잠시 대기 (receiver가 헤더를 처리할 시간)
-    FPlatformProcess::Sleep(0.001f); // 1ms 대기
-    
-    // 현재: Raw RGBA 데이터 전송 (Receiver용)
-    // TODO: OBS 호환성을 위해 H.264 인코딩 추가 필요
-    // - FFmpeg 라이브러리 통합
-    // - H.264/H.265 인코더 설정
-    // - SRT 패킷에 인코딩된 스트림 전송
-    
-    const int ChunkSize = 1316;
-    const uint8* DataPtr = Frame.Data.GetData();
-    int32 TotalSize = Frame.Data.Num();
-    int32 BytesSent = 0;
-    while (BytesSent < TotalSize && !Owner->bStopRequested && !bShouldExit)
+    else
     {
-        int32 ToSend = FMath::Min(ChunkSize, TotalSize - BytesSent);
-        sent = SRTNetwork::Send(SRTSocket, (char*)(DataPtr + BytesSent), ToSend);
+        // Fallback: 기존 Raw 데이터 전송 (Phase 2 호환성)
+        struct FrameHeader
+        {
+            uint32 Magic = 0x53525446;
+            uint32 Width;
+            uint32 Height;
+            uint32 PixelFormat = 1;
+            uint32 DataSize;
+            uint64 Timestamp;
+            uint32 FrameNumber;
+        };
+        
+        FrameHeader Header;
+        Header.Width = Frame.Width;
+        Header.Height = Frame.Height;
+        Header.DataSize = Frame.Data.Num();
+        Header.Timestamp = FPlatformTime::Cycles64();
+        Header.FrameNumber = Owner->TotalFramesSent + 1;
+        
+        int sent = SRTNetwork::Send(SRTSocket, (char*)&Header, sizeof(Header));
         if (sent < 0)
         {
             const char* error = SRTNetwork::GetLastError();
             if (strstr(error, "6002") || strstr(error, "no buffer available"))
             {
                 Owner->DroppedFrames++;
-                continue;
+                return false;
             }
+            
+            if (strstr(error, "Connection was broken") || strstr(error, "Invalid socket ID"))
+            {
+                UE_LOG(LogCineSRTStream, Warning, TEXT("Connection lost, attempting reconnect..."));
+                HandleDisconnection();
+                return false;
+            }
+            
             if (!Owner->bStopRequested && !bShouldExit)
             {
                 UE_LOG(LogCineSRTStream, Error, TEXT("Send failed: %s"), UTF8_TO_TCHAR(error));
             }
             return false;
         }
-        BytesSent += sent;
+        
+        FPlatformProcess::Sleep(0.001f); // 1ms 대기
+        
+        const int ChunkSize = 1316;
+        const uint8* DataPtr = Frame.Data.GetData();
+        int32 TotalSize = Frame.Data.Num();
+        int32 BytesSent = 0;
+        
+        while (BytesSent < TotalSize && !Owner->bStopRequested && !bShouldExit)
+        {
+            int32 ToSend = FMath::Min(ChunkSize, TotalSize - BytesSent);
+            sent = SRTNetwork::Send(SRTSocket, (char*)(DataPtr + BytesSent), ToSend);
+            if (sent < 0)
+            {
+                const char* error = SRTNetwork::GetLastError();
+                if (strstr(error, "6002") || strstr(error, "no buffer available"))
+                {
+                    Owner->DroppedFrames++;
+                    continue;
+                }
+                if (!Owner->bStopRequested && !bShouldExit)
+                {
+                    UE_LOG(LogCineSRTStream, Error, TEXT("Send failed: %s"), UTF8_TO_TCHAR(error));
+                }
+                return false;
+            }
+            BytesSent += sent;
+        }
+        
+        if (BytesSent == TotalSize)
+        {
+            Owner->TotalFramesSent++;
+            UE_LOG(LogCineSRTStream, VeryVerbose, TEXT("Sent raw frame #%d: %d bytes"), 
+                Owner->TotalFramesSent, TotalSize);
+            return true;
+        }
     }
     
-    // 프레임 전송 완료 후 카운터 증가
-    Owner->TotalFramesSent++;
-    
-    return true;
+    return false;
 }
 
 void FSRTStreamWorker::UpdateSRTStats()

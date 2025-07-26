@@ -7,7 +7,16 @@
 #include "Camera/CameraComponent.h"
 #include "HAL/Runnable.h"
 #include "HAL/RunnableThread.h"
+
+// 전방 선언 대신 헤더 포함!
+#include "SRTVideoEncoder.h"
+#include "SRTTransportStream.h"
+
 #include "SRTStreamComponent.generated.h"
+
+// 전방 선언 제거
+// class FSRTVideoEncoder;  <- 삭제
+// class FSRTTransportStream;  <- 삭제
 
 // Forward declarations
 class FSRTStreamWorker;
@@ -246,6 +255,10 @@ private:
     // 프레임 버퍼 시스템
     TSharedPtr<FrameBuffer> FrameBuffer;
     TSharedPtr<FGPUReadbackManager> GPUReadbackManager;
+    
+    // Phase 3: 새로운 인코더 및 멀티플렉서
+    TUniquePtr<FSRTVideoEncoder> VideoEncoder;
+    TUniquePtr<FSRTTransportStream> TransportStream;
     
     // 통계
     double LastStatsUpdateTime = 0.0;

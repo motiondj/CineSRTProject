@@ -88,8 +88,9 @@ public class CineSRTStream : ModuleRules
             // ThirdParty 경로 설정
             string ThirdPartyPath = Path.GetFullPath(Path.Combine(ModuleDirectory, "../../ThirdParty"));
             string SRTPath = Path.Combine(ThirdPartyPath, "SRT");
+            string FFmpegPath = Path.Combine(ThirdPartyPath, "FFmpeg");
 
-            // Include 경로 추가 (SRT 헤더를 항상 최우선으로)
+            // SRT Include 경로 추가
             PublicIncludePaths.Insert(0, Path.Combine(SRTPath, "include"));
             PublicIncludePaths.AddRange(new string[] {
                 Path.Combine(SRTPath, "include", "srtcore"),
@@ -97,10 +98,81 @@ public class CineSRTStream : ModuleRules
                 Path.Combine(SRTPath, "include", "win")
             });
 
-            // 라이브러리 경로
+            // FFmpeg Include 경로 추가 (순서 중요!)
+            if (Directory.Exists(FFmpegPath))
+            {
+                PublicIncludePaths.AddRange(new string[] {
+                    Path.Combine(FFmpegPath, "include"),
+                    Path.Combine(FFmpegPath, "include", "libavcodec"),
+                    Path.Combine(FFmpegPath, "include", "libavformat"),
+                    Path.Combine(FFmpegPath, "include", "libavutil"),
+                    Path.Combine(FFmpegPath, "include", "libswscale")
+                });
+                
+                // FFmpeg 라이브러리
+                string FFmpegLibPath = Path.Combine(FFmpegPath, "lib");
+                if (Directory.Exists(FFmpegLibPath))
+                {
+                    PublicAdditionalLibraries.AddRange(new string[] {
+                        Path.Combine(FFmpegLibPath, "avcodec.lib"),
+                        Path.Combine(FFmpegLibPath, "avformat.lib"),
+                        Path.Combine(FFmpegLibPath, "avutil.lib"),
+                        Path.Combine(FFmpegLibPath, "swscale.lib")
+                    });
+                }
+                
+                // FFmpeg DLL 복사 (플러그인 Binaries 폴더로)
+                string FFmpegBinPath = Path.Combine(FFmpegPath, "bin");
+                string PluginBinariesPath = Path.Combine(ModuleDirectory, "../../Binaries/Win64");
+                
+                if (Directory.Exists(FFmpegBinPath))
+                {
+                    string[] RequiredDLLs = {
+                        "avcodec-61.dll",
+                        "avformat-61.dll", 
+                        "avutil-59.dll",
+                        "swscale-8.dll",
+                        "swresample-5.dll"
+                    };
+                    
+                    foreach (string DLL in RequiredDLLs)
+                    {
+                        string SourceDLLPath = Path.Combine(FFmpegBinPath, DLL);
+                        string DestDLLPath = Path.Combine(PluginBinariesPath, DLL);
+                        
+                        if (File.Exists(SourceDLLPath))
+                        {
+                            // 플러그인 Binaries 폴더로 복사
+                            if (!Directory.Exists(PluginBinariesPath))
+                            {
+                                Directory.CreateDirectory(PluginBinariesPath);
+                            }
+                            
+                            if (!File.Exists(DestDLLPath) || 
+                                File.GetLastWriteTime(SourceDLLPath) > File.GetLastWriteTime(DestDLLPath))
+                            {
+                                File.Copy(SourceDLLPath, DestDLLPath, true);
+                                System.Console.WriteLine("CineSRTStream: Copied " + DLL + " to plugin binaries");
+                            }
+                            
+                            RuntimeDependencies.Add(DestDLLPath);
+                            PublicDelayLoadDLLs.Add(DLL);
+                        }
+                    }
+                }
+                
+                // FFmpeg 관련 정의
+                PublicDefinitions.AddRange(new string[] {
+                    "__STDC_CONSTANT_MACROS",
+                    "__STDC_FORMAT_MACROS",
+                    "__STDC_LIMIT_MACROS"
+                });
+            }
+
+            // SRT 라이브러리 경로
             string LibPath = Path.Combine(SRTPath, "lib", "Win64");
             
-            // 라이브러리 파일 확인 및 추가
+            // SRT 라이브러리 파일 확인 및 추가
             string[] RequiredLibs = new string[] {
                 "srt_static.lib",
                 "libssl.lib",
