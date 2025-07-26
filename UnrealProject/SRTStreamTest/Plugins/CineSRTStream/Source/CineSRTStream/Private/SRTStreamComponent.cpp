@@ -516,8 +516,20 @@ void USRTStreamComponent::CleanupSceneCapture()
 
 void USRTStreamComponent::CaptureFrame()
 {
-    if (!SceneCapture || !RenderTarget)
+    // 디버그: 컴포넌트 상태 확인
+    if (!SceneCapture)
+    {
+        UE_LOG(LogCineSRTStream, Warning, TEXT("CaptureFrame: SceneCapture is null"));
         return;
+    }
+    
+    if (!RenderTarget)
+    {
+        UE_LOG(LogCineSRTStream, Warning, TEXT("CaptureFrame: RenderTarget is null"));
+        return;
+    }
+    
+    UE_LOG(LogCineSRTStream, VeryVerbose, TEXT("CaptureFrame: Capturing frame #%d"), TotalFramesSent);
     
     // Capture the scene
     SceneCapture->CaptureScene();
@@ -526,6 +538,11 @@ void USRTStreamComponent::CaptureFrame()
     if (GPUReadbackManager)
     {
         GPUReadbackManager->RequestReadback(RenderTarget, TotalFramesSent);
+        UE_LOG(LogCineSRTStream, VeryVerbose, TEXT("CaptureFrame: GPU readback requested for frame #%d"), TotalFramesSent);
+    }
+    else
+    {
+        UE_LOG(LogCineSRTStream, Warning, TEXT("CaptureFrame: GPUReadbackManager is null"));
     }
 }
 
@@ -691,7 +708,7 @@ uint32 FSRTStreamWorker::Run()
                 {
                     if (SendFrameData())
                     {
-                        Owner->TotalFramesSent++;
+                        // Owner->TotalFramesSent++; // Moved to SendFrameData
                     }
                     else
                     {
@@ -748,90 +765,29 @@ bool FSRTStreamWorker::InitializeSRT()
     }
     UE_LOG(LogCineSRTStream, Log, TEXT("SRT socket created successfully"));
     
-    // ⭐ 버전 설정 전 로그
-    UE_LOG(LogCineSRTStream, Log, TEXT("Setting SRT version options..."));
+    // 최소한의 SRT 설정만 사용
+    UE_LOG(LogCineSRTStream, Log, TEXT("Using minimal SRT options..."));
     
-    // ⭐ 중요: 버전 설정을 가장 먼저!
-    // SRTO_VERSION = 31 (0x1f)
-    uint32_t srt_version = 0x010503;  // 1.5.3
-    if (!SRTNetwork::SetSocketOption(sock, 31, &srt_version, sizeof(srt_version)))
-    {
-        UE_LOG(LogCineSRTStream, Warning, TEXT("Failed to set SRT version"));
-    }
+    // ⭐ 스트림 모드 설정 (메시지 모드 OFF)
+    int messageapi = 0;  // 0 = stream mode
+    SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_MESSAGEAPI, &messageapi, sizeof(messageapi));
     
-    // SRTO_MINVERSION = 32 (0x20)
-    uint32_t min_version = 0x010300;  // 1.3.0
-    if (!SRTNetwork::SetSocketOption(sock, 32, &min_version, sizeof(min_version)))
-    {
-        UE_LOG(LogCineSRTStream, Warning, TEXT("Failed to set min version"));
-    }
-    
-    // SRTO_ENFORCEDENCRYPTION = 37 (0x25)
-    int enforced = Owner->bUseEncryption ? 1 : 0;
-    if (!SRTNetwork::SetSocketOption(sock, 37, &enforced, sizeof(enforced)))
-    {
-        UE_LOG(LogCineSRTStream, Warning, TEXT("Failed to set enforced encryption"));
-    }
-    
-    // Configure socket options
-    int yes = 1;
+    // 기본 전송 모드만 설정
     int live_mode = SRTNetwork::TRANSTYPE_LIVE;
-    UE_LOG(LogCineSRTStream, Log, TEXT("Setting other socket options..."));
-    
     SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_TRANSTYPE, &live_mode, sizeof(live_mode));
     
-    if (Owner->bCallerMode)
-    {
-        SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_SENDER, &yes, sizeof(yes));
-    }
-    
-    // Stream ID
-    if (!Owner->StreamID.IsEmpty())
-    {
-        std::string streamId = TCHAR_TO_UTF8(*Owner->StreamID);
-        SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_STREAMID, streamId.c_str(), streamId.length());
-    }
-    
-    // Encryption
-    if (Owner->bUseEncryption)
-    {
-        int pbkeylen = Owner->EncryptionKeyLength;
-        SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_PBKEYLEN, &pbkeylen, sizeof(pbkeylen));
-        
-        if (!Owner->EncryptionPassphrase.IsEmpty())
-        {
-            std::string passphrase = TCHAR_TO_UTF8(*Owner->EncryptionPassphrase);
-            SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_PASSPHRASE, passphrase.c_str(), passphrase.length());
-        }
-    }
-    
-    // Performance options
+    // 성능 최적화 옵션 (권장)
     int latency = Owner->LatencyMs;
     SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_LATENCY, &latency, sizeof(latency));
     
-    int mss = 1500;
-    SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_MSS, &mss, sizeof(mss));
+    int sndbuf = 64 * 1024 * 1024; // 64MB 송신 버퍼 (대폭 증가)
+    SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_SNDBUF, &sndbuf, sizeof(sndbuf));
     
-    int fc = 25600;
+    // ⭐ Flow Control 윈도우 크기 증가
+    int fc = 50000;
     SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_FC, &fc, sizeof(fc));
     
-    // 송신 버퍼 크기 증가
-    int sndbuf = 32 * 1024 * 1024; // 32MB
-    SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_SNDBUF, &sndbuf, sizeof(sndbuf));
-    // 송신 드롭 설정 (버퍼 가득 찰 때 오래된 패킷 드롭)
-    int snddrop = 1;
-    SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_SNDDROPDELAY, &snddrop, sizeof(snddrop));
-    
-    // Send 타임아웃 추가 (1초)
-    int sndtimeo = 1000;  // 1000ms = 1초
-    SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_SNDTIMEO, &sndtimeo, sizeof(sndtimeo));
-    
-    // SRT 버전 호환성 설정 (1.3.0 이상 강제)
-    int peerlatency = 120;
-    SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_PEERLATENCY, &peerlatency, sizeof(peerlatency));
-    
-    int peeridletimeo = 5000;
-    SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_PEERIDLETIMEO, &peeridletimeo, sizeof(peeridletimeo));
+    // ⭐ 암호화 관련 코드 모두 삭제!
     
     // Connect or bind
     if (!Owner->bCallerMode)
@@ -923,7 +879,11 @@ bool FSRTStreamWorker::SendFrameData()
     Header.Height = Frame.Height;
     Header.DataSize = Frame.Data.Num();
     Header.Timestamp = FPlatformTime::Cycles64();
-    Header.FrameNumber = Frame.FrameNumber;
+    Header.FrameNumber = Owner->TotalFramesSent + 1; // 올바른 프레임 번호 설정
+    
+    UE_LOG(LogCineSRTStream, VeryVerbose, TEXT("Sending frame #%d: %dx%d, %d bytes"), 
+        Header.FrameNumber, Header.Width, Header.Height, Header.DataSize);
+    
     int sent = SRTNetwork::Send(SRTSocket, (char*)&Header, sizeof(Header));
     if (sent < 0)
     {
@@ -934,12 +894,31 @@ bool FSRTStreamWorker::SendFrameData()
             Owner->DroppedFrames++;
             return false;
         }
+        
+        // 연결 끊김 처리
+        if (strstr(error, "Connection was broken") || strstr(error, "Invalid socket ID"))
+        {
+            UE_LOG(LogCineSRTStream, Warning, TEXT("Connection lost, attempting reconnect..."));
+            HandleDisconnection();
+            return false;
+        }
+        
         if (!Owner->bStopRequested && !bShouldExit)
         {
             UE_LOG(LogCineSRTStream, Error, TEXT("Send failed: %s"), UTF8_TO_TCHAR(error));
         }
         return false;
     }
+    
+    // 헤더 전송 후 잠시 대기 (receiver가 헤더를 처리할 시간)
+    FPlatformProcess::Sleep(0.001f); // 1ms 대기
+    
+    // 현재: Raw RGBA 데이터 전송 (Receiver용)
+    // TODO: OBS 호환성을 위해 H.264 인코딩 추가 필요
+    // - FFmpeg 라이브러리 통합
+    // - H.264/H.265 인코더 설정
+    // - SRT 패킷에 인코딩된 스트림 전송
+    
     const int ChunkSize = 1316;
     const uint8* DataPtr = Frame.Data.GetData();
     int32 TotalSize = Frame.Data.Num();
@@ -964,6 +943,10 @@ bool FSRTStreamWorker::SendFrameData()
         }
         BytesSent += sent;
     }
+    
+    // 프레임 전송 완료 후 카운터 증가
+    Owner->TotalFramesSent++;
+    
     return true;
 }
 
@@ -992,9 +975,14 @@ void FSRTStreamWorker::HandleDisconnection()
     Owner->SetConnectionState(ESRTConnectionState::Error, TEXT("Connection lost"));
     
     // 재연결 시도 (선택적)
-    if (Owner->bAutoReconnect) {
-        FPlatformProcess::Sleep(1.0f);
-        InitializeSRT();
+    if (Owner->bAutoReconnect && !bShouldExit) {
+        UE_LOG(LogCineSRTStream, Log, TEXT("Waiting 2 seconds before reconnect..."));
+        FPlatformProcess::Sleep(2.0f); // 2초 대기
+        
+        if (!bShouldExit) {
+            UE_LOG(LogCineSRTStream, Log, TEXT("Attempting to reconnect..."));
+            InitializeSRT();
+        }
     }
 }
 

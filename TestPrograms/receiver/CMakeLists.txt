@@ -22,6 +22,9 @@ link_directories(
 )
 
 add_executable(receiver receiver.cpp)
+add_executable(receiver_simple receiver_simple.cpp)
+add_executable(receiver_test receiver_test.cpp)
+add_executable(receiver_final receiver_final.cpp)
 
 target_link_libraries(receiver
     srt_static
@@ -33,7 +36,52 @@ target_link_libraries(receiver
     Crypt32
 )
 
+target_link_libraries(receiver_simple
+    srt_static
+    libssl
+    libcrypto
+    pthreadVC3
+    ws2_32
+    Iphlpapi
+    Crypt32
+)
+
+target_link_libraries(receiver_test
+    srt_static
+    libssl
+    libcrypto
+    pthreadVC3
+    ws2_32
+    Iphlpapi
+    Crypt32
+)
+
 target_compile_definitions(receiver PRIVATE
+    _WIN32_WINNT=0x0601
+    SRT_STATIC=1
+)
+
+target_compile_definitions(receiver_simple PRIVATE
+    _WIN32_WINNT=0x0601
+    SRT_STATIC=1
+)
+
+target_compile_definitions(receiver_test PRIVATE
+    _WIN32_WINNT=0x0601
+    SRT_STATIC=1
+)
+
+target_link_libraries(receiver_final
+    srt_static
+    libssl
+    libcrypto
+    pthreadVC3
+    ws2_32
+    Iphlpapi
+    Crypt32
+)
+
+target_compile_definitions(receiver_final PRIVATE
     _WIN32_WINNT=0x0601
     SRT_STATIC=1
 ) 

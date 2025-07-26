@@ -3,6 +3,7 @@
 namespace SRTNetwork
 {
     // 기존 상수들...
+    constexpr int OPT_MESSAGEAPI = 76;  // SRTO_MESSAGEAPI
     constexpr int OPT_TRANSTYPE = 50;
     constexpr int OPT_SENDER = 21;
     constexpr int OPT_STREAMID = 47;

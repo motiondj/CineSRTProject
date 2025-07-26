@@ -1,10 +1,8 @@
-#define NOMINMAX  // Windows min/max 매크로 비활성화
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <cstring>
 #include <conio.h>
-#include <algorithm>
 #include "srt.h"
 
 #pragma comment(lib, "srt_static.lib")
@@ -17,7 +15,7 @@
 
 struct FrameHeader
 {
-    uint32_t Magic;
+    uint32_t Magic;      // 0x53525446 ('SRTF')
     uint32_t Width;
     uint32_t Height;
     uint32_t PixelFormat;
@@ -28,22 +26,24 @@ struct FrameHeader
 
 int main()
 {
-    std::cout << "=== SRT Frame Receiver (Full) ===" << std::endl;
+    std::cout << "=== SRT Frame Receiver (Final) ===" << std::endl;
     
     srt_startup();
-    
     SRTSOCKET sock = srt_create_socket();
     
-    // 큰 버퍼 설정
-    int rcvbuf = 20 * 1024 * 1024;
+    // ⭐ 수신 버퍼 크기 대폭 증가 (50MB)
+    int rcvbuf = 50 * 1024 * 1024;
     srt_setsockopt(sock, 0, SRTO_RCVBUF, &rcvbuf, sizeof(rcvbuf));
     
-    // 타임아웃 설정
-    int rcvtimeo = 5000; // 5초
-    srt_setsockopt(sock, 0, SRTO_RCVTIMEO, &rcvtimeo, sizeof(rcvtimeo));
+    // ⭐ UDP 버퍼 크기도 증가
+    int udp_rcvbuf = 25 * 1024 * 1024;
+    srt_setsockopt(sock, 0, SRTO_UDP_RCVBUF, &udp_rcvbuf, sizeof(udp_rcvbuf));
     
-    sockaddr_in sa;
-    memset(&sa, 0, sizeof(sa));
+    // ⭐ Flow Control 윈도우 크기 증가
+    int fc = 50000;
+    srt_setsockopt(sock, 0, SRTO_FC, &fc, sizeof(fc));
+    
+    sockaddr_in sa = {0};
     sa.sin_family = AF_INET;
     sa.sin_port = htons(9001);
     sa.sin_addr.s_addr = INADDR_ANY;
@@ -52,25 +52,23 @@ int main()
     srt_listen(sock, 1);
     
     std::cout << "Listening on port 9001..." << std::endl;
+    std::cout << "Waiting for Unreal Engine connection..." << std::endl;
     
-    sockaddr_in client_addr;
-    int addr_len = sizeof(client_addr);
-    SRTSOCKET client = srt_accept(sock, (sockaddr*)&client_addr, &addr_len);
-    
+    SRTSOCKET client = srt_accept(sock, nullptr, nullptr);
     if (client == SRT_INVALID_SOCK)
     {
-        std::cout << "Accept failed" << std::endl;
+        std::cout << "Accept failed!" << std::endl;
         return 1;
     }
     
-    std::cout << "Client connected!" << std::endl;
+    std::cout << "✅ Client connected!" << std::endl;
     
-    // 클라이언트 소켓에도 타임아웃
-    srt_setsockopt(client, 0, SRTO_RCVTIMEO, &rcvtimeo, sizeof(rcvtimeo));
+    // 클라이언트 소켓에도 동일한 설정
+    srt_setsockopt(client, 0, SRTO_RCVBUF, &rcvbuf, sizeof(rcvbuf));
+    srt_setsockopt(client, 0, SRTO_UDP_RCVBUF, &udp_rcvbuf, sizeof(udp_rcvbuf));
+    srt_setsockopt(client, 0, SRTO_FC, &fc, sizeof(fc));
     
-    const int BUFFER_SIZE = 20 * 1024 * 1024;
-    std::vector<char> buffer(BUFFER_SIZE);
-    
+    char buffer[2000];  // 1316보다 큰 버퍼
     int frame_count = 0;
     bool expecting_header = true;
     FrameHeader current_header;
@@ -79,16 +77,28 @@ int main()
     
     while (frame_count < 10)  // 10프레임만 받고 종료
     {
-        if (_kbhit() && _getch() == 27) break;
+        if (_kbhit() && _getch() == 27)
+        {
+            std::cout << "\nESC pressed, exiting..." << std::endl;
+            break;
+        }
         
-        int received = srt_recv(client, buffer.data(), BUFFER_SIZE);
+        int received = srt_recv(client, buffer, sizeof(buffer));
         
         if (received == SRT_ERROR)
         {
-            int err = srt_getlasterror(NULL);
+            int err = srt_getlasterror(nullptr);
             if (err == SRT_ECONNLOST)
             {
-                std::cout << "\nConnection lost" << std::endl;
+                std::cout << "\nConnection lost!" << std::endl;
+                break;
+            }
+            
+            // 소켓 상태로도 체크
+            int state = srt_getsockstate(client);
+            if (state == SRTS_BROKEN || state == SRTS_CLOSED)
+            {
+                std::cout << "\nSocket closed!" << std::endl;
                 break;
             }
             continue;
@@ -97,8 +107,7 @@ int main()
         // 헤더 기대중
         if (expecting_header && received == sizeof(FrameHeader))
         {
-            memcpy(&current_header, buffer.data(), sizeof(FrameHeader));
-            
+            memcpy(&current_header, buffer, sizeof(FrameHeader));
             if (current_header.Magic == 0x53525446)
             {
                 std::cout << "\n=== Frame " << current_header.FrameNumber << " ===" << std::endl;
@@ -116,11 +125,10 @@ int main()
             int remaining = current_header.DataSize - pixels_received;
             int to_copy = (received < remaining) ? received : remaining;
             
-            memcpy(pixel_data.data() + pixels_received, buffer.data(), to_copy);
+            memcpy(pixel_data.data() + pixels_received, buffer, to_copy);
             pixels_received += to_copy;
             
-            std::cout << "\rProgress: " << (pixels_received * 100 / current_header.DataSize) 
-                     << "%" << std::flush;
+            std::cout << "\rProgress: " << (pixels_received * 100 / current_header.DataSize) << "%" << std::flush;
             
             // 프레임 완성
             if (pixels_received >= (int)current_header.DataSize)
@@ -130,10 +138,20 @@ int main()
                 // 첫 프레임 저장
                 if (frame_count == 0)
                 {
-                    std::ofstream file("frame.raw", std::ios::binary);
-                    file.write((char*)pixel_data.data(), pixel_data.size());
-                    file.close();
-                    std::cout << "First frame saved!" << std::endl;
+                    char filename[256];
+                    sprintf_s(filename, sizeof(filename), "frame_%dx%d.raw", 
+                             current_header.Width, current_header.Height);
+                    
+                    std::ofstream file(filename, std::ios::binary);
+                    if (file.is_open())
+                    {
+                        file.write((char*)pixel_data.data(), pixel_data.size());
+                        file.close();
+                        std::cout << "First frame saved to " << filename << std::endl;
+                        std::cout << "View with: ffplay -f rawvideo -pixel_format bgra ";
+                        std::cout << "-video_size " << current_header.Width << "x" << current_header.Height;
+                        std::cout << " " << filename << std::endl;
+                    }
                 }
                 
                 frame_count++;
@@ -147,5 +165,8 @@ int main()
     srt_cleanup();
     
     std::cout << "\nTotal complete frames: " << frame_count << std::endl;
+    std::cout << "Press any key to exit..." << std::endl;
+    _getch();
+    
     return 0;
 } 
