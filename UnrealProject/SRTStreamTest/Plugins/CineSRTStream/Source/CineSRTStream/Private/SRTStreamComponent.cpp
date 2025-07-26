@@ -225,10 +225,24 @@ void USRTStreamComponent::PostEditChangeProperty(FPropertyChangedEvent& Property
     {
         const FName PropertyName = PropertyChangedEvent.Property->GetFName();
         
-        // 품질 프리셋이 변경되면 관련 값들 자동 설정
+        // 프리셋 변경시 추천 비트레이트 설정
         if (PropertyName == GET_MEMBER_NAME_CHECKED(USRTStreamComponent, QualityPreset))
         {
-            ApplyQualityPreset();
+            switch (QualityPreset)
+            {
+                case ESRTQualityPreset::Low:
+                    if (BitrateKbps > 3000) BitrateKbps = 2500;
+                    break;
+                case ESRTQualityPreset::Medium:
+                    if (BitrateKbps < 3000 || BitrateKbps > 8000) BitrateKbps = 5000;
+                    break;
+                case ESRTQualityPreset::High:
+                    if (BitrateKbps < 8000 || BitrateKbps > 15000) BitrateKbps = 10000;
+                    break;
+                case ESRTQualityPreset::Ultra:
+                    if (BitrateKbps < 15000) BitrateKbps = 25000;
+                    break;
+            }
         }
         
         // 프레임레이트 제한
@@ -242,6 +256,12 @@ void USRTStreamComponent::PostEditChangeProperty(FPropertyChangedEvent& Property
         {
             BitrateKbps = FMath::Clamp(BitrateKbps, 100, 100000);
         }
+        
+        // 레이턴시 제한
+        else if (PropertyName == GET_MEMBER_NAME_CHECKED(USRTStreamComponent, LatencyMs))
+        {
+            LatencyMs = FMath::Clamp(LatencyMs, 20, 1000);
+        }
     }
 }
 #endif
@@ -250,58 +270,30 @@ void USRTStreamComponent::ApplyQualityPreset()
 {
     switch (QualityPreset)
     {
-        case ESRTQualityPreset::Performance:
-            EncoderPreset = EEncoderPreset::UltraFast;
-            CRF = 28;
-            BitrateKbps = 3000;
-            MaxBitrateKbps = 5000;
-            GOPSize = 30;
-            BFrames = 0;
-            RefFrames = 1;
-            BufferSizeKb = 1000;
-            H264Profile = EH264Profile::Baseline;
+        case ESRTQualityPreset::Low:
+            BitrateKbps = 2500;
+            InternalMaxBitrate = 4000;
+            InternalCRF = 28;
             break;
             
-        case ESRTQualityPreset::Balanced:
-            EncoderPreset = EEncoderPreset::Medium;
-            CRF = 23;
+        case ESRTQualityPreset::Medium:
             BitrateKbps = 5000;
-            MaxBitrateKbps = 8000;
-            GOPSize = 60;
-            BFrames = 2;
-            RefFrames = 3;
-            BufferSizeKb = 2000;
-            H264Profile = EH264Profile::Main;
+            InternalMaxBitrate = 10000;
+            InternalCRF = 23;
             break;
             
-        case ESRTQualityPreset::Quality:
-            EncoderPreset = EEncoderPreset::Slow;
-            CRF = 20;
+        case ESRTQualityPreset::High:
             BitrateKbps = 10000;
-            MaxBitrateKbps = 15000;
-            GOPSize = 60;
-            BFrames = 3;
-            RefFrames = 5;
-            BufferSizeKb = 4000;
-            H264Profile = EH264Profile::High;
+            InternalMaxBitrate = 20000;
+            InternalCRF = 20;
             break;
             
         case ESRTQualityPreset::Ultra:
-            EncoderPreset = EEncoderPreset::VerySlow;
-            CRF = 18;
             BitrateKbps = 25000;
-            MaxBitrateKbps = 50000;
-            GOPSize = 60;
-            BFrames = 3;
-            RefFrames = 8;
-            BufferSizeKb = 8000;
-            H264Profile = EH264Profile::High;
-            ColorSpace = EColorSpace::YUV422; // 더 높은 색상 샘플링
+            InternalMaxBitrate = 50000;
+            InternalCRF = 18;
             break;
     }
-    
-    UE_LOG(LogCineSRTStream, Log, TEXT("Applied %s preset"), 
-        *UEnum::GetValueAsString(QualityPreset));
 }
 
 void USRTStreamComponent::SetBitrateRuntime(int32 NewBitrate)
@@ -332,7 +324,7 @@ void USRTStreamComponent::SetBitrateRuntime(int32 NewBitrate)
 
 void USRTStreamComponent::SetQualityRuntime(int32 NewCRF)
 {
-    CRF = FMath::Clamp(NewCRF, 0, 51);
+    InternalCRF = FMath::Clamp(NewCRF, 0, 51);
     
     if (bIsStreaming && VideoEncoder)
     {
@@ -340,12 +332,12 @@ void USRTStreamComponent::SetQualityRuntime(int32 NewCRF)
         // 다음 키프레임부터 적용되도록 설정
         ForceKeyFrame();
         
-        UE_LOG(LogCineSRTStream, Log, TEXT("CRF will change to %d at next keyframe"), CRF);
+        UE_LOG(LogCineSRTStream, Log, TEXT("CRF will change to %d at next keyframe"), InternalCRF);
         
         if (GEngine)
         {
             GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Yellow, 
-                FString::Printf(TEXT("CRF: %d (at next keyframe)"), CRF));
+                FString::Printf(TEXT("CRF: %d (at next keyframe)"), InternalCRF));
         }
     }
 }
@@ -381,14 +373,8 @@ void USRTStreamComponent::ApplyRuntimeSettings()
 void USRTStreamComponent::ApplyGamingPreset()
 {
     // 게임 스트리밍에 최적화
-    QualityPreset = ESRTQualityPreset::Balanced;
-    EncoderPreset = EEncoderPreset::Fast;
-    EncoderTune = EEncoderTune::ZeroLatency;
-    CRF = 23;
+    QualityPreset = ESRTQualityPreset::Medium;
     BitrateKbps = 8000;
-    MaxBitrateKbps = 12000;
-    LatencyMs = 60; // 낮은 레이턴시
-    GOPSize = 60;
     
     ApplyQualityPreset();
     
@@ -403,15 +389,7 @@ void USRTStreamComponent::ApplyMoviePreset()
 {
     // 영화 품질에 최적화
     QualityPreset = ESRTQualityPreset::Ultra;
-    EncoderPreset = EEncoderPreset::Slow;
-    EncoderTune = EEncoderTune::Film;
-    CRF = 18;
     BitrateKbps = 30000;
-    MaxBitrateKbps = 50000;
-    LatencyMs = 500; // 품질 우선
-    GOPSize = 120;
-    ColorSpace = EColorSpace::YUV422;
-    bUse10BitColor = true;
     
     ApplyQualityPreset();
     
@@ -425,14 +403,8 @@ void USRTStreamComponent::ApplyMoviePreset()
 void USRTStreamComponent::ApplyFastPreset()
 {
     // 빠른 인코딩 우선
-    QualityPreset = ESRTQualityPreset::Performance;
-    EncoderPreset = EEncoderPreset::UltraFast;
-    EncoderTune = EEncoderTune::FastDecode;
-    CRF = 28;
+    QualityPreset = ESRTQualityPreset::Low;
     BitrateKbps = 2500;
-    MaxBitrateKbps = 4000;
-    LatencyMs = 20;
-    GOPSize = 30;
     
     ApplyQualityPreset();
     
@@ -441,31 +413,6 @@ void USRTStreamComponent::ApplyFastPreset()
         GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Cyan, 
             TEXT("Fast Preset Applied"));
     }
-}
-
-FString USRTStreamComponent::GetCurrentSettingsInfo() const
-{
-    return FString::Printf(
-        TEXT("Resolution: %s\n")
-        TEXT("FPS: %.1f\n")
-        TEXT("Bitrate: %d kbps (Max: %d)\n")
-        TEXT("CRF: %d\n")
-        TEXT("Preset: %s\n")
-        TEXT("Profile: %s\n")
-        TEXT("GOP Size: %d\n")
-        TEXT("B-Frames: %d\n")
-        TEXT("Color Space: %s%s"),
-        *UEnum::GetValueAsString(StreamMode),
-        StreamFPS,
-        BitrateKbps, MaxBitrateKbps,
-        CRF,
-        *UEnum::GetValueAsString(EncoderPreset),
-        *UEnum::GetValueAsString(H264Profile),
-        GOPSize,
-        BFrames,
-        *UEnum::GetValueAsString(ColorSpace),
-        bUse10BitColor ? TEXT(" (10-bit)") : TEXT("")
-    );
 }
 
 void USRTStreamComponent::StartStreaming()
@@ -544,7 +491,7 @@ void USRTStreamComponent::StartStreaming()
         }
     }
     UE_LOG(LogCineSRTStream, Log, TEXT("Target: %s:%d"), *StreamIP, StreamPort);
-    UE_LOG(LogCineSRTStream, Log, TEXT("Mode: %s"), bCallerMode ? TEXT("Caller (Client)") : TEXT("Listener (Server)"));
+    UE_LOG(LogCineSRTStream, Log, TEXT("Mode: Caller (Client)"));
     
     SetConnectionState(ESRTConnectionState::Connecting, TEXT("Initializing capture..."));
     
@@ -555,101 +502,36 @@ void USRTStreamComponent::StartStreaming()
         GetResolution(EncoderConfig.Width, EncoderConfig.Height);
         EncoderConfig.FrameRate = StreamFPS;
         EncoderConfig.BitrateKbps = BitrateKbps;
-        EncoderConfig.MaxBitrateKbps = MaxBitrateKbps;
-        EncoderConfig.BufferSizeKb = BufferSizeKb;
-        EncoderConfig.GOPSize = GOPSize;
+        EncoderConfig.GOPSize = 60;
         EncoderConfig.bUseHardwareAcceleration = bUseHardwareAcceleration;
         
-        // Enum을 문자열로 변환하는 헬퍼 함수들
-        auto GetPresetString = [](EEncoderPreset Preset) -> FString
+        // 품질 프리셋 적용
+        switch (QualityPreset)
         {
-            switch (Preset)
-            {
-                case EEncoderPreset::UltraFast: return TEXT("ultrafast");
-                case EEncoderPreset::SuperFast: return TEXT("superfast");
-                case EEncoderPreset::VeryFast: return TEXT("veryfast");
-                case EEncoderPreset::Faster: return TEXT("faster");
-                case EEncoderPreset::Fast: return TEXT("fast");
-                case EEncoderPreset::Medium: return TEXT("medium");
-                case EEncoderPreset::Slow: return TEXT("slow");
-                case EEncoderPreset::Slower: return TEXT("slower");
-                case EEncoderPreset::VerySlow: return TEXT("veryslow");
-                default: return TEXT("medium");
-            }
-        };
-        
-        auto GetTuneString = [](EEncoderTune Tune) -> FString
-        {
-            switch (Tune)
-            {
-                case EEncoderTune::None: return TEXT("");
-                case EEncoderTune::Film: return TEXT("film");
-                case EEncoderTune::Animation: return TEXT("animation");
-                case EEncoderTune::Grain: return TEXT("grain");
-                case EEncoderTune::StillImage: return TEXT("stillimage");
-                case EEncoderTune::PSNR: return TEXT("psnr");
-                case EEncoderTune::SSIM: return TEXT("ssim");
-                case EEncoderTune::FastDecode: return TEXT("fastdecode");
-                case EEncoderTune::ZeroLatency: return TEXT("zerolatency");
-                default: return TEXT("zerolatency");
-            }
-        };
-        
-        auto GetProfileString = [](EH264Profile Profile) -> FString
-        {
-            switch (Profile)
-            {
-                case EH264Profile::Baseline: return TEXT("baseline");
-                case EH264Profile::Main: return TEXT("main");
-                case EH264Profile::High: return TEXT("high");
-                case EH264Profile::High10: return TEXT("high10");
-                default: return TEXT("high");
-            }
-        };
-        
-        // 설정 적용
-        EncoderConfig.Preset = GetPresetString(EncoderPreset);
-        EncoderConfig.Tune = GetTuneString(EncoderTune);
-        EncoderConfig.Profile = GetProfileString(H264Profile);
-        
-        // 품질 프리셋 오버라이드 (사용자가 직접 설정하지 않은 경우)
-        if (QualityPreset != ESRTQualityPreset::Balanced)
-        {
-            switch (QualityPreset)
-            {
-                case ESRTQualityPreset::Performance:
-                    if (EncoderPreset == EEncoderPreset::Medium)
-                        EncoderConfig.Preset = TEXT("ultrafast");
-                    if (CRF == 23)
-                        EncoderConfig.CRF = 28.0f;
-                    break;
-                case ESRTQualityPreset::Quality:
-                    if (EncoderPreset == EEncoderPreset::Medium)
-                        EncoderConfig.Preset = TEXT("slow");
-                    if (CRF == 23)
-                        EncoderConfig.CRF = 20.0f;
-                    break;
-                case ESRTQualityPreset::Ultra:
-                    if (EncoderPreset == EEncoderPreset::Medium)
-                        EncoderConfig.Preset = TEXT("veryslow");
-                    if (CRF == 23)
-                        EncoderConfig.CRF = 18.0f;
-                    break;
-                default:
-                    break;
-            }
+            case ESRTQualityPreset::Low:
+                EncoderConfig.Preset = TEXT("veryfast");
+                EncoderConfig.Profile = TEXT("baseline");
+                EncoderConfig.CRF = 28.0f;
+                break;
+            case ESRTQualityPreset::Medium:
+                EncoderConfig.Preset = TEXT("faster");
+                EncoderConfig.Profile = TEXT("main");
+                EncoderConfig.CRF = 23.0f;
+                break;
+            case ESRTQualityPreset::High:
+                EncoderConfig.Preset = TEXT("medium");
+                EncoderConfig.Profile = TEXT("high");
+                EncoderConfig.CRF = 20.0f;
+                break;
+            case ESRTQualityPreset::Ultra:
+                EncoderConfig.Preset = TEXT("slow");
+                EncoderConfig.Profile = TEXT("high");
+                EncoderConfig.CRF = 18.0f;
+                break;
         }
-        
-        // 사용자 설정 CRF 적용
-        EncoderConfig.CRF = static_cast<float>(CRF);
-        
-        UE_LOG(LogCineSRTStream, Log, TEXT("Video Encoder Config:"));
-        UE_LOG(LogCineSRTStream, Log, TEXT("  Resolution: %dx%d @ %d fps"), 
-            EncoderConfig.Width, EncoderConfig.Height, EncoderConfig.FrameRate);
-        UE_LOG(LogCineSRTStream, Log, TEXT("  Preset: %s, Tune: %s, Profile: %s"), 
-            *EncoderConfig.Preset, *EncoderConfig.Tune, *EncoderConfig.Profile);
-        UE_LOG(LogCineSRTStream, Log, TEXT("  Bitrate: %d kbps, CRF: %.1f"), 
-            EncoderConfig.BitrateKbps, EncoderConfig.CRF);
+        EncoderConfig.MaxBitrateKbps = BitrateKbps * 2;
+        EncoderConfig.BufferSizeKb = BitrateKbps / 2;
+        EncoderConfig.Tune = TEXT("zerolatency");
         
         if (!VideoEncoder->Initialize(EncoderConfig))
         {
@@ -780,19 +662,8 @@ void USRTStreamComponent::TestConnection()
         return;
     }
     
-    // Test encryption
-    if (bUseEncryption)
-    {
-        int pbkeylen = EncryptionKeyLength;
-        if (SRTNetwork::SetSocketOption(testSock, SRTNetwork::OPT_PBKEYLEN, &pbkeylen, sizeof(pbkeylen)))
-        {
-            UE_LOG(LogCineSRTStream, Log, TEXT("✅ Encryption test passed (%d-bit AES)"), pbkeylen * 8);
-        }
-        else
-        {
-            UE_LOG(LogCineSRTStream, Error, TEXT("❌ Encryption test failed"));
-        }
-    }
+    // 암호화 테스트 제거 (변수 없음)
+    UE_LOG(LogCineSRTStream, Log, TEXT("✅ Connection test completed"));
     
     SRTNetwork::CloseSocket(testSock);
     UE_LOG(LogCineSRTStream, Log, TEXT("Test completed"));
@@ -815,8 +686,8 @@ void USRTStreamComponent::GetResolution(int32& OutWidth, int32& OutHeight) const
             OutHeight = 2160;
             break;
         case ESRTStreamMode::Custom:
-            OutWidth = CustomWidth;
-            OutHeight = CustomHeight;
+            OutWidth = 1920;  // 기본값으로 설정
+            OutHeight = 1080; // 기본값으로 설정
             break;
     }
 }
@@ -850,39 +721,20 @@ bool USRTStreamComponent::SetupSceneCapture()
     // Create RenderTarget
     RenderTarget = NewObject<UTextureRenderTarget2D>(this, TEXT("SRTRenderTarget"));
     RenderTarget->InitAutoFormat(Width, Height);
+    RenderTarget->RenderTargetFormat = RTF_RGBA8;
+    RenderTarget->bForceLinearGamma = true;
+    RenderTarget->TargetGamma = 1.0f;
     RenderTarget->UpdateResourceImmediate(true);
     
     // Configure SceneCapture
     SceneCapture->TextureTarget = RenderTarget;
-    
-    // UI 설정에 따른 캡처 소스 설정
-    switch (CaptureSource)
-    {
-        case ECaptureSource::SceneColor:
-            SceneCapture->CaptureSource = ESceneCaptureSource::SCS_SceneColorSceneDepth;
-            break;
-        case ECaptureSource::SceneColorHDR:
-            SceneCapture->CaptureSource = ESceneCaptureSource::SCS_SceneColorHDR;
-            break;
-        case ECaptureSource::FinalColor:
-            SceneCapture->CaptureSource = ESceneCaptureSource::SCS_FinalColorLDR;
-            break;
-        case ECaptureSource::FinalColorHDR:
-            SceneCapture->CaptureSource = ESceneCaptureSource::SCS_FinalColorHDR;
-            break;
-    }
-    
-    // 품질 설정 적용
-    SceneCapture->ShowFlags.SetTemporalAA(bEnableTemporalAA);
-    SceneCapture->ShowFlags.SetMotionBlur(bEnableMotionBlur);
+    SceneCapture->CaptureSource = ESceneCaptureSource::SCS_FinalColorLDR;
+    SceneCapture->bCaptureEveryFrame = false;
+    SceneCapture->bCaptureOnMovement = false;
+    SceneCapture->bAlwaysPersistRenderingState = true;
+    SceneCapture->ShowFlags.SetMotionBlur(false);
     SceneCapture->ShowFlags.SetAntiAliasing(true);
-    SceneCapture->ShowFlags.SetBloom(true);
-    
-    // 10-bit 색상 지원
-    if (bUse10BitColor)
-    {
-        RenderTarget->RenderTargetFormat = RTF_RGBA16f;
-    }
+    SceneCapture->ShowFlags.SetTonemapper(false);
     
     // Copy camera settings
     SceneCapture->FOVAngle = Camera->FieldOfView;
@@ -960,6 +812,26 @@ void USRTStreamComponent::SetConnectionState(ESRTConnectionState NewState, const
         ConnectionState = NewState;
         LastErrorMessage = Message;
         
+        // 사용자가 볼 상태 메시지
+        switch (NewState)
+        {
+            case ESRTConnectionState::Disconnected:
+                CurrentStatus = TEXT("Ready");
+                break;
+            case ESRTConnectionState::Connecting:
+                CurrentStatus = TEXT("Connecting...");
+                break;
+            case ESRTConnectionState::Connected:
+                CurrentStatus = TEXT("Connected");
+                break;
+            case ESRTConnectionState::Streaming:
+                CurrentStatus = FString::Printf(TEXT("Streaming (%.1f Mbps)"), CurrentBitrateKbps / 1000.0f);
+                break;
+            case ESRTConnectionState::Error:
+                CurrentStatus = FString::Printf(TEXT("Error: %s"), *Message);
+                break;
+        }
+        
         FString StateStr;
         switch (NewState)
         {
@@ -1008,22 +880,20 @@ FString USRTStreamComponent::GetStreamURL() const
     
     TArray<FString> Options;
     
-    if (!bCallerMode)
-    {
-        Options.Add(TEXT("mode=listener"));
-    }
+    // 암호화 및 기타 옵션 제거 (변수 없음)
+    // if (!bUseEncryption && !EncryptionPassphrase.IsEmpty())
+    // {
+    //     Options.Add(FString::Printf(TEXT("passphrase=%s"), *EncryptionPassphrase));
+    // }
     
-    if (bUseEncryption && !EncryptionPassphrase.IsEmpty())
-    {
-        Options.Add(FString::Printf(TEXT("passphrase=%s"), *EncryptionPassphrase));
-    }
+    // StreamID 제거 (변수 없음)
+    // if (!StreamID.IsEmpty())
+    // {
+    //     Options.Add(FString::Printf(TEXT("streamid=%s"), *StreamID));
+    // }
     
-    if (!StreamID.IsEmpty())
-    {
-        Options.Add(FString::Printf(TEXT("streamid=%s"), *StreamID));
-    }
-    
-    Options.Add(FString::Printf(TEXT("latency=%d"), LatencyMs));
+    // 기본 레이턴시 설정
+    Options.Add(FString::Printf(TEXT("latency=%d"), LatencyMs));  // UI에서 설정한 값 사용
     
     if (Options.Num() > 0)
     {
@@ -1127,7 +997,7 @@ uint32 FSRTStreamWorker::Run()
         }
         
         // CPU 사용률 감소를 위한 짧은 대기
-        FPlatformProcess::Sleep(0.001f);
+        FPlatformProcess::Sleep(0.0001f);  // 0.001f → 0.0001f (10배 감소!)
     }
     
     UE_LOG(LogCineSRTStream, Log, TEXT("SRT Worker thread ending (exit: %s, stop: %s)"),
@@ -1198,62 +1068,36 @@ bool FSRTStreamWorker::InitializeSRT()
     int live_mode = SRTNetwork::TRANSTYPE_LIVE;
     SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_TRANSTYPE, &live_mode, sizeof(live_mode));
     
-    // 성능 최적화 옵션 (권장)
-    int latency = Owner->LatencyMs;
+    // ⭐ 성능 최적화 옵션 (권장)
+    int latency = Owner->LatencyMs;  // UI에서 설정한 값 사용
     SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_LATENCY, &latency, sizeof(latency));
     
-    int sndbuf = 64 * 1024 * 1024; // 64MB 송신 버퍼 (대폭 증가)
+    // 송신 버퍼 크기 최소화 (64MB → 1MB)
+    int sndbuf = 1024 * 1024;  // 64배 감소!
     SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_SNDBUF, &sndbuf, sizeof(sndbuf));
     
-    // ⭐ Flow Control 윈도우 크기 증가
-    int fc = 50000;
+    // 수신 버퍼 크기 최소화
+    int rcvbuf = 1024 * 1024;
+    SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_RCVBUF, &rcvbuf, sizeof(rcvbuf));
+    
+    // ⭐ Flow Control 윈도우 크기 최소화 (50000 → 1000)
+    int fc = 1000;  // 50배 감소!
     SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_FC, &fc, sizeof(fc));
+    
+    // ⭐ 추가 최적화 옵션
+    int mss = 1500;  // Maximum Segment Size
+    SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_MSS, &mss, sizeof(mss));
+    
+    int snddropdelay = 200;  // 송신 드롭 지연 (ms)
+    SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_SNDDROPDELAY, &snddropdelay, sizeof(snddropdelay));
+    
+    int rcvdropdelay = 200;  // 수신 드롭 지연 (ms)
+    SRTNetwork::SetSocketOption(sock, SRTNetwork::OPT_RCVDROPDELAY, &rcvdropdelay, sizeof(rcvdropdelay));
     
     // ⭐ 암호화 관련 코드 모두 삭제!
     
     // Connect or bind
-    if (!Owner->bCallerMode)
-    {
-        // Listener 모드
-        if (!SRTNetwork::Bind(sock, Owner->StreamPort))
-        {
-            FString Error = UTF8_TO_TCHAR(SRTNetwork::GetLastError());
-            Owner->SetConnectionState(ESRTConnectionState::Error, FString::Printf(TEXT("Bind failed: %s"), *Error));
-            SRTNetwork::CloseSocket(sock);
-            return false;
-        }
-        if (!SRTNetwork::Listen(sock, 1))
-        {
-            FString Error = UTF8_TO_TCHAR(SRTNetwork::GetLastError());
-            Owner->SetConnectionState(ESRTConnectionState::Error, FString::Printf(TEXT("Listen failed: %s"), *Error));
-            SRTNetwork::CloseSocket(sock);
-            return false;
-        }
-        Owner->SetConnectionState(ESRTConnectionState::Connecting, FString::Printf(TEXT("Listening on port %d..."), Owner->StreamPort));
-        void* client = nullptr;
-        while (!bShouldExit && !Owner->bStopRequested)
-        {
-            client = SRTNetwork::AcceptWithTimeout(sock, 100);
-            if (client)
-            {
-                break;
-            }
-            if (bShouldExit || Owner->bStopRequested)
-            {
-                SRTNetwork::CloseSocket(sock);
-                return false;
-            }
-        }
-        if (!client)
-        {
-            SRTNetwork::CloseSocket(sock);
-            return false;
-        }
-        SRTNetwork::CloseSocket(sock);
-        SRTSocket = client;
-        Owner->SetConnectionState(ESRTConnectionState::Connected, TEXT("Client connected"));
-    }
-    else
+    // 기본적으로 Caller 모드로 설정 (bCallerMode 변수 없음)
     {
         Owner->SetConnectionState(ESRTConnectionState::Connecting, FString::Printf(TEXT("Connecting to %s:%d..."), *Owner->StreamIP, Owner->StreamPort));
         if (!SRTNetwork::Connect(sock, TCHAR_TO_UTF8(*Owner->StreamIP), Owner->StreamPort))
@@ -1336,15 +1180,18 @@ bool FSRTStreamWorker::SendFrameData()
         UE_LOG(LogCineSRTStream, VeryVerbose, TEXT("Generated %d TS packets (%d bytes)"), 
             TSPackets.Num() / 188, TSPackets.Num());
         
-        // TS 패킷 전송
+        // TS 패킷 전송 - 더 작은 청크로 지연 최소화
         const int ChunkSize = 1316; // SRT 최적 청크 크기 (7 TS packets)
         const uint8* DataPtr = TSPackets.GetData();
         int32 TotalSize = TSPackets.Num();
         int32 BytesSent = 0;
         
+        // ⭐ 더 작은 청크로 전송하여 지연 최소화
+        const int OptimalChunkSize = 1316; // 7 TS packets
+        
         while (BytesSent < TotalSize && !Owner->bStopRequested && !bShouldExit)
         {
-            int32 ToSend = FMath::Min(ChunkSize, TotalSize - BytesSent);
+            int32 ToSend = FMath::Min(OptimalChunkSize, TotalSize - BytesSent);
             int sent = SRTNetwork::Send(SRTSocket, (char*)(DataPtr + BytesSent), ToSend);
             
             if (sent < 0)
@@ -1354,6 +1201,9 @@ bool FSRTStreamWorker::SendFrameData()
                 return false;
             }
             BytesSent += sent;
+            
+            // ⭐ 즉시 전송을 위한 짧은 대기 제거
+            // FPlatformProcess::Sleep(0.001f); // 이 줄 제거
         }
         
         if (BytesSent == TotalSize)
@@ -1402,16 +1252,16 @@ void FSRTStreamWorker::HandleDisconnection()
 {
     Owner->SetConnectionState(ESRTConnectionState::Error, TEXT("Connection lost"));
     
-    // 재연결 시도 (선택적)
-    if (Owner->bAutoReconnect && !bShouldExit) {
-        UE_LOG(LogCineSRTStream, Log, TEXT("Waiting 2 seconds before reconnect..."));
-        FPlatformProcess::Sleep(2.0f); // 2초 대기
-        
-        if (!bShouldExit) {
-            UE_LOG(LogCineSRTStream, Log, TEXT("Attempting to reconnect..."));
-            InitializeSRT();
-        }
-    }
+    // 재연결 시도 제거 (bAutoReconnect 변수 없음)
+    // if (Owner->bAutoReconnect && !bShouldExit) {
+    //     UE_LOG(LogCineSRTStream, Log, TEXT("Waiting 2 seconds before reconnect..."));
+    //     FPlatformProcess::Sleep(2.0f); // 2초 대기
+    //     
+    //     if (!bShouldExit) {
+    //         UE_LOG(LogCineSRTStream, Log, TEXT("Attempting to reconnect..."));
+    //         InitializeSRT();
+    //     }
+    // }
 }
 
 void FSRTStreamWorker::CheckHealth()

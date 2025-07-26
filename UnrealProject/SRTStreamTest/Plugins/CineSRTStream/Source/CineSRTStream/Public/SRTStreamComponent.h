@@ -19,10 +19,10 @@
 UENUM(BlueprintType)
 enum class ESRTQualityPreset : uint8
 {
-    Performance UMETA(DisplayName = "Performance (Low Quality)"),
-    Balanced UMETA(DisplayName = "Balanced"),
-    Quality UMETA(DisplayName = "Quality"),
-    Ultra UMETA(DisplayName = "Ultra Quality")
+    Low UMETA(DisplayName = "Low - Fast Performance"),
+    Medium UMETA(DisplayName = "Medium - Balanced"),
+    High UMETA(DisplayName = "High - Better Quality"),
+    Ultra UMETA(DisplayName = "Ultra - Best Quality")
 };
 
 UENUM(BlueprintType)
@@ -162,154 +162,54 @@ public:
     USRTStreamComponent();
     virtual ~USRTStreamComponent();
 
-    // === 설정 속성 ===
+    // ========== 기본 설정 (언제든 변경 가능) ==========
+    /** 품질 프리셋 */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Quality")
+    ESRTQualityPreset QualityPreset = ESRTQualityPreset::Medium;
     
-    /** 연결 설정 */
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Connection")
-    FString StreamIP = TEXT("127.0.0.1");
-    
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Connection", 
-        meta = (ClampMin = "1024", ClampMax = "65535"))
-    int32 StreamPort = 9001;
-    
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Connection")
-    FString StreamID = TEXT("UnrealCamera1");
-    
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Connection",
-        meta = (ToolTip = "Connection mode: true = caller (client), false = listener (server)"))
-    bool bCallerMode = true;
-    
-    /** 비디오 설정 */
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Video")
-    ESRTStreamMode StreamMode = ESRTStreamMode::HD_1920x1080;
-    
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Video",
-        meta = (EditCondition = "StreamMode == ESRTStreamMode::Custom"))
-    int32 CustomWidth = 1920;
-    
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Video",
-        meta = (EditCondition = "StreamMode == ESRTStreamMode::Custom"))
-    int32 CustomHeight = 1080;
-    
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Video", 
-        meta = (ClampMin = "1", ClampMax = "120"))
-    float StreamFPS = 30.0f;
-    
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Video",
-        meta = (ClampMin = "100", ClampMax = "50000", ToolTip = "Target bitrate in Kbps"))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Stream",
+        meta = (DisplayPriority = "2", ClampMin = "1000", ClampMax = "50000",
+        EditCondition = "!bIsStreaming"))
     int32 BitrateKbps = 5000;
     
-    /** 암호화 설정 */
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Encryption")
-    bool bUseEncryption = true;
+    // ========== 고급 설정 (스트리밍 전에만 변경) ==========
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Stream|Advanced",
+        meta = (EditCondition = "!bIsStreaming"))
+    ESRTStreamMode StreamMode = ESRTStreamMode::HD_1920x1080;
     
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Encryption", 
-        meta = (EditCondition = "bUseEncryption"))
-    FString EncryptionPassphrase = TEXT("YourSecurePassphrase");
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Stream|Advanced",
+        meta = (EditCondition = "!bIsStreaming", ClampMin = "1", ClampMax = "60"))
+    float StreamFPS = 30.0f;
     
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Encryption",
-        meta = (EditCondition = "bUseEncryption", ClampMin = "0", ClampMax = "32"))
-    int32 EncryptionKeyLength = 16; // 0=auto, 16=AES-128, 24=AES-192, 32=AES-256
-    
-    /** 성능 설정 */
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Performance",
-        meta = (ClampMin = "20", ClampMax = "8000", ToolTip = "Latency in milliseconds"))
-    int32 LatencyMs = 120;
-    
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Performance",
-        meta = (ToolTip = "Use hardware acceleration if available"))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Stream|Advanced",
+        meta = (EditCondition = "!bIsStreaming"))
     bool bUseHardwareAcceleration = true;
     
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Performance",
-        meta = (ToolTip = "Automatically reconnect on connection loss"))
-    bool bAutoReconnect = true;
+    // ========== 네트워크 설정 ==========
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Stream|Network",
+        meta = (EditCondition = "!bIsStreaming"))
+    FString StreamIP = TEXT("127.0.0.1");
     
-    /** ========== 품질 설정 ========== */
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Quality", 
-        meta = (DisplayPriority = "1"))
-    ESRTQualityPreset QualityPreset = ESRTQualityPreset::Balanced;
-
-    /** ========== 인코더 설정 ========== */
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Encoder",
-        meta = (DisplayName = "Encoder Preset", DisplayPriority = "1"))
-    EEncoderPreset EncoderPreset = EEncoderPreset::Medium;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Encoder",
-        meta = (DisplayName = "Encoder Tune", DisplayPriority = "2"))
-    EEncoderTune EncoderTune = EEncoderTune::ZeroLatency;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Encoder",
-        meta = (DisplayName = "H.264 Profile", DisplayPriority = "3"))
-    EH264Profile H264Profile = EH264Profile::High;
-
-    /** ========== 고급 품질 설정 ========== */
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Advanced Quality",
-        meta = (DisplayName = "CRF (Quality)", ClampMin = "0", ClampMax = "51", 
-        ToolTip = "Constant Rate Factor: 0=Lossless, 18=High Quality, 23=Default, 51=Worst"))
-    int32 CRF = 23;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Advanced Quality",
-        meta = (DisplayName = "Max Bitrate (Kbps)", ClampMin = "1000", ClampMax = "100000",
-        ToolTip = "Maximum bitrate in Kilobits per second"))
-    int32 MaxBitrateKbps = 10000;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Advanced Quality",
-        meta = (DisplayName = "VBV Buffer Size (KB)", ClampMin = "500", ClampMax = "10000",
-        ToolTip = "Video Buffering Verifier buffer size"))
-    int32 BufferSizeKb = 2000;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Advanced Quality",
-        meta = (DisplayName = "GOP Size", ClampMin = "1", ClampMax = "300",
-        ToolTip = "Group of Pictures size (keyframe interval)"))
-    int32 GOPSize = 60;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Advanced Quality",
-        meta = (DisplayName = "B-Frames", ClampMin = "0", ClampMax = "5",
-        ToolTip = "Number of B-frames between I and P frames"))
-    int32 BFrames = 2;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Advanced Quality",
-        meta = (DisplayName = "Reference Frames", ClampMin = "1", ClampMax = "16",
-        ToolTip = "Number of reference frames"))
-    int32 RefFrames = 3;
-
-    /** ========== 색상 및 캡처 설정 ========== */
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Color",
-        meta = (DisplayName = "Color Subsampling"))
-    EColorSpace ColorSpace = EColorSpace::YUV420;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Color",
-        meta = (DisplayName = "Use 10-bit Color"))
-    bool bUse10BitColor = false;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Capture",
-        meta = (DisplayName = "Capture Source"))
-    ECaptureSource CaptureSource = ECaptureSource::FinalColor;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Capture",
-        meta = (DisplayName = "Enable Temporal AA"))
-    bool bEnableTemporalAA = true;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Capture",
-        meta = (DisplayName = "Enable Motion Blur"))
-    bool bEnableMotionBlur = false;
-
-    /** 디버그 옵션 */
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Debug",
-        meta = (DisplayName = "Show Quality Stats"))
-    bool bShowQualityStats = false;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Settings|Debug",
-        meta = (DisplayName = "Save First Frame"))
-    bool bSaveFirstFrame = false;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Stream|Network",
+        meta = (EditCondition = "!bIsStreaming", ClampMin = "1024", ClampMax = "65535"))
+    int32 StreamPort = 9001;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SRT Stream|Network",
+        meta = (EditCondition = "!bIsStreaming", ClampMin = "20", ClampMax = "1000", 
+               ToolTip = "SRT Latency in milliseconds. Lower = less delay but more packet loss"))
+    int32 LatencyMs = 120;
+    
+    // ========== 읽기 전용 상태 ==========
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SRT Stream|Status")
+    FString CurrentStatus = TEXT("Ready");
+    
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "SRT Stream|Status")
+    float CurrentBitrateKbps = 0.0f;
     
     // === 상태 속성 (읽기 전용) ===
     
     UPROPERTY(BlueprintReadOnly, Category = "SRT Status")
     ESRTConnectionState ConnectionState = ESRTConnectionState::Disconnected;
-    
-    UPROPERTY(BlueprintReadOnly, Category = "SRT Status")
-    float CurrentBitrateKbps = 0.0f;
     
     UPROPERTY(BlueprintReadOnly, Category = "SRT Status")
     int32 TotalFramesSent = 0;
@@ -371,15 +271,8 @@ public:
     {
         QualityPreset = ESRTQualityPreset::Ultra;
         BitrateKbps = 50000;
-        MaxBitrateKbps = 80000;
-        CRF = 18;
-        GOPSize = 60;
-        BFrames = 3;
-        RefFrames = 5;
-        H264Profile = EH264Profile::High;
-        ColorSpace = EColorSpace::YUV422;
-        CaptureSource = ECaptureSource::SceneColorHDR;
-        bEnableTemporalAA = true;
+        
+        ApplyQualityPreset();
     }
 
 #if WITH_EDITOR
@@ -419,10 +312,6 @@ public:
         meta = (CallInEditor = "true", DisplayName = "Apply Fast Preset"))
     void ApplyFastPreset();
 
-    // 현재 설정 정보
-    UFUNCTION(BlueprintCallable, Category = "SRT Stream|Info")
-    FString GetCurrentSettingsInfo() const;
-
 protected:
     virtual void BeginPlay() override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
@@ -432,6 +321,7 @@ protected:
 
 private:
     // 스트리밍 상태
+    UPROPERTY()
     bool bIsStreaming = false;
     TAtomic<bool> bStopRequested{false};
     
@@ -471,6 +361,12 @@ private:
     void SetConnectionState(ESRTConnectionState NewState, const FString& Message = TEXT(""));
     
     friend class FSRTStreamWorker;
+
+    // 품질 프리셋 내부 값들
+    int32 InternalCRF = 23;
+    int32 InternalMaxBitrate = 10000;
+    FString InternalPreset = TEXT("medium");
+    FString InternalProfile = TEXT("main");
 };
 
 /**

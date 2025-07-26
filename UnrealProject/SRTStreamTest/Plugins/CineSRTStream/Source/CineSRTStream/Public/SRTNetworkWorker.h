@@ -14,6 +14,8 @@ namespace SRTNetwork
     constexpr int OPT_FC = 4;
     constexpr int OPT_SNDBUF = 5;
     constexpr int OPT_SNDDROPDELAY = 30;
+    constexpr int OPT_RCVBUF = 6;           // SRTO_RCVBUF
+    constexpr int OPT_RCVDROPDELAY = 31;    // SRTO_RCVDROPDELAY
     constexpr int OPT_SNDTIMEO = 34;
     constexpr int OPT_PEERLATENCY = 18;
     constexpr int OPT_PEERIDLETIMEO = 19;
