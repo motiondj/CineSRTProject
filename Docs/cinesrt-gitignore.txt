@@ -14,7 +14,7 @@
 *.VC.opendb
 
 # Unreal Engine generated files
-Binaries/
+# Binaries/  # 주석 처리 - 플러그인 바이너리 포함을 위해
 DerivedDataCache/
 Intermediate/
 Saved/
@@ -82,6 +82,11 @@ bld/
 !/Plugins/CineSRTStream/ThirdParty/**/*.dll
 !/Plugins/CineSRTStream/ThirdParty/**/*.h
 !/Plugins/CineSRTStream/ThirdParty/**/*.hpp
+
+# 플러그인 바이너리 폴더 포함 (FFmpeg DLL들)
+!/Plugins/CineSRTStream/Binaries/**/*.dll
+!/Plugins/CineSRTStream/Binaries/**/*.lib
+!/Plugins/CineSRTStream/Binaries/**/*.pdb
 
 # BuildTools 폴더의 빌드된 라이브러리도 포함
 !/BuildTools/OpenSSL/install/**
