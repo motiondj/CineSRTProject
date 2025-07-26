@@ -45,7 +45,8 @@ public class CineSRTStream : ModuleRules
                 "RenderCore",
                 "RHI",
                 "Renderer",
-                "Projects"
+                "Projects",
+                "D3D11RHI"  // D3D11 인터롭용
             }
         );
         
@@ -86,7 +87,7 @@ public class CineSRTStream : ModuleRules
                 Path.Combine(SRTPath, "include", "common"),
                 Path.Combine(SRTPath, "include", "win")
             });
-
+            
             // FFmpeg 설정 - 시스템 FFmpeg 우선 확인
             string SystemFFmpegPath = "";
             bool bUseSystemFFmpeg = false;
@@ -245,6 +246,7 @@ public class CineSRTStream : ModuleRules
                 "NOMINMAX",
                 "SRT_STATIC=1",
                 "SRT_ENABLE_ENCRYPTION=1",
+                "USE_GPU_ENCODING=1",  // GPU 인코딩 활성화
                 "SRT_VERSION_MAJOR=1",
                 "SRT_VERSION_MINOR=5",
                 "SRT_VERSION_PATCH=3",

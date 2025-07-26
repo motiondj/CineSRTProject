@@ -69,27 +69,47 @@ FGPUReadbackManager::FGPUReadbackManager(TSharedPtr<FrameBuffer> InFrameBuffer)
 void FGPUReadbackManager::RequestReadback(UTextureRenderTarget2D* RenderTarget, uint32 FrameNumber)
 {
     if (!RenderTarget || bShuttingDown.Load()) return;
-    
+
+    // 반드시 GameThread에서 호출!
     FTextureRenderTargetResource* Resource = RenderTarget->GameThread_GetRenderTargetResource();
     if (!Resource) return;
-    
-    // 단순화된 동기식 읽기
-    TArray<FColor> Pixels;
-    if (Resource->ReadPixels(Pixels))
-    {
-        // 프레임 버퍼에 추가
-        FrameBuffer::Frame Frame;
-        Frame.FrameNumber = FrameNumber;
-        Frame.Timestamp = FPlatformTime::Seconds();
-        Frame.Width = RenderTarget->SizeX;
-        Frame.Height = RenderTarget->SizeY;
-        Frame.Data.SetNum(Pixels.Num() * sizeof(FColor));
-        FMemory::Memcpy(Frame.Data.GetData(), Pixels.GetData(), Frame.Data.Num());
-        
-        if (MyFrameBuffer) {
-            MyFrameBuffer->SetFrame(MoveTemp(Frame));
+    int32 Width = RenderTarget->SizeX;
+    int32 Height = RenderTarget->SizeY;
+
+    ENQUEUE_RENDER_COMMAND(AsyncReadSurfaceCommand)(
+        [this, Resource, FrameNumber, Width, Height](FRHICommandListImmediate& RHICmdList)
+        {
+            FRHITexture* Texture = Resource->GetRenderTargetTexture();
+            FReadSurfaceDataFlags Flags(RCM_UNorm, CubeFace_MAX);
+            Flags.SetLinearToGamma(false);
+
+            TArray<FColor>* PixelData = new TArray<FColor>();
+
+            RHICmdList.ReadSurfaceData(
+                Texture,
+                FIntRect(0, 0, Width, Height),
+                *PixelData,
+                Flags
+            );
+
+            AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this, PixelData, FrameNumber, Width, Height]()
+            {
+                FrameBuffer::Frame Frame;
+                Frame.FrameNumber = FrameNumber;
+                Frame.Timestamp = FPlatformTime::Seconds();
+                Frame.Width = Width;
+                Frame.Height = Height;
+                Frame.Data.SetNum(PixelData->Num() * sizeof(FColor));
+                FMemory::Memcpy(Frame.Data.GetData(), PixelData->GetData(), Frame.Data.Num());
+
+                if (MyFrameBuffer) {
+                    MyFrameBuffer->SetFrame(MoveTemp(Frame));
+                }
+
+                delete PixelData;
+            });
         }
-    }
+    );
 }
 
 void FGPUReadbackManager::Shutdown()
@@ -301,7 +321,7 @@ void USRTStreamComponent::StartStreaming()
     // Phase 3: 새로운 인코더 및 멀티플렉서 초기화
     if (VideoEncoder && TransportStream)
     {
-        // 비디오 인코더 설정
+        // CPU 인코더 (폴백 또는 GPU 인코더가 없을 때)
         FSRTVideoEncoder::FConfig EncoderConfig;
         GetResolution(EncoderConfig.Width, EncoderConfig.Height);
         EncoderConfig.FrameRate = StreamFPS;
@@ -566,7 +586,7 @@ void USRTStreamComponent::CaptureFrame()
     // Capture the scene
     SceneCapture->CaptureScene();
     
-    // GPU readback 요청
+    // 폴백: 기존 GPU readback 방식
     if (GPUReadbackManager)
     {
         GPUReadbackManager->RequestReadback(RenderTarget, TotalFramesSent);
