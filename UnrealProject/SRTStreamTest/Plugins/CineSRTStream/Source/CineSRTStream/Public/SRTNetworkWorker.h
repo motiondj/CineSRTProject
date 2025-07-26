@@ -68,4 +68,8 @@ namespace SRTNetwork
     bool GetStats(void* socket, Stats& stats);
     bool SetNonBlocking(void* socket, bool nonblocking);
     void* AcceptWithTimeout(void* socket, int timeout_ms);
+    
+    // 정상 종료 및 상태 확인 함수들
+    bool GracefulShutdown(void* socket);
+    bool IsConnected(void* socket);
 } 

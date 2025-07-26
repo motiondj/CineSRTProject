@@ -375,88 +375,59 @@ void USRTStreamComponent::StopStreaming()
     bIsStreaming = false;
     bCleanupInProgress = true;
     
-    SetConnectionState(ESRTConnectionState::Disconnected, TEXT("Cleaning up..."));
+    SetConnectionState(ESRTConnectionState::Disconnected, TEXT("Stopping..."));
     
-    // 비동기 정리 (메인 스레드 블로킹 방지)
-    AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this]()
+    // 워커에게 종료 신호
+    if (StreamWorker.IsValid())
     {
-        // 워커 종료 신호
-        if (StreamWorker.IsValid())
-        {
-            StreamWorker->Stop();
-        }
-        
-        // 워커 스레드 정리 (최대 3초 대기)
-        if (WorkerThread)
-        {
-            double StartTime = FPlatformTime::Seconds();
-            const double MaxWaitTime = 3.0;
-            
-            while (WorkerThread->GetThreadID() != 0)
-            {
-                if (FPlatformTime::Seconds() - StartTime > MaxWaitTime)
-                {
-                    UE_LOG(LogCineSRTStream, Warning, TEXT("Worker thread timeout, forcing termination"));
-                    WorkerThread->Kill(true);
-                    break;
-                }
-                FPlatformProcess::Sleep(0.05f);
-            }
-            
-            delete WorkerThread;
-            WorkerThread = nullptr;
-        }
-        
-        // 게임 스레드에서 최종 정리
-        AsyncTask(ENamedThreads::GameThread, [this]()
-        {
-            FScopeLock Lock(&CleanupMutex);
-            
-            // 리소스 정리
-            StreamWorker.Reset();
-            
-            if (GPUReadbackManager)
-            {
-                GPUReadbackManager->Shutdown();
-            }
-            
-            if (FrameBuffer)
-            {
-                FrameBuffer->Clear();
-            }
-            
-            // Phase 3: 새로운 컴포넌트들 정리
-            if (VideoEncoder)
-            {
-                VideoEncoder->Shutdown();
-            }
-            
-            if (TransportStream)
-            {
-                TransportStream->Shutdown();
-            }
-            
-            CleanupSceneCapture();
-            
-            // 통계 초기화
-            CurrentBitrateKbps = 0.0f;
-            TotalFramesSent = 0;
-            DroppedFrames = 0;
-            RoundTripTimeMs = 0.0f;
-            
-            // 정리 완료
-            bCleanupInProgress = false;
-            SetConnectionState(ESRTConnectionState::Disconnected, TEXT("Ready"));
-            
-            UE_LOG(LogCineSRTStream, Log, TEXT("SRT cleanup completed - Ready for restart"));
-            
-            // 화면에 메시지 표시
-            if (GEngine)
-            {
-                GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, 
-                    TEXT("SRT Stream cleanup completed - Ready"));
-            }
-        });
+        StreamWorker->Stop();
+    }
+    
+    // 워커 스레드 종료 대기
+    if (WorkerThread)
+    {
+        // 간단한 방법 사용
+        WorkerThread->WaitForCompletion();
+        delete WorkerThread;
+        WorkerThread = nullptr;
+    }
+    
+    // 리소스 정리
+    StreamWorker.Reset();
+    
+    if (GPUReadbackManager)
+    {
+        GPUReadbackManager->Shutdown();
+    }
+    
+    if (FrameBuffer)
+    {
+        FrameBuffer->Clear();
+    }
+    
+    if (VideoEncoder)
+    {
+        VideoEncoder->Shutdown();
+    }
+    
+    if (TransportStream)
+    {
+        TransportStream->Shutdown();
+    }
+    
+    CleanupSceneCapture();
+    
+    // 통계 초기화
+    CurrentBitrateKbps = 0.0f;
+    TotalFramesSent = 0;
+    DroppedFrames = 0;
+    RoundTripTimeMs = 0.0f;
+    
+    bCleanupInProgress = false;
+    SetConnectionState(ESRTConnectionState::Disconnected, TEXT("Stopped"));
+    
+    UE_LOG(LogCineSRTStream, Log, TEXT("SRT stream stopped"));
+}
     });
 }
 
@@ -572,7 +543,16 @@ void USRTStreamComponent::CleanupSceneCapture()
 
 void USRTStreamComponent::CaptureFrame()
 {
-    // 디버그: 컴포넌트 상태 확인
+    // 디버그 카운터 추가
+    static int CaptureCount = 0;
+    CaptureCount++;
+    
+    if (CaptureCount % 30 == 0) // 1초마다 로그
+    {
+        UE_LOG(LogCineSRTStream, Log, TEXT("CaptureFrame called %d times"), CaptureCount);
+    }
+    
+    // 컴포넌트 상태 확인
     if (!SceneCapture)
     {
         UE_LOG(LogCineSRTStream, Warning, TEXT("CaptureFrame: SceneCapture is null"));
@@ -585,16 +565,18 @@ void USRTStreamComponent::CaptureFrame()
         return;
     }
     
-    UE_LOG(LogCineSRTStream, VeryVerbose, TEXT("CaptureFrame: Capturing frame #%d"), TotalFramesSent);
-    
     // Capture the scene
     SceneCapture->CaptureScene();
     
-    // Request GPU readback
+    // GPU readback 요청
     if (GPUReadbackManager)
     {
         GPUReadbackManager->RequestReadback(RenderTarget, TotalFramesSent);
-        UE_LOG(LogCineSRTStream, VeryVerbose, TEXT("CaptureFrame: GPU readback requested for frame #%d"), TotalFramesSent);
+        
+        if (CaptureCount % 30 == 0)
+        {
+            UE_LOG(LogCineSRTStream, Log, TEXT("GPU readback requested for frame #%d"), TotalFramesSent);
+        }
     }
     else
     {
@@ -723,29 +705,23 @@ bool FSRTStreamWorker::Init()
 
 uint32 FSRTStreamWorker::Run()
 {
-    // Owner 검증
-    if (!Owner)
-    {
-        UE_LOG(LogCineSRTStream, Error, TEXT("Worker started with null Owner!"));
-        return 1;
-    }
-    
-    UE_LOG(LogCineSRTStream, Log, TEXT("SRT Worker thread started"));
-    
-    // Owner가 유효한지 다시 확인
-    if (!IsValid(Owner))
-    {
-        UE_LOG(LogCineSRTStream, Error, TEXT("Owner is not valid!"));
-        return 1;
-    }
+    // ... 초기화 코드 ...
     
     const double FrameInterval = 1.0 / Owner->StreamFPS;
     double LastFrameTime = FPlatformTime::Seconds();
     double LastStatsTime = LastFrameTime;
     
+    // 메인 루프 - bShouldExit 체크 추가
     while (!bShouldExit && Owner && !Owner->bStopRequested)
     {
-        // 매 루프마다 Owner 체크
+        // 종료 체크를 더 자주
+        if (bShouldExit)
+        {
+            UE_LOG(LogCineSRTStream, Log, TEXT("Worker detected exit signal"));
+            break;
+        }
+        
+        // Owner 체크
         if (!Owner || !IsValid(Owner))
         {
             UE_LOG(LogCineSRTStream, Error, TEXT("Owner became invalid during execution"));
@@ -760,15 +736,18 @@ uint32 FSRTStreamWorker::Run()
             if (Owner->FrameBuffer && Owner->FrameBuffer->HasNewFrame())
             {
                 FScopeLock Lock(&SocketLock);
-                if (SRTSocket && !bShouldExit)
+                if (SRTSocket && !bShouldExit)  // 다시 체크
                 {
-                    if (SendFrameData())
-                    {
-                        // Owner->TotalFramesSent++; // Moved to SendFrameData
-                    }
-                    else
+                    if (!SendFrameData())
                     {
                         Owner->DroppedFrames++;
+                        
+                        // 연결이 끊어졌는지 확인
+                        if (!SRTSocket)
+                        {
+                            UE_LOG(LogCineSRTStream, Warning, TEXT("Connection lost"));
+                            break;
+                        }
                     }
                 }
             }
@@ -786,28 +765,54 @@ uint32 FSRTStreamWorker::Run()
             LastStatsTime = CurrentTime;
         }
         
+        // CPU 사용률 감소를 위한 짧은 대기
         FPlatformProcess::Sleep(0.001f);
     }
     
-    UE_LOG(LogCineSRTStream, Log, TEXT("SRT Worker thread ending"));
+    UE_LOG(LogCineSRTStream, Log, TEXT("SRT Worker thread ending (exit: %s, stop: %s)"),
+        bShouldExit ? TEXT("true") : TEXT("false"),
+        (Owner && Owner->bStopRequested) ? TEXT("true") : TEXT("false"));
+    
     return 0;
 }
 
 void FSRTStreamWorker::Stop()
 {
+    UE_LOG(LogCineSRTStream, Log, TEXT("Worker Stop() called"));
+    
+    // 종료 플래그 설정
     bShouldExit = true;
     
+    // 소켓을 즉시 닫아서 블로킹된 Send/Recv 해제
+    FScopeLock Lock(&SocketLock);
+    if (SRTSocket)
+    {
+        UE_LOG(LogCineSRTStream, Log, TEXT("Closing SRT socket immediately"));
+        
+        // 소켓 핸들 백업 후 null로 설정
+        void* socketToClose = SRTSocket;
+        SRTSocket = nullptr;
+        
+        // 소켓 닫기 - 이렇게 하면 진행 중인 Send/Recv가 즉시 실패
+        SRTNetwork::CloseSocket(socketToClose);
+        
+        UE_LOG(LogCineSRTStream, Log, TEXT("SRT socket closed"));
+    }
+}
+
+void FSRTStreamWorker::Exit()
+{
+    UE_LOG(LogCineSRTStream, Log, TEXT("Worker Exit() called"));
+    
+    // 혹시 남아있는 소켓 정리
     FScopeLock Lock(&SocketLock);
     if (SRTSocket)
     {
         SRTNetwork::CloseSocket(SRTSocket);
         SRTSocket = nullptr;
     }
-}
-
-void FSRTStreamWorker::Exit()
-{
-    CleanupSRT();
+    
+    UE_LOG(LogCineSRTStream, Log, TEXT("Worker thread exiting"));
 }
 
 bool FSRTStreamWorker::InitializeSRT()
@@ -920,11 +925,22 @@ bool FSRTStreamWorker::SendFrameData()
     
     FrameBuffer::Frame Frame;
     if (!Owner->FrameBuffer->GetFrame(Frame))
+    {
+        // 로그 추가
+        static int NoFrameCount = 0;
+        if (++NoFrameCount % 30 == 0) // 1초마다 한 번
+        {
+            UE_LOG(LogCineSRTStream, Warning, TEXT("No new frame available (count: %d)"), NoFrameCount);
+        }
         return false;
+    }
     
     // Phase 3: 새로운 인코더 및 멀티플렉서 사용
     if (Owner->VideoEncoder && Owner->TransportStream)
     {
+        UE_LOG(LogCineSRTStream, VeryVerbose, TEXT("Processing frame #%d: %dx%d"), 
+            Frame.FrameNumber, Frame.Width, Frame.Height);
+        
         // BGRA 데이터를 FColor 배열로 변환
         TArray<FColor> BGRAData;
         BGRAData.SetNum(Frame.Width * Frame.Height);
@@ -934,9 +950,14 @@ bool FSRTStreamWorker::SendFrameData()
         FEncodedFrame EncodedFrame;
         if (!Owner->VideoEncoder->EncodeFrame(BGRAData, EncodedFrame))
         {
-            UE_LOG(LogCineSRTStream, Warning, TEXT("Failed to encode frame"));
+            UE_LOG(LogCineSRTStream, Warning, TEXT("Failed to encode frame #%d"), Frame.FrameNumber);
             return false;
         }
+        
+        UE_LOG(LogCineSRTStream, VeryVerbose, TEXT("Encoded frame #%d: %d bytes, %s"), 
+            EncodedFrame.FrameNumber, 
+            EncodedFrame.Data.Num(),
+            EncodedFrame.bKeyFrame ? TEXT("KEY") : TEXT("DELTA"));
         
         // MPEG-TS 멀티플렉싱
         TArray<uint8> TSPackets;
@@ -951,8 +972,11 @@ bool FSRTStreamWorker::SendFrameData()
             return false;
         }
         
+        UE_LOG(LogCineSRTStream, VeryVerbose, TEXT("Generated %d TS packets (%d bytes)"), 
+            TSPackets.Num() / 188, TSPackets.Num());
+        
         // TS 패킷 전송
-        const int ChunkSize = 1316; // SRT 최적 청크 크기
+        const int ChunkSize = 1316; // SRT 최적 청크 크기 (7 TS packets)
         const uint8* DataPtr = TSPackets.GetData();
         int32 TotalSize = TSPackets.Num();
         int32 BytesSent = 0;
@@ -965,23 +989,7 @@ bool FSRTStreamWorker::SendFrameData()
             if (sent < 0)
             {
                 const char* error = SRTNetwork::GetLastError();
-                if (strstr(error, "6002") || strstr(error, "no buffer available"))
-                {
-                    Owner->DroppedFrames++;
-                    continue;
-                }
-                
-                if (strstr(error, "Connection was broken") || strstr(error, "Invalid socket ID"))
-                {
-                    UE_LOG(LogCineSRTStream, Warning, TEXT("Connection lost, attempting reconnect..."));
-                    HandleDisconnection();
-                    return false;
-                }
-                
-                if (!Owner->bStopRequested && !bShouldExit)
-                {
-                    UE_LOG(LogCineSRTStream, Error, TEXT("Send failed: %s"), UTF8_TO_TCHAR(error));
-                }
+                UE_LOG(LogCineSRTStream, Error, TEXT("Send failed: %s"), UTF8_TO_TCHAR(error));
                 return false;
             }
             BytesSent += sent;
@@ -990,91 +998,20 @@ bool FSRTStreamWorker::SendFrameData()
         if (BytesSent == TotalSize)
         {
             Owner->TotalFramesSent++;
-            UE_LOG(LogCineSRTStream, VeryVerbose, TEXT("Sent encoded frame #%d: %d bytes (TS packets)"), 
-                Owner->TotalFramesSent, TotalSize);
+            
+            // 매 30프레임마다 상태 출력
+            if (Owner->TotalFramesSent % 30 == 0)
+            {
+                UE_LOG(LogCineSRTStream, Log, TEXT("Streaming status: %d frames sent, %d bytes total"), 
+                    Owner->TotalFramesSent, BytesSent);
+            }
+            
             return true;
         }
     }
     else
     {
-        // Fallback: 기존 Raw 데이터 전송 (Phase 2 호환성)
-        struct FrameHeader
-        {
-            uint32 Magic = 0x53525446;
-            uint32 Width;
-            uint32 Height;
-            uint32 PixelFormat = 1;
-            uint32 DataSize;
-            uint64 Timestamp;
-            uint32 FrameNumber;
-        };
-        
-        FrameHeader Header;
-        Header.Width = Frame.Width;
-        Header.Height = Frame.Height;
-        Header.DataSize = Frame.Data.Num();
-        Header.Timestamp = FPlatformTime::Cycles64();
-        Header.FrameNumber = Owner->TotalFramesSent + 1;
-        
-        int sent = SRTNetwork::Send(SRTSocket, (char*)&Header, sizeof(Header));
-        if (sent < 0)
-        {
-            const char* error = SRTNetwork::GetLastError();
-            if (strstr(error, "6002") || strstr(error, "no buffer available"))
-            {
-                Owner->DroppedFrames++;
-                return false;
-            }
-            
-            if (strstr(error, "Connection was broken") || strstr(error, "Invalid socket ID"))
-            {
-                UE_LOG(LogCineSRTStream, Warning, TEXT("Connection lost, attempting reconnect..."));
-                HandleDisconnection();
-                return false;
-            }
-            
-            if (!Owner->bStopRequested && !bShouldExit)
-            {
-                UE_LOG(LogCineSRTStream, Error, TEXT("Send failed: %s"), UTF8_TO_TCHAR(error));
-            }
-            return false;
-        }
-        
-        FPlatformProcess::Sleep(0.001f); // 1ms 대기
-        
-        const int ChunkSize = 1316;
-        const uint8* DataPtr = Frame.Data.GetData();
-        int32 TotalSize = Frame.Data.Num();
-        int32 BytesSent = 0;
-        
-        while (BytesSent < TotalSize && !Owner->bStopRequested && !bShouldExit)
-        {
-            int32 ToSend = FMath::Min(ChunkSize, TotalSize - BytesSent);
-            sent = SRTNetwork::Send(SRTSocket, (char*)(DataPtr + BytesSent), ToSend);
-            if (sent < 0)
-            {
-                const char* error = SRTNetwork::GetLastError();
-                if (strstr(error, "6002") || strstr(error, "no buffer available"))
-                {
-                    Owner->DroppedFrames++;
-                    continue;
-                }
-                if (!Owner->bStopRequested && !bShouldExit)
-                {
-                    UE_LOG(LogCineSRTStream, Error, TEXT("Send failed: %s"), UTF8_TO_TCHAR(error));
-                }
-                return false;
-            }
-            BytesSent += sent;
-        }
-        
-        if (BytesSent == TotalSize)
-        {
-            Owner->TotalFramesSent++;
-            UE_LOG(LogCineSRTStream, VeryVerbose, TEXT("Sent raw frame #%d: %d bytes"), 
-                Owner->TotalFramesSent, TotalSize);
-            return true;
-        }
+        UE_LOG(LogCineSRTStream, Warning, TEXT("VideoEncoder or TransportStream is null"));
     }
     
     return false;

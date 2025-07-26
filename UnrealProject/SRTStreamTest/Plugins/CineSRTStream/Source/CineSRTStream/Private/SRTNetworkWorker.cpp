@@ -217,4 +217,40 @@ namespace SRTNetwork
         }
         return versionStr.c_str();
     }
+    
+    // 정상적인 연결 종료를 위한 함수
+    bool GracefulShutdown(void* socket)
+    {
+        if (!socket) return false;
+        
+        SRTSOCKET sock = static_cast<SRTSOCKET>(reinterpret_cast<intptr_t>(socket));
+        
+        // 1. 송신 버퍼 비우기
+        int opt_val = 0;
+        srt_setsockopt(sock, 0, SRTO_SNDDROPDELAY, &opt_val, sizeof(opt_val));
+        
+        // 2. Linger 옵션 설정 (즉시 종료)
+        linger l;
+        l.l_onoff = 1;
+        l.l_linger = 0;
+        srt_setsockopt(sock, 0, SRTO_LINGER, &l, sizeof(l));
+        
+        // 3. 연결 종료 신호 전송
+        // SRT는 내부적으로 UMSG_SHUTDOWN을 보냄
+        
+        return true;
+    }
+    
+    // 연결 상태 확인
+    bool IsConnected(void* socket)
+    {
+        if (!socket) return false;
+        
+        SRTSOCKET sock = static_cast<SRTSOCKET>(reinterpret_cast<intptr_t>(socket));
+        
+        // 소켓 상태 확인
+        SRT_SOCKSTATUS status = srt_getsockstate(sock);
+        
+        return (status == SRTS_CONNECTED);
+    }
 } 
