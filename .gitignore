@@ -14,7 +14,7 @@
 *.VC.opendb
 
 # Unreal Engine generated files
-Binaries/
+# Binaries/  # 주석 처리 - 플러그인 바이너리 포함을 위해
 DerivedDataCache/
 Intermediate/
 Saved/
@@ -82,6 +82,11 @@ bld/
 !/UnrealProject/SRTStreamTest/Plugins/CineSRTStream/ThirdParty/**/*.dll
 !/UnrealProject/SRTStreamTest/Plugins/CineSRTStream/ThirdParty/**/*.h
 !/UnrealProject/SRTStreamTest/Plugins/CineSRTStream/ThirdParty/**/*.hpp
+
+# 플러그인 바이너리 폴더 포함 (FFmpeg DLL들)
+!/UnrealProject/SRTStreamTest/Plugins/CineSRTStream/Binaries/**/*.dll
+!/UnrealProject/SRTStreamTest/Plugins/CineSRTStream/Binaries/**/*.lib
+!/UnrealProject/SRTStreamTest/Plugins/CineSRTStream/Binaries/**/*.pdb
 
 # BuildTools 폴더의 빌드된 라이브러리도 포함
 !/BuildTools/OpenSSL/install/**
@@ -152,7 +157,5 @@ $RECYCLE.BIN/
 # =========================
 # Git LFS 관련
 # =========================
-# 큰 라이브러리 파일들은 Git LFS로 관리
-*.lib
-*.dll
-*.pdb 
+# 큰 라이브러리 파일들은 Git LFS로 관리 (일반적인 경우)
+# 하지만 플러그인 바이너리는 위에서 명시적으로 포함됨 
